@@ -1,20 +1,18 @@
 import urllib
-from flask import Flask, request, jsonify, stream_with_context  # , render_template
-# import json
-# from bson.objectid import ObjectId
+from flask import Flask, request  # , jsonify, stream_with_context  # , render_template
 from flask_cors import CORS
-# import yaml
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 import bson.json_util as json_util
-# import requests
-# from requests_html import HTMLSession
 import json
 import html_responses
 from logging.config import dictConfig
-
-# mongodb data api key: cGdNPmHgqm5MwWIrS9hgDPbUTl0GK38e9pPSbYAnYwwARTuC6A6v4veLUG9eRUq5
-# bryce-ea-eye password: nyDPeA2WcbpDmAJG
+import os
+# import json
+# from bson.objectid import ObjectId
+# import yaml
+# import requests
+# from requests_html import HTMLSession
 
 dictConfig({
     'version': 1,
@@ -32,19 +30,19 @@ dictConfig({
     }
 })
 
-DIRECT_USERNAME = 'brucetopher'
-DIRECT_PASSWORD = 'wordpassword'
-TONY_USERNAME = 'tony'
-
 app = Flask(__name__)
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
-db_username = urllib.parse.quote_plus('bryce-ea-eye')
-db_password = urllib.parse.quote_plus('nyDPeA2WcbpDmAJG')
-uri = "mongodb+srv://%s:%s@cluster0.umgaluo.mongodb.net/?retryWrites=true&w=majority" % (db_username, db_password)
+db_username = urllib.parse.quote_plus(os.environ['DB_USERNAME'])
+db_password = urllib.parse.quote_plus(os.environ['DB_PASSWORD'])
+db_uri = os.environ['DB_URI'] % (db_username, db_password)
+
+DIRECT_USERNAME = os.environ['URL_DIRECT_USERNAME']
+DIRECT_PASSWORD = os.environ['URL_DIRECT_PASSWORD']
+TONY_USERNAME = os.environ['TONY_DIRECT_USERNAME']
 
 # Create a new client and connect to the server
-client = MongoClient(uri, server_api=ServerApi('1'))
+client = MongoClient(db_uri, server_api=ServerApi('1'))
 db = client.ea_eye
 
 # Send a ping to confirm a successful connection
