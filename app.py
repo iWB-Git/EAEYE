@@ -109,7 +109,7 @@ def clear_db_docs(collection, username, password):
             'status': 'failure',
             'description': 'invalid credentials'
         }
-        return response, 405
+        return response, 404
 
 
 @app.route('/api/v1/upload-match-data/<data>', methods=['POST'])
