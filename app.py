@@ -70,6 +70,13 @@ def insert_player_data(players):
     db_players.insert_many(players)
 
 
+@app.route('/')
+def index():
+    html = '<h1>EA Eye API</h1>' \
+           '<p>Please contact administrator for access</p>'
+    return html
+
+
 @app.route('/api/v1/clear-collection/<collection>/<username>/<password>', methods=['DELETE'])
 def clear_db_docs(collection, username, password):
     if not request.method == 'DELETE':
