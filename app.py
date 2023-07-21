@@ -1,5 +1,5 @@
 import urllib
-from flask import Flask, request, jsonify, stream_with_context  # , render_template
+from flask import Flask, request  # , jsonify, stream_with_context, render_template
 # import json
 # from bson.objectid import ObjectId
 from flask_cors import CORS
@@ -12,9 +12,7 @@ import bson.json_util as json_util
 import json
 import html_responses
 from logging.config import dictConfig
-
-# mongodb data api key: cGdNPmHgqm5MwWIrS9hgDPbUTl0GK38e9pPSbYAnYwwARTuC6A6v4veLUG9eRUq5
-# bryce-ea-eye password: nyDPeA2WcbpDmAJG
+import config.config as config
 
 dictConfig({
     'version': 1,
@@ -32,18 +30,18 @@ dictConfig({
     }
 })
 
-DIRECT_USERNAME = 'bruce'
-DIRECT_PASSWORD = 'word'
-
 app = Flask(__name__)
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
-db_username = urllib.parse.quote_plus('bryce-ea-eye')
-db_password = urllib.parse.quote_plus('nyDPeA2WcbpDmAJG')
-uri = "mongodb+srv://%s:%s@cluster0.umgaluo.mongodb.net/?retryWrites=true&w=majority" % (db_username, db_password)
+# db_username = urllib.parse.quote_plus('bryce-ea-eye')
+# db_password = urllib.parse.quote_plus('nyDPeA2WcbpDmAJG')
+# uri = "mongodb+srv://%s:%s@cluster0.umgaluo.mongodb.net/?retryWrites=true&w=majority" % (db_username, db_password)
+DB_URI = config.ProdConfig.DB_URI % (config.ProdConfig.DB_USERNAME, config.ProdConfig.DB_PASSWORD)
+DIRECT_USERNAME = config.ProdConfig.DIRECT_URL_USERNAME
+DIRECT_PASSWORD = config.ProdConfig.DIRECT_URL_PASSWORD
 
 # Create a new client and connect to the server
-client = MongoClient(uri, server_api=ServerApi('1'))
+client = MongoClient(DB_URI, server_api=ServerApi('1'))
 db = client.ea_eye
 
 # Send a ping to confirm a successful connection
