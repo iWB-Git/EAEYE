@@ -34,6 +34,7 @@ dictConfig({
 
 DIRECT_USERNAME = 'brucetopher'
 DIRECT_PASSWORD = 'wordpassword'
+TONY_USERNAME = 'tony'
 
 app = Flask(__name__)
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
@@ -97,7 +98,7 @@ def index():
 def clear_db_docs(collection, username, password):
     if not request.method == 'DELETE':
         return html_responses.request_not_permitted, 405
-    elif username == DIRECT_USERNAME and password == DIRECT_PASSWORD:
+    elif (username == DIRECT_USERNAME or username == TONY_USERNAME) and password == DIRECT_PASSWORD:
         db[collection].delete_many({})
         response = {
             'status': 'success',
