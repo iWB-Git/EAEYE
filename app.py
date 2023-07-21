@@ -33,12 +33,15 @@ dictConfig({
 app = Flask(__name__)
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
-# db_username = urllib.parse.quote_plus('bryce-ea-eye')
-# db_password = urllib.parse.quote_plus('nyDPeA2WcbpDmAJG')
-# uri = "mongodb+srv://%s:%s@cluster0.umgaluo.mongodb.net/?retryWrites=true&w=majority" % (db_username, db_password)
-DB_URI = config.ProdConfig.DB_URI % (config.ProdConfig.DB_USERNAME, config.ProdConfig.DB_PASSWORD)
-DIRECT_USERNAME = config.ProdConfig.DIRECT_URL_USERNAME
-DIRECT_PASSWORD = config.ProdConfig.DIRECT_URL_PASSWORD
+DIRECT_USERNAME = 'brucetopher'
+DIRECT_PASSWORD = 'wordpassword'
+db_username = urllib.parse.quote_plus('bryce-ea-eye')
+db_password = urllib.parse.quote_plus('nyDPeA2WcbpDmAJG')
+uri = "mongodb+srv://%s:%s@cluster0.umgaluo.mongodb.net/?retryWrites=true&w=majority" % (db_username, db_password)
+# DB_URI = config.ProdConfig.DB_URI % (config.ProdConfig.DB_USERNAME, config.ProdConfig.DB_PASSWORD)
+# DIRECT_USERNAME = config.ProdConfig.DIRECT_URL_USERNAME
+# DIRECT_PASSWORD = config.ProdConfig.DIRECT_URL_PASSWORD
+# print(DB_URI)
 
 # Create a new client and connect to the server
 client = MongoClient(DB_URI, server_api=ServerApi('1'))
