@@ -12,7 +12,7 @@ import bson.json_util as json_util
 import json
 import html_responses
 from logging.config import dictConfig
-import config.config as config
+# import config.config as config
 
 dictConfig({
     'version': 1,
