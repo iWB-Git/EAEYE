@@ -111,12 +111,12 @@ def clear_db_docs(collection, username, password):
         return response, 404
 
 
-@app.route('/api/v1/upload-match-data/<data>', methods=['POST'])
-def upload_match_data(data):
+@app.route('/api/v1/upload-match-data/', methods=['POST'])
+def upload_match_data():
     if not request.method == 'POST':
         return html_responses.request_not_permitted, 405
     try:
-        data = json.loads(data)
+        data = json.loads(request.data)
         parse_match_data(data)
         result = {'status': 'success'}
         return result, 201
