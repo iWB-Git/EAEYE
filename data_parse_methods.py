@@ -1,5 +1,7 @@
 from app import db
 
+# TODO: clean/refactor all methods
+
 
 def parse_match_data(match_data):
     match_data_keys = list(match_data.keys())
