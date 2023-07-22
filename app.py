@@ -1,3 +1,4 @@
+import copy
 import urllib
 from flask import Flask  # , request, jsonify, stream_with_context, render_template
 from flask_cors import CORS
@@ -85,7 +86,7 @@ def upload_match_data(data):
 def get_all_player_data():
     docs = list(db.players.find({}, {'_id': 0}))
     to_bytes = json_util.dumps(docs)
-    response = success_200
+    response = copy.deepcopy(success_200)
     response['data'] = to_bytes
     return response, 200
 
