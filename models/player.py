@@ -25,9 +25,9 @@ class Player(Document):
     name = StringField(required=True)
     first_name = StringField()
     last_name = StringField()
-    age = IntField()
-    nationality = StringField()
-    jersey_num = IntField()
+    age = IntField(default=0)
+    nationality = StringField(default='none')
+    jersey_num = IntField(default=0)
     # stats = EmbeddedDocumentField(Stats)
     stats = {
         'goals': 0,
@@ -40,12 +40,12 @@ class Player(Document):
     teams_id = ListField(ReferenceField('Team', dbref=False))
     matches = ListField(ReferenceField('Match'))
 
-    def __init__(self, name, age, nationality, jersey_num, *args, **values):
+    def __init__(self, *args, **values):
         super().__init__(*args, **values)
-        self.name = name
-        self.age = age
-        self.nationality = nationality
-        self.jersey_num = jersey_num
+        self.name = values['name']
+        self.age = values['age']
+        self.nationality = values['nationality']
+        self.jersey_num = values['jersey_num']
         # self.team = team
         # self.matches = matches
 

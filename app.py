@@ -123,8 +123,9 @@ def get_all_player_data():
 
 
 if __name__ == '__main__':
-    match = match_data_upload.split_match_data(TEST_JSON)
-    db.matches.insert_one(match.to_dict())
+    # data_parse_methods.parse_match_data(TEST_JSON)
+    match_data_upload.split_match_data(TEST_JSON)
+    # db.matches.insert_one(match.to_dict())
     app.debug = False
     app.run()
 
