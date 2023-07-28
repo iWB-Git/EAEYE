@@ -7,6 +7,7 @@ from pymongo.server_api import ServerApi
 import bson.json_util as json_util
 import json
 import data_parse_methods
+import match_data_upload
 from html_responses import *
 from logging.config import dictConfig
 from models.player import Player
@@ -122,18 +123,34 @@ def get_all_player_data():
 
 
 if __name__ == '__main__':
-    team_a = Team('test_team_a')
-    db_team = db.teams.insert_one(team_a.to_dict())
-    player_a = Player('player_a', 0, 'player_natl_a', 0)
-    player_b = Player('player_b', 1, 'player_natl_b', 1)
-    db_players = db.players.insert_many([player_a.to_dict(), player_b.to_dict()])
-    db.teams.update_one({'name': 'test_team_a'}, {'$set': {'roster': db_players.inserted_ids}})
-    for _id in db_players.inserted_ids:
-        db.players.update_one({'_id': _id}, {'$addToSet': {'teams_id': db_team.inserted_id}})
-    players = db.players
-    player = players.find_one({'name': 'player_a'})
-    for key in player:
-        print('key: %s val: %s' % (key, player[key]))
+    match = match_data_upload.split_match_data(TEST_JSON)
+    db.matches.insert_one(match.to_dict())
+    app.debug = False
+    app.run()
+
+
+
+
+
+
+    # team_a = Team('test_team_a')
+    # db_team = db.teams.insert_one(team_a.to_dict())
+    # player_a = Player('player_a', 0, 'player_natl_a', 0)
+    # player_b = Player('player_b', 1, 'player_natl_b', 1)
+    # db_players = db.players.insert_many([player_a.to_dict(), player_b.to_dict()])
+    # db.teams.update_one({'name': 'test_team_a'}, {'$set': {'roster': db_players.inserted_ids}})
+    # for _id in db_players.inserted_ids:
+    #     db.players.update_one({'_id': _id}, {'$addToSet': {'teams_id': db_team.inserted_id}})
+    # players = db.players
+    # player = players.find_one({'name': 'player_a'})
+    # for key in player:
+    #     print('key: %s val: %s' % (key, player[key]))
+
+
+
+
+
+
     # team_a = Team('test_team_a')
     # player_a = Player('name_test_a', 0, 'natl_test_a', 0, team_a)
     # player_a.team = ObjectId(team_a.id)
@@ -152,5 +169,3 @@ if __name__ == '__main__':
     # print(found_team['roster'])
     # for player in found_team['roster']:
     #     print(player)
-    app.debug = False
-    app.run()
