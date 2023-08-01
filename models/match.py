@@ -4,7 +4,7 @@ from mongoengine import *
 class Match(Document):
     competition = StringField(required=True)
     year = StringField()
-    round = IntField()
+    round = StringField()
     fixture = IntField()
     competition_id = ReferenceField('Competition', dbref=False)
     teams_id = ListField(ReferenceField('Team', dbref=False))
