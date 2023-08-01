@@ -6,7 +6,7 @@ from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 import bson.json_util as json_util
 import json
-import data_parse_methods
+# import data_parse_methods
 import match_data_upload
 from html_responses import *
 from logging.config import dictConfig
@@ -91,7 +91,7 @@ def clear_db_docs(collection, username, password):
     else:
         return ERROR_404
 
-      
+
 # endpoint to upload match data
 # verifies the data's formatting then parses and uploads to MongoDB
 # <data>: the data to be uploaded in JSON format
@@ -102,7 +102,7 @@ def upload_match_data():
     # else: return 400 BAD REQUEST error
     try:
         data = json.loads(request.data)
-        data_parse_methods.parse_match_data(data)
+        match_data_upload.split_match_data(data)
         return SUCCESS_201
     except Exception as err:
         print('ERROR LOADING MATCH DATA: ' + str(err))
@@ -123,50 +123,5 @@ def get_all_player_data():
 
 
 if __name__ == '__main__':
-    # data_parse_methods.parse_match_data(TEST_JSON)
-    # match_data_upload.split_match_data(TEST_JSON)
-    # db.matches.insert_one(match.to_dict())
     app.debug = False
     app.run()
-
-
-
-
-
-
-    # team_a = Team('test_team_a')
-    # db_team = db.teams.insert_one(team_a.to_dict())
-    # player_a = Player('player_a', 0, 'player_natl_a', 0)
-    # player_b = Player('player_b', 1, 'player_natl_b', 1)
-    # db_players = db.players.insert_many([player_a.to_dict(), player_b.to_dict()])
-    # db.teams.update_one({'name': 'test_team_a'}, {'$set': {'roster': db_players.inserted_ids}})
-    # for _id in db_players.inserted_ids:
-    #     db.players.update_one({'_id': _id}, {'$addToSet': {'teams_id': db_team.inserted_id}})
-    # players = db.players
-    # player = players.find_one({'name': 'player_a'})
-    # for key in player:
-    #     print('key: %s val: %s' % (key, player[key]))
-
-
-
-
-
-
-    # team_a = Team('test_team_a')
-    # player_a = Player('name_test_a', 0, 'natl_test_a', 0, team_a)
-    # player_a.team = ObjectId(team_a.id)
-    # player_b = Player('name_test_b', 1, 'natl_test_b', 1, team_a)
-    # player_b.team = ObjectId(team_a.id)
-    # team_a.roster = [ObjectId(player_a.id), ObjectId(player_b.id)]
-    # db.teams.insert_one(team_a.to_dict())
-    # db.players.insert_one(player_b.to_dict())
-    # db.players.insert_one(player_a.to_dict())
-    # found_team = db.teams.find_one({'name': 'test_team_a'})
-    # found_player = db.players.find_one({'name': 'name_test_a'})
-    # print(found_player)
-    # found_player_0 = db.players.find_one({'_id': found_player['_id']})
-    # print('found_player_0')
-    # print(found_player_0)
-    # print(found_team['roster'])
-    # for player in found_team['roster']:
-    #     print(player)
