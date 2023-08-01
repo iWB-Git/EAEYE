@@ -3,7 +3,7 @@ from mongoengine import *
 
 class Match(Document):
     competition = StringField(required=True)
-    year = IntField()
+    year = StringField()
     round = IntField()
     fixture = IntField()
     competition_id = ReferenceField('Competition', dbref=False)
