@@ -5,7 +5,7 @@ class Match(Document):
     competition = StringField(required=True)
     year = StringField()
     round = StringField()
-    fixture = IntField()
+    fixture = StringField()
     competition_id = ReferenceField('Competition', dbref=False)
     teams_id = ListField(ReferenceField('Team', dbref=False))
 

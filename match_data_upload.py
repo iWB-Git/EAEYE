@@ -106,7 +106,7 @@ def create_match_doc(comp_data):
     name = comp_data[data_keys[0]]
     year = comp_data[data_keys[1]]
     round = comp_data[data_keys[2]]
-    fixture = int(comp_data[data_keys[3]])
+    fixture = comp_data[data_keys[3]]
     db_matches = list(app.db.matches.find({'competition': name, 'year': year, 'round': round, 'fixture': fixture}))
     if len(db_matches) == 0:
         match = Match(name, year, round, fixture)
