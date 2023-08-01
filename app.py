@@ -91,7 +91,7 @@ def clear_db_docs(collection, username, password):
     else:
         return ERROR_404
 
-
+      
 # endpoint to upload match data
 # verifies the data's formatting then parses and uploads to MongoDB
 # <data>: the data to be uploaded in JSON format
@@ -124,7 +124,7 @@ def get_all_player_data():
 
 if __name__ == '__main__':
     # data_parse_methods.parse_match_data(TEST_JSON)
-    match_data_upload.split_match_data(TEST_JSON)
+    # match_data_upload.split_match_data(TEST_JSON)
     # db.matches.insert_one(match.to_dict())
     app.debug = False
     app.run()
