@@ -3,6 +3,7 @@ import pymongo.results
 import app
 from models.match import Match
 from models.player import Player
+from models.player import Goal
 
 insert_one_res = pymongo.results.InsertOneResult
 
@@ -30,6 +31,8 @@ def split_match_data(match_data):
     team_one_player_docs = create_player_docs(team_one_players)
     team_two_player_docs = create_player_docs(team_two_players)
 
+    update_player_stats(team_one_players, match_doc)
+
     check_player_team_relation(team_one_player_docs, team_one_doc)
     check_player_team_relation(team_two_player_docs, team_two_doc)
 
@@ -38,6 +41,49 @@ def split_match_data(match_data):
 
     check_player_match_relation(team_one_player_docs, match_doc)
     check_player_match_relation(team_two_player_docs, match_doc)
+
+
+# TODO: calculate name (x), jersey number (x), min_played (X) both as starter and as sub, goals, goal_mins
+def update_player_stats(player_data, match_doc):
+    min_played = 0
+    match_id = get_doc_id(match_doc)
+    for squad in player_data:
+        for player in player_data[squad]:
+
+            if 'YES' not in player['matchDaySquad']:
+                continue
+            new_goals = []
+            db_player = app.db.players.find_one({'name': player['Name']})
+
+            if not db_player:
+                pass
+                # TODO: code for inserting new player as db_player
+            else:
+                if not db_player['jersey_num'] == player['JerseyNumber']:
+                    jersey_num = player['JerseyNumber']
+                    # db_player['jersey_num'] = player['JerseyNumber']
+
+            starter = True if player['starter'] == 'YES' else False
+            sub = True if player['substitute'] == 'YES' else False
+
+            if starter:
+                min_played = 90 if player['SubOut'] == 'NO' else int(player['SubMinute'])
+            elif sub:
+                min_played = 90 - int(player['SubMinute']) if player['SubIn'] == 'YES' else 0
+
+            if player['Goal']:
+                for i in range(0, int(player['Goal'])):
+                    new_goals.append(Goal(minute=player['GoalMinute'].split(',')[i], match_id=match_id).to_mongo())
+                app.db.players.update_one({'_id': db_player['_id']}, {'$addToSet': {'stats.goals': new_goals}})
+            player_stats = app.db.players.find_one({'_id': db_player['_id']})['stats']
+            player_stats['min_played'] += min_played
+            # player_stats['goals'].append(new_goals)
+            player_stats['match_day_squad'] += 1
+            if starter:
+                player_stats['starter_minutes'] += min_played
+            elif sub:
+                player_stats['sub_minutes'] += min_played
+            print(player_stats)
 
 
 def check_team_match_relation(team_doc, match_doc):
@@ -85,7 +131,8 @@ def create_player_docs(players_data):
                 if db_player:
                     player_docs.append(db_player)
                 else:
-                    new_player = Player(name=player_name, age=None, nationality=None, jersey_num=None)
+                    new_player = Player(name=player_name, birth_year=None, nationality=None,
+                                        jersey_num=player['JerseyNumber'])
                     player_docs.append(app.db.players.insert_one(new_player.to_mongo()))
 
     return player_docs
