@@ -16,11 +16,3 @@ class Match(Document):
         self.round = round
         self.fixture = fixture
         self.teams_id = []
-
-    def to_dict(self):
-        return {
-            'competition': self.competition,
-            'year': self.year,
-            'round': self.round,
-            'fixture': self.fixture
-        }

@@ -134,6 +134,6 @@ def get_all_player_data():
 
 
 if __name__ == '__main__':
-    # match_data_upload.split_match_data(TEST_JSON_LONG)
+    match_data_upload.split_match_data(TEST_JSON_LONG)
     app.debug = False
     app.run()

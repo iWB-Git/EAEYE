@@ -7,6 +7,7 @@ from models.match import Match
 from models.player import Player
 from models.player import Goal
 from models.player import Stats
+from models.team import Team
 
 insert_one_res = pymongo.results.InsertOneResult
 
@@ -92,9 +93,9 @@ def update_player_stats(team_data, match_doc):
 def check_team_match_relation(team_doc, match_doc):
     team_id = get_doc_id(team_doc)
     match_id = get_doc_id(match_doc)
-    if team_id not in app.db.matches.find_one(match_id):
+    if team_id not in app.db.matches.find_one(match_id)['teams_id']:
         app.db.matches.update_one({'_id': match_id}, {'$addToSet': {'teams_id': team_id}})
-    if match_id not in app.db.teams.find_one(team_id):
+    if match_id not in app.db.teams.find_one(team_id)['matches']:
         app.db.teams.update_one({'_id': team_id}, {'$addToSet': {'matches': match_id}})
 
 
@@ -146,7 +147,8 @@ def create_team_doc(team_data):
     team_name = team_data[data_keys[0]]
     db_team = app.db.teams.find_one({'name': team_name})
     if not db_team:
-        return app.db.teams.insert_one({'name': team_name})
+        team = Team(name=team_name, roster=None, matches=None)
+        return app.db.teams.insert_one(team.to_mongo())
     else:
         return db_team
 
