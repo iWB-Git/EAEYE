@@ -13,6 +13,7 @@ class Goal(EmbeddedDocument):
 
 class Stats(EmbeddedDocument):
     match_day_squad = IntField(default=0)
+    starter = IntField(default=0)
     min_played = IntField(default=0)
     starter_minutes = IntField(default=0)
     sub_minutes = IntField(default=0)
@@ -26,7 +27,7 @@ class Stats(EmbeddedDocument):
         super().__init__(*args, **kwargs)
 
 
-class Player(Document):
+class Player(DynamicDocument):
     name = StringField(required=True)
     first_name = StringField()
     last_name = StringField()
