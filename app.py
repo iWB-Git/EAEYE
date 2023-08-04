@@ -122,10 +122,14 @@ def get_collection(collection):
 
 @app.route('/api/v1/get-document/<collection>/<_id>', methods=['GET'])
 def get_document(collection, _id):
-    to_bytes = json_util.dumps(db[collection].find_one({'_id': _id}))
-    response = copy.deepcopy(SUCCESS_200)
-    response[0]['data'] = to_bytes
-    return response
+    doc = db[collection].find_one({'_id': ObjectId(_id)})
+    if doc:
+        to_bytes = json_util.dumps(doc)
+        response = copy.deepcopy(SUCCESS_200)
+        response[0]['data'] = to_bytes
+        return response
+    else:
+        return ERROR_404
 
 
 # endpoint to retrieve all documents in the players collection
