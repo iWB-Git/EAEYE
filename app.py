@@ -113,7 +113,7 @@ def upload_match_data():
 
 @app.route('/api/v1/get-collection/<collection>', methods=['GET'])
 def get_collection(collection):
-    docs = list(db[collection].find({}, {'_id': 0}))
+    docs = list(db[collection].find({}))
     to_bytes = json_util.dumps(docs)
     response = copy.deepcopy(SUCCESS_200)
     response[0]['data'] = to_bytes
