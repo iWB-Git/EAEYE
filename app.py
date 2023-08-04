@@ -120,7 +120,7 @@ def get_collection(collection):
     return response
 
 
-@app.route('/api/v1/get-document/<collection>/<_id>')
+@app.route('/api/v1/get-document/<collection>/<_id>', methods=['GET'])
 def get_document(collection, _id):
     to_bytes = json_util.dumps(db[collection].find_one({'_id': _id}))
     response = copy.deepcopy(SUCCESS_200)
