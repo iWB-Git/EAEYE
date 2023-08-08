@@ -68,15 +68,6 @@ def append_data(document, html_response):
     response = copy.deepcopy(html_response)
     response[0]['data'] = to_bytes
     return response
-# Create a new client and connect to the server
-# client = MongoClient(db_uri, server_api=ServerApi('1'))
-# db = client.ea_eye
-# # Send a ping to confirm a successful connection
-# try:
-#     client.admin.command('ping')
-#     print("Pinged your deployment. You successfully connected to MongoDB!")
-# except Exception as e:
-#     print(e)
 
 
 # brief landing page if someone somehow ends up on the API's home page
@@ -90,7 +81,7 @@ def index():
 # <collection>: collection to clear
 # <username>: dev's provided username
 # <password>: dev's provided password
-@app.route('/api/v1/clear-collection/<collection>/<username>/<password>/CONFIRM', methods=['DELETE'])
+@app.route('/api/v1/clear-collection/<collection>/<username>/<password>/CONFIRM/YES', methods=['DELETE'])
 def clear_db_docs(collection, username, password):
     # check if credentials match a developer's credentials
     # if yes: clear <collection>
@@ -123,23 +114,12 @@ def upload_match_data():
 def get_collection(collection):
     docs = list(db[collection].find({}))
     return append_data(docs, SUCCESS_200)
-    # to_bytes = json_util.dumps(docs)
-    # response = copy.deepcopy(SUCCESS_200)
-    # response[0]['data'] = to_bytes
-    # return response
 
 
 @app.route('/api/v1/get-document/<collection>/<_id>', methods=['GET'])
 def get_document(collection, _id):
     doc = db[collection].find_one({'_id': ObjectId(_id)})
     return append_data(doc, SUCCESS_200) if doc else ERROR_404
-    # if doc:
-    #     to_bytes = json_util.dumps(doc)
-    #     response = copy.deepcopy(SUCCESS_200)
-    #     response[0]['data'] = to_bytes
-    #     return response
-    # else:
-    #     return ERROR_404
 
 
 @app.route('/api/v1/get-document/<collection>/name/<name>', methods=['GET'])
@@ -155,16 +135,8 @@ def get_all_player_data():
     # get list of all players in player collection and format into bytes for JSON response
     docs = list(db.players.find({}, {'_id': 0}))
     return append_data(docs, SUCCESS_200)
-    # to_bytes = json_util.dumps(docs)
-
-    # append JSON byte data to JSON response
-    # response = copy.deepcopy(SUCCESS_200)
-    # response[0]['data'] = to_bytes
-    # return response
 
 
 if __name__ == '__main__':
-    # match_data_upload.split_match_data(TEST_JSON_LONG)
-    # read_csv()
     app.debug = False
     app.run()
