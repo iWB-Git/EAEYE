@@ -90,7 +90,7 @@ def index():
 # <collection>: collection to clear
 # <username>: dev's provided username
 # <password>: dev's provided password
-@app.route('/api/v1/clear-collection/<collection>/<username>/<password>', methods=['DELETE'])
+@app.route('/api/v1/clear-collection/<collection>/<username>/<password>/CONFIRM', methods=['DELETE'])
 def clear_db_docs(collection, username, password):
     # check if credentials match a developer's credentials
     # if yes: clear <collection>
@@ -122,10 +122,11 @@ def upload_match_data():
 @app.route('/api/v1/get-collection/<collection>', methods=['GET'])
 def get_collection(collection):
     docs = list(db[collection].find({}))
-    to_bytes = json_util.dumps(docs)
-    response = copy.deepcopy(SUCCESS_200)
-    response[0]['data'] = to_bytes
-    return response
+    return append_data(docs, SUCCESS_200)
+    # to_bytes = json_util.dumps(docs)
+    # response = copy.deepcopy(SUCCESS_200)
+    # response[0]['data'] = to_bytes
+    # return response
 
 
 @app.route('/api/v1/get-document/<collection>/<_id>', methods=['GET'])
@@ -153,12 +154,13 @@ def get_document_by_name(collection, name):
 def get_all_player_data():
     # get list of all players in player collection and format into bytes for JSON response
     docs = list(db.players.find({}, {'_id': 0}))
-    to_bytes = json_util.dumps(docs)
+    return append_data(docs, SUCCESS_200)
+    # to_bytes = json_util.dumps(docs)
 
     # append JSON byte data to JSON response
-    response = copy.deepcopy(SUCCESS_200)
-    response[0]['data'] = to_bytes
-    return response
+    # response = copy.deepcopy(SUCCESS_200)
+    # response[0]['data'] = to_bytes
+    # return response
 
 
 if __name__ == '__main__':
