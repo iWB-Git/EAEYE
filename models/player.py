@@ -31,7 +31,7 @@ class Player(DynamicDocument):
     name = StringField(required=True)
     first_name = StringField()
     last_name = StringField()
-    birth_year = IntField(default=2000)
+    dob = StringField()
     nationality = StringField(default='none')
     jersey_num = IntField(default=0)
     stats = EmbeddedDocumentField(Stats)
@@ -41,9 +41,9 @@ class Player(DynamicDocument):
     def __init__(self, *args, **values):
         super().__init__(*args, **values)
         self.name = values['name']
-        self.first_name = self.name.split()[0]
-        self.last_name = self.name.split()[1]
-        self.birth_year = values['birth_year']
+        # self.first_name = self.name.split()[0]
+        # self.last_name = self.name.split()[1]
+        self.dob = values['dob']
         self.nationality = values['nationality']
         self.jersey_num = values['jersey_num']
         self.stats = Stats().to_mongo()
