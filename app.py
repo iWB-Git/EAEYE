@@ -120,6 +120,8 @@ def upload_match_data():
 
 @app.route('/api/v1/get-collection/<collection>', methods=['GET'])
 def get_collection(collection):
+    if collection not in db.list_collection_names():
+        return edit_html_desc(ERROR_404, 'Specified collection does not exist.')
     docs = list(db[collection].find({}))
     return append_data(docs, SUCCESS_200)
 
