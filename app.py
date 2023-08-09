@@ -1,5 +1,7 @@
 import copy
 import urllib
+
+import bson
 from flask import Flask, request  # , jsonify, stream_with_context, render_template
 from flask_cors import CORS
 from pymongo.mongo_client import MongoClient
@@ -63,11 +65,17 @@ db = mongoengine.connect(alias='default', host=db_uri)
 db = db.ea_eye
 
 
-def append_data(document, html_response):
-    to_bytes = json_util.dumps(document)
+def append_data(data, html_response):
+    to_bytes = json_util.dumps(data)
     response = copy.deepcopy(html_response)
     response[0]['data'] = to_bytes
     return response
+
+
+def edit_html_desc(html_response, new_desc):
+    new_response = copy.deepcopy(html_response)
+    new_response[0]['Description'] = new_desc
+    return new_response
 
 
 # brief landing page if someone somehow ends up on the API's home page
@@ -105,8 +113,8 @@ def upload_match_data():
         data = json.loads(request.data)
         match_data_upload.split_match_data(data)
         return SUCCESS_201
-    except Exception as err:
-        print('ERROR LOADING MATCH DATA: ' + str(err))
+    except Exception as e:
+        print('ERROR LOADING MATCH DATA: ' + str(e))
         return ERROR_400
 
 
@@ -118,13 +126,16 @@ def get_collection(collection):
 
 @app.route('/api/v1/get-document/<collection>/<_id>', methods=['GET'])
 def get_document(collection, _id):
-    doc = db[collection].find_one({'_id': ObjectId(_id)})
-    return append_data(doc, SUCCESS_200) if doc else ERROR_404
+    try:
+        doc = db[collection].find_one({'_id': ObjectId(_id)})
+        return append_data(doc, SUCCESS_200) if doc else ERROR_404
+    except Exception as e:
+        return edit_html_desc(ERROR_400, str(e))
 
 
 @app.route('/api/v1/get-document/<collection>/name/<name>', methods=['GET'])
 def get_document_by_name(collection, name):
-    # doc = db[collection].find({name: {'$regex': '^name$', '$options': 'i'}})
+    # doc = db[collection].find({'name': {'$regex': '/^name$/i'}})
     doc = db[collection].find_one({'name': name})
     return append_data(doc, SUCCESS_200) if doc else ERROR_404
 
@@ -133,17 +144,36 @@ def get_document_by_name(collection, name):
 @app.route('/api/v1/get-player-data/all', methods=['GET'])
 def get_all_player_data():
     # get list of all players in player collection and format into bytes for JSON response
-    docs = list(db.players.find({}, {'_id': 0}))
-    return append_data(docs, SUCCESS_200)
+    # docs = list(db.players.find({}, {'_id': 0}))
+    # return append_data(docs, SUCCESS_200)
+    return edit_html_desc(ERROR_404, 'Outdated endpoint. Please use \'/api/v1/get-collection/<collection>\' to access '
+                                     'all data from a given collection.')
 
 
 @app.route('/api/v1/get-roster/<team_id>', methods=['GET'])
 def get_roster(team_id):
-    players = []
-    roster = db.teams.find_one({'_id': ObjectId(team_id)})['roster']
-    for player_id in roster:
-        players.append(db.players.find_one({'_id': ObjectId(player_id)}))
-    return append_data(players, SUCCESS_200)
+    try:
+        team = db.teams.find_one({'_id': ObjectId(team_id)})
+        if not team:
+            return edit_html_desc(ERROR_404, 'ID not found in teams collection. Check your OID and try again.')
+        roster = team['roster']
+        players = db.players.find({'_id': {'$in': roster}})
+        return append_data(players, SUCCESS_200)
+    except Exception as e:
+        return edit_html_desc(ERROR_400, str(e))
+
+
+@app.route('/api/v1/get-teams/<comp_id>', methods=['GET'])
+def get_teams_from_comp(comp_id):
+    try:
+        competition = db.competitions.find_one({'_id': ObjectId(comp_id)})
+        if not competition:
+            return edit_html_desc(ERROR_404, 'ID not found in competitions collection. Check your OID and try again.')
+        team_ids = competition['teams']
+        teams = db.teams.find({'_id': {'$in': team_ids}})
+        return append_data(teams, SUCCESS_200)
+    except Exception as e:
+        return edit_html_desc(ERROR_400, str(e))
 
 
 if __name__ == '__main__':
