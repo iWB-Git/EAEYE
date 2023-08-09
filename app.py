@@ -137,6 +137,15 @@ def get_all_player_data():
     return append_data(docs, SUCCESS_200)
 
 
+@app.route('/api/v1/get-roster/<team_id>', methods=['GET'])
+def get_roster(team_id):
+    players = []
+    roster = db.teams.find_one({'_id': ObjectId(team_id)})['roster']
+    for player_id in roster:
+        players.append(db.players.find_one({'_id': ObjectId(player_id)}))
+    return append_data(players, SUCCESS_200)
+
+
 if __name__ == '__main__':
     app.debug = False
     app.run()
