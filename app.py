@@ -194,6 +194,8 @@ def update_player(collection):
         updated_doc = db[collection].find_one({'_id': ObjectId(new_doc['_id'])})
         return append_data(updated_doc, SUCCESS_200)
     except Exception as e:
+        print('here3')
+        print(e.__traceback__)
         return edit_html_desc(ERROR_400, str(e))
 
 
