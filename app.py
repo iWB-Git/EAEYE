@@ -176,7 +176,23 @@ def update_player(collection):
         for key in new_doc:
             if not new_doc[key] == db_doc[key]:
                 new_values[key] = new_doc[key]
-        db[collection].update_one({'_id': ObjectId(new_doc['_id'])}, {'$set': new_values})
+        update_result = db[collection].update_one({'_id': ObjectId(new_doc['_id'])}, {'$set': new_values})
+        print('here0')
+        print(update_result)
+
+        try:
+            print('here1')
+            print(update_result.raw_result)
+        except Exception as e:
+            print(e)
+        try:
+            print('here2')
+            print(update_result['raw_result'])
+        except Exception as e:
+            print(e)
+
+        updated_doc = db[collection].find_one({'_id': ObjectId(new_doc['_id'])})
+        return append_data(updated_doc, SUCCESS_200)
     except Exception as e:
         return edit_html_desc(ERROR_400, str(e))
 
