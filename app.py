@@ -181,6 +181,8 @@ def update_player(collection):
         print('here3')
         new_values = {}
         for key in new_doc:
+            if key == '_id':
+                continue
             if not new_doc[key] == db_doc[key]:
                 new_values[key] = new_doc[key]
         print('here4')
