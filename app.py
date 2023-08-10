@@ -193,15 +193,12 @@ def update_player(collection):
         try:
             print('here6')
             print(update_result.raw_result)
-        except Exception as e:
-            print(e)
-        try:
             print('here7')
-            print(update_result['raw_result'])
+            print(update_result)
         except Exception as e:
             print(e)
 
-        updated_doc = db[collection].find_one({'_id': ObjectId(new_doc['_id'])})
+        updated_doc = db[collection].find_one({'_id': ObjectId(_id)})
         print('here8')
         return append_data(updated_doc, SUCCESS_200)
     except Exception as e:
