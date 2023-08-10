@@ -165,6 +165,22 @@ def get_roster(team_id):
         return edit_html_desc(ERROR_400, str(e))
 
 
+@app.route('/api/v1/update-one/<collection>', methods=['POST'])
+def update_player(collection):
+    try:
+        new_doc = json.loads(request.data)
+        db_doc = db[collection].find_one({'_id': ObjectId(new_doc['_id'])})
+        if not db_doc:
+            return edit_html_desc(ERROR_404, 'ID not found in players collection. Check your OID and try again.')
+        new_values = {}
+        for key in new_doc:
+            if not new_doc[key] == db_doc[key]:
+                new_values[key] = new_doc[key]
+        db[collection].update_one({'_id': ObjectId(new_doc['_id'])}, {'$set': new_values})
+    except Exception as e:
+        return edit_html_desc(ERROR_400, str(e))
+
+
 @app.route('/api/v1/get-teams/<comp_id>', methods=['GET'])
 def get_teams_from_comp(comp_id):
     try:
