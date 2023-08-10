@@ -172,7 +172,9 @@ def update_player(collection):
         print('here0')
         new_doc = json.loads(request.data)
         print('here1')
-        db_doc = db[collection].find_one({'_id': ObjectId(new_doc['_id'])})
+        _id = new_doc['_id']['$oid']
+        print(_id)
+        db_doc = db[collection].find_one({'_id': ObjectId(_id)})
         print('here2')
         if not db_doc:
             return edit_html_desc(ERROR_404, 'ID not found in players collection. Check your OID and try again.')
@@ -182,7 +184,7 @@ def update_player(collection):
             if not new_doc[key] == db_doc[key]:
                 new_values[key] = new_doc[key]
         print('here4')
-        update_result = db[collection].update_one({'_id': ObjectId(new_doc['_id'])}, {'$set': new_values})
+        update_result = db[collection].update_one({'_id': ObjectId(_id)}, {'$set': new_values})
         print('here5')
         print(update_result)
 
