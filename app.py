@@ -1,4 +1,5 @@
 import copy
+import traceback
 import urllib
 
 import bson
@@ -168,34 +169,40 @@ def get_roster(team_id):
 @app.route('/api/v1/update-one/<collection>', methods=['POST'])
 def update_player(collection):
     try:
+        print('here0')
         new_doc = json.loads(request.data)
+        print('here1')
         db_doc = db[collection].find_one({'_id': ObjectId(new_doc['_id'])})
+        print('here2')
         if not db_doc:
             return edit_html_desc(ERROR_404, 'ID not found in players collection. Check your OID and try again.')
+        print('here3')
         new_values = {}
         for key in new_doc:
             if not new_doc[key] == db_doc[key]:
                 new_values[key] = new_doc[key]
+        print('here4')
         update_result = db[collection].update_one({'_id': ObjectId(new_doc['_id'])}, {'$set': new_values})
-        print('here0')
+        print('here5')
         print(update_result)
 
         try:
-            print('here1')
+            print('here6')
             print(update_result.raw_result)
         except Exception as e:
             print(e)
         try:
-            print('here2')
+            print('here7')
             print(update_result['raw_result'])
         except Exception as e:
             print(e)
 
         updated_doc = db[collection].find_one({'_id': ObjectId(new_doc['_id'])})
+        print('here8')
         return append_data(updated_doc, SUCCESS_200)
     except Exception as e:
-        print('here3')
-        print(e.__traceback__)
+        print('here9')
+        traceback.print_exception(type(e), e, e.__traceback__)
         return edit_html_desc(ERROR_400, str(e))
 
 
