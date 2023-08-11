@@ -14,6 +14,7 @@ import match_data_upload
 from html_responses import *
 from logging.config import dictConfig
 from models.player import Player
+from models.player import PlayerTeam
 from models.match import Match
 from models.team import Team
 import os
@@ -164,6 +165,25 @@ def get_roster(team_id):
         return append_data(players, SUCCESS_200)
     except Exception as e:
         return edit_html_desc(ERROR_400, str(e))
+
+
+@app.route('/api/v1/insert-player/', methods=['POST'])
+def insert_player():
+    try:
+        player_data = json.loads(request.data)
+        name = player_data['names']
+        nationality = player_data['nationality']
+        dob = player_data['dob']
+        jersey_num = player_data['jersey_num']
+        supporting_file = player_data['supportingfile']
+        team_id = player_data['team_id']
+        new_player = Player(name=name, dob=dob, nationality=nationality, jersey_num=jersey_num)
+        player_club = PlayerTeam(team_id=ObjectId(team_id))
+        new_player['teams'].append(player_club)
+        new_player['supporting_file'] = supporting_file
+        db.players.insert_one(new_player.to_mongo)
+    except Exception as e:
+        traceback.print_exception(type(e), e, e.__traceback__)
 
 
 @app.route('/api/v1/update-one/<collection>', methods=['POST'])
