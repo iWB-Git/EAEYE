@@ -178,12 +178,14 @@ def insert_player():
         supporting_file = player_data['supportingfile']
         team_id = player_data['team_id']
         new_player = Player(name=name, dob=dob, nationality=nationality, jersey_num=jersey_num)
-        player_club = PlayerTeam(team_id=ObjectId(team_id))
+        player_club = PlayerTeam(team_id=ObjectId(team_id), reg_date=None, on_team=True)
         new_player['teams'].append(player_club)
         new_player['supporting_file'] = supporting_file
         db.players.insert_one(new_player.to_mongo)
+        return SUCCESS_201
     except Exception as e:
         traceback.print_exception(type(e), e, e.__traceback__)
+        return ERROR_400
 
 
 @app.route('/api/v1/update-one/<collection>', methods=['POST'])
