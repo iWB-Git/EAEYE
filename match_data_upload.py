@@ -135,7 +135,7 @@ def create_player_docs(players_data):
                 if db_player:
                     player_docs.append(db_player)
                 else:
-                    new_player = Player(name=player_name, birth_year=None, nationality=None,
+                    new_player = Player(name=player_name, dob=None, nationality=None,
                                         jersey_num=player['JerseyNumber'])
                     player_docs.append(app.db.players.insert_one(new_player.to_mongo()))
 

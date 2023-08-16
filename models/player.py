@@ -49,6 +49,7 @@ class Player(DynamicDocument):
     stats = EmbeddedDocumentField(Stats)
     teams = EmbeddedDocumentListField(PlayerTeam, default=[])
     matches = ListField(ReferenceField('Match'))
+    supporting_file = StringField(default=None)
 
     def __init__(self, *args, **values):
         super().__init__(*args, **values)
@@ -58,4 +59,5 @@ class Player(DynamicDocument):
         self.dob = values['dob']
         self.nationality = values['nationality']
         self.jersey_num = values['jersey_num']
+        self.supporting_file = values['supporting_file']
         self.stats = Stats().to_mongo()

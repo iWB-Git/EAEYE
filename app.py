@@ -250,6 +250,23 @@ def get_teams_from_comp(comp_id):
         return edit_html_desc(ERROR_400, str(e))
 
 
+# USED TO UPDATE PLAYER DB TO ENSURE ALL HAVE 'supporting_file' KEY/VAL PAIR
+# NO LONGER NEEDED BUT LEAVING IN PLACE FOR NOW
+# def add_supporting_file_key():
+#     try:
+#         players = list(db.players.find({}))
+#         counter = 0
+#         for player in players:
+#             if 'supporting_file' in player:
+#                 continue
+#             db.players.update_one({'_id': player['_id']}, {'$set': {'supporting_file': ''}})
+#             print(counter + 1)
+#             counter += 1
+#     except Exception as e:
+#         traceback.print_exception(type(e), e, e.__traceback__)
+
+
 if __name__ == '__main__':
+    # add_supporting_file_key()
     app.debug = False
     app.run()
