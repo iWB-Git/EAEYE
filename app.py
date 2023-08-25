@@ -161,7 +161,15 @@ def get_roster(team_id):
         if not team:
             return edit_html_desc(ERROR_404, 'ID not found in teams collection. Check your OID and try again.')
         roster = team['roster']
+        print('roster:\n\n')
+        for item in roster:
+            print(item)
+            print('\n\n')
         players = db.players.find({'_id': {'$in': roster}})
+        print('players:\n\n')
+        for player in players:
+            print(player)
+            print('\n\n')
         return append_data(players, SUCCESS_200)
     except Exception as e:
         traceback.print_exception(type(e), e, e.__traceback__)
