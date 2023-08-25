@@ -68,7 +68,6 @@ db = db.ea_eye
 
 
 def append_data(data, html_response):
-    print(data)
     to_bytes = json_util.dumps(data)
     response = copy.deepcopy(html_response)
     response[0]['data'] = to_bytes
