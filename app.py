@@ -260,7 +260,7 @@ def get_teams_from_comp(comp_id):
 @app.route('/api/v1/upload-fixture-data/', methods=['POST'])
 def upload_fixture_data():
     try:
-        data = request.data
+        data = json.loads(request.data)
         comp_name = data['competition_name']
         db_comp = db.competitions.find_one({'name': comp_name})
         comp_id = db_comp['_id']
