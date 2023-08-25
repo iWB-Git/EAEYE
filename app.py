@@ -305,7 +305,7 @@ def upload_fixture_data():
 
 
 if __name__ == '__main__':
-    upload_fixture_data(TEST_JSON_FIXTURE)
+    # upload_fixture_data(TEST_JSON_FIXTURE)
     # add_supporting_file_key()
     app.debug = False
     app.run()
