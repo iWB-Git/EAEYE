@@ -165,7 +165,7 @@ def get_roster(team_id):
         for item in roster:
             print(item)
             print('\n\n')
-        players = db.players.find({'_id': {'$in': roster}})
+        players = list(db.players.find({'_id': {'$in': roster}}))
         print('players:\n\n')
         for player in players:
             print(player)
