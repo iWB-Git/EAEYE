@@ -68,6 +68,7 @@ db = db.ea_eye
 
 
 def append_data(data, html_response):
+    print(data)
     to_bytes = json_util.dumps(data)
     response = copy.deepcopy(html_response)
     response[0]['data'] = to_bytes
@@ -161,8 +162,10 @@ def get_roster(team_id):
         if not team:
             return edit_html_desc(ERROR_404, 'ID not found in teams collection. Check your OID and try again.')
         roster = team['roster']
-        # players = db.players.find({'_id': {'$in': roster}})
-        players = db.players.find({'$in': roster})
+        ids = []
+        for _id in roster:
+            ids.append(ObjectId(_id['$oid']))
+        players = list(db.players.find({'_id': {'$in': ids}}))
         return append_data(players, SUCCESS_200)
     except Exception as e:
         traceback.print_exception(type(e), e, e.__traceback__)
