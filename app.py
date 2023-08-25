@@ -164,6 +164,7 @@ def get_roster(team_id):
         players = db.players.find({'_id': {'$in': roster}})
         return append_data(players, SUCCESS_200)
     except Exception as e:
+        traceback.print_exception(type(e), e, e.__traceback__)
         return edit_html_desc(ERROR_400, str(e))
 
 
