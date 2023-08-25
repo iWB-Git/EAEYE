@@ -257,7 +257,7 @@ def get_teams_from_comp(comp_id):
         return edit_html_desc(ERROR_400, str(e))
 
 
-@app.route('/api/v1/upload-fixture-data/')
+@app.route('/api/v1/upload-fixture-data/', methods=['POST'])
 def upload_fixture_data():
     try:
         data = request.data
