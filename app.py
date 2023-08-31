@@ -131,6 +131,10 @@ def upload_match_data_v2():
         data = json.loads(request.data)
         # data = test_match_data
         match_id = data['Competition']['MatchID']
+        home_id = data['HomeTeam']['teamID']
+        away_id = data['AwayTeam']['teamID']
+        db.teams.update_one({'_id': ObjectId(home_id)}, {'$addToSet': ObjectId(match_id)})
+        db.teams.update_one({'_id': ObjectId(away_id)}, {'$addToSet': ObjectId(match_id)})
         for player in data['HomeTeam']['Players']['Starters']:
             db_player = db.players.find_one({'_id': ObjectId(player['PlayerID'])})
             if db_player:
