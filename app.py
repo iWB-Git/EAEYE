@@ -20,7 +20,7 @@ from models.team import Team
 import os
 import mongoengine
 from datetime import datetime
-from test_json import TEST_JSON_NEW as test_match_data
+# from test_json import TEST_JSON_NEW as test_match_data
 # import json
 # from templates import Player
 # import yaml
