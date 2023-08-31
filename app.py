@@ -13,14 +13,14 @@ import json
 import match_data_upload
 from html_responses import *
 from logging.config import dictConfig
-from models.player import Player
-from models.player import PlayerTeam
+from models.player import Player, PlayerTeam, Stats, Goal
 from models.match import Match
 from models.fixture import Fixture, Round
 from models.team import Team
 import os
 import mongoengine
 from datetime import datetime
+from test_json import TEST_JSON_NEW as test_match_data
 # import json
 # from templates import Player
 # import yaml
@@ -114,13 +114,79 @@ def upload_match_data():
     # try to load in <data>
     # if successful: parse data and upload to MongoDB
     # else: return 400 BAD REQUEST error
+    return edit_html_desc(ERROR_404, 'Outdated endpoint. Please use \'/api/v2/upload-match-data\' to upload player '
+                                     'match data')
+    # try:
+    #     data = json.loads(request.data)
+    #     match_data_upload.split_match_data(data)
+    #     return SUCCESS_201
+    # except Exception as e:
+    #     print('ERROR LOADING MATCH DATA: ' + str(e))
+    #     return ERROR_400
+
+
+@app.route('/api/v2/upload-match-data', methods=['POST'])
+def upload_match_data_v2():
     try:
-        data = json.loads(request.data)
-        match_data_upload.split_match_data(data)
-        return SUCCESS_201
+        # data = json.loads(request.data)
+        data = test_match_data
+        match_id = data['Competition']['MatchID']
+        for player in data['HomeTeam']['Players']['Starters']:
+            db_player = db.players.find_one({'_id': ObjectId(player['PlayerID'])})
+            if db_player:
+                stats = db_player['stats']
+                stats['match_day_squad'] += 1
+                stats['starter'] += 1
+                min_played = 90 if player['SubOut'] == 'NO' else 90 - int(player['SubMinute'])
+                stats['min_played'] += min_played
+                stats['starter_minutes'] += min_played
+                if player['Goal']:
+                    for i in range(0, player['Goal']):
+                        stats['goals'].append(Goal(minute=player['GoalMinute'].split(',')[i], match_id=match_id).to_mongo())
+                db.players.update_one({'_id': ObjectId(player['PlayerID'])}, {'$set': {'stats': stats.to_mongo()}})
+
+        for player in data['HomeTeam']['Players']['Subbed']:
+            db_player = db.players.find_one({'_id': ObjectId(player['PlayerID'])})
+            if db_player:
+                stats = db_player['stats']
+                stats['match_day_squad'] += 1
+                min_played = 90 - int(player['SubMinute']) if player['SubIn'] == 'YES' else 0
+                stats['min_played'] += min_played
+                stats['sub_minutes'] += min_played
+                if player['Goal']:
+                    for i in range(0, player['Goal']):
+                        stats['goals'].append(Goal(minute=player['GoalMinute'].split(',')[i], match_id=match_id).to_mongo())
+                db.players.update_one({'_id': ObjectId(player['PlayerID'])}, {'$set': {'stats': stats.to_mongo()}})
+
+        for player in data['AwayTeam']['Players']['Starters']:
+            db_player = db.players.find_one({'_id': ObjectId(player['PlayerID'])})
+            if db_player:
+                stats = db_player['stats']
+                stats['match_day_squad'] += 1
+                stats['starter'] += 1
+                min_played = 90 if player['SubOut'] == 'NO' else 90 - int(player['SubMinute'])
+                stats['min_played'] += min_played
+                stats['starter_minutes'] += min_played
+                if player['Goal']:
+                    for i in range(0, player['Goal']):
+                        stats['goals'].append(Goal(minute=player['GoalMinute'].split(',')[i], match_id=match_id).to_mongo())
+                db.players.update_one({'_id': ObjectId(player['PlayerID'])}, {'$set': {'stats': stats.to_mongo()}})
+
+        for player in data['AwayTeam']['Players']['Subbed']:
+            db_player = db.players.find_one({'_id': ObjectId(player['PlayerID'])})
+            if db_player:
+                stats = db_player['stats']
+                stats['match_day_squad'] += 1
+                min_played = 90 - int(player['SubMinute']) if player['SubIn'] == 'YES' else 0
+                stats['min_played'] += min_played
+                stats['sub_minutes'] += min_played
+                if player['Goal']:
+                    for i in range(0, player['Goal']):
+                        stats['goals'].append(Goal(minute=player['GoalMinute'].split(',')[i], match_id=match_id).to_mongo())
+                db.players.update_one({'_id': ObjectId(player['PlayerID'])}, {'$set': {'stats': stats.to_mongo()}})
     except Exception as e:
-        print('ERROR LOADING MATCH DATA: ' + str(e))
-        return ERROR_400
+        traceback.print_exception(type(e), e, e.__traceback__)
+        return edit_html_desc(ERROR_400, str(e))
 
 
 @app.route('/api/v1/get-collection/<collection>', methods=['GET'])
@@ -305,6 +371,7 @@ def upload_fixture_data():
 
 
 if __name__ == '__main__':
+    upload_match_data_v2()
     # upload_fixture_data(TEST_JSON_FIXTURE)
     # add_supporting_file_key()
     app.debug = False
