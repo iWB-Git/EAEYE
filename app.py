@@ -128,8 +128,8 @@ def upload_match_data():
 @app.route('/api/v2/upload-match-data', methods=['POST'])
 def upload_match_data_v2():
     try:
-        # data = json.loads(request.data)
-        data = test_match_data
+        data = json.loads(request.data)
+        # data = test_match_data
         match_id = data['Competition']['MatchID']
         for player in data['HomeTeam']['Players']['Starters']:
             db_player = db.players.find_one({'_id': ObjectId(player['PlayerID'])})
