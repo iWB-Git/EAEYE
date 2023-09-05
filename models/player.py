@@ -46,6 +46,7 @@ class Player(DynamicDocument):
     dob = StringField()
     nationality = StringField(default='none')
     jersey_num = IntField(default=0)
+    position = StringField(default=None)
     stats = EmbeddedDocumentField(Stats)
     teams = EmbeddedDocumentListField(PlayerTeam, default=[])
     matches = ListField(ReferenceField('Match'))
@@ -60,4 +61,5 @@ class Player(DynamicDocument):
         self.nationality = values['nationality']
         self.jersey_num = values['jersey_num']
         self.supporting_file = values['supporting_file']
+        self.position = values['position']
         self.stats = Stats().to_mongo()

@@ -198,6 +198,7 @@ def upload_match_data_v2():
                     for i in range(0, player['Goal']):
                         stats['goals'].append(Goal(minute=player['GoalMinute'].split(',')[i], match_id=match_id).to_mongo())
                 db.players.update_one({'_id': ObjectId(player['PlayerID'])}, {'$set': {'stats': stats}})
+        return SUCCESS_200
     except Exception as e:
         traceback.print_exception(type(e), e, e.__traceback__)
         return edit_html_desc(ERROR_400, str(e))
@@ -263,13 +264,14 @@ def insert_player():
         name = player_data['names']
         nationality = player_data['nationality']
         dob = player_data['dob']
+        position = player_data['position']
         jersey_num = player_data['jersey_num']
         supporting_file = player_data['supporting_file']
         reg_date = player_data['reg_date']
 
         db_team = db.teams.find_one({'_id': ObjectId(player_data['team_id'])})
 
-        new_player = Player(name=name, dob=dob, nationality=nationality, jersey_num=jersey_num, supporting_file=supporting_file)
+        new_player = Player(name=name, dob=dob, nationality=nationality, jersey_num=jersey_num, supporting_file=supporting_file, position=position)
         player_club = PlayerTeam(team_id=db_team['_id'], reg_date=reg_date, on_team=True)
 
         new_player['teams'].append(player_club.to_mongo())
