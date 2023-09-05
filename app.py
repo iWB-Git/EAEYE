@@ -258,6 +258,7 @@ def get_roster(team_id):
 def insert_player():
     try:
         player_data = json.loads(request.data)
+        # player_data = TEST_JSON_PLAYER
 
         name = player_data['names']
         nationality = player_data['nationality']
@@ -268,11 +269,11 @@ def insert_player():
 
         db_team = db.teams.find_one({'_id': ObjectId(player_data['team_id'])})
 
-        new_player = Player(name=name, dob=dob, nationality=nationality, jersey_num=jersey_num)
+        new_player = Player(name=name, dob=dob, nationality=nationality, jersey_num=jersey_num, supporting_file=supporting_file)
         player_club = PlayerTeam(team_id=db_team['_id'], reg_date=reg_date, on_team=True)
 
         new_player['teams'].append(player_club.to_mongo())
-        new_player['supporting_file'] = supporting_file
+        # new_player['supporting_file'] = supporting_file
 
         db_player = db.players.insert_one(new_player.to_mongo())
         db.teams.update_one({'_id': db_team['_id']}, {'$addToSet': {'roster': db_player.inserted_id}})
@@ -385,6 +386,7 @@ def upload_fixture_data():
 
 
 if __name__ == '__main__':
+    # insert_player()
     # upload_match_data_v2()
     # upload_fixture_data(TEST_JSON_FIXTURE)
     # add_supporting_file_key()
