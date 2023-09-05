@@ -157,7 +157,7 @@ def upload_match_data_v2():
                 if player['Goal']:
                     for i in range(0, player['Goal']):
                         stats['goals'].append(Goal(minute=player['GoalMinute'].split(',')[i], match_id=match_id).to_mongo())
-                db.players.update_one({'_id': ObjectId(player['PlayerID'])}, {'$set': {'stats': stats.to_mongo()}})
+                db.players.update_one({'_id': ObjectId(player['PlayerID'])}, {'$set': {'stats': stats}})
 
         for player in data['HomeTeam']['Players']['Subbed']:
             db_player = db.players.find_one({'_id': ObjectId(player['PlayerID'])})
@@ -170,7 +170,7 @@ def upload_match_data_v2():
                 if player['Goal']:
                     for i in range(0, player['Goal']):
                         stats['goals'].append(Goal(minute=player['GoalMinute'].split(',')[i], match_id=match_id).to_mongo())
-                db.players.update_one({'_id': ObjectId(player['PlayerID'])}, {'$set': {'stats': stats.to_mongo()}})
+                db.players.update_one({'_id': ObjectId(player['PlayerID'])}, {'$set': {'stats': stats}})
 
         for player in data['AwayTeam']['Players']['Starters']:
             db_player = db.players.find_one({'_id': ObjectId(player['PlayerID'])})
@@ -184,7 +184,7 @@ def upload_match_data_v2():
                 if player['Goal']:
                     for i in range(0, player['Goal']):
                         stats['goals'].append(Goal(minute=player['GoalMinute'].split(',')[i], match_id=match_id).to_mongo())
-                db.players.update_one({'_id': ObjectId(player['PlayerID'])}, {'$set': {'stats': stats.to_mongo()}})
+                db.players.update_one({'_id': ObjectId(player['PlayerID'])}, {'$set': {'stats': stats}})
 
         for player in data['AwayTeam']['Players']['Subbed']:
             db_player = db.players.find_one({'_id': ObjectId(player['PlayerID'])})
@@ -197,7 +197,7 @@ def upload_match_data_v2():
                 if player['Goal']:
                     for i in range(0, player['Goal']):
                         stats['goals'].append(Goal(minute=player['GoalMinute'].split(',')[i], match_id=match_id).to_mongo())
-                db.players.update_one({'_id': ObjectId(player['PlayerID'])}, {'$set': {'stats': stats.to_mongo()}})
+                db.players.update_one({'_id': ObjectId(player['PlayerID'])}, {'$set': {'stats': stats}})
     except Exception as e:
         traceback.print_exception(type(e), e, e.__traceback__)
         return edit_html_desc(ERROR_400, str(e))
