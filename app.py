@@ -247,7 +247,10 @@ def get_roster(team_id):
         roster = team['roster']
         ids = []
         for _id in roster:
-            ids.append(ObjectId(_id['$oid']))
+            if type(_id) is ObjectId:
+                ids.append(_id)
+            else:
+                ids.append(ObjectId(_id['$oid']))
         players = list(db.players.find({'_id': {'$in': ids}}))
         return append_data(players, SUCCESS_200)
     except Exception as e:
