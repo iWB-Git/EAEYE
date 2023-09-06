@@ -147,7 +147,6 @@ def update_player_stats(team, match_id):
                 stats['match_day_squad'] += 1
                 min_played = 0
                 if player['starter'] == 'YES':
-                    print(player)
                     stats['starter'] += 1
                     min_played = 90 if player['SubOut'] == 'NO' else 90 - int(player['SubMinute'])
                     stats['starter_minutes'] += min_played
