@@ -11,6 +11,18 @@ class Goal(EmbeddedDocument):
         self.minute = values['minute']
 
 
+class PlayerTeam(EmbeddedDocument):
+    team_id = ReferenceField('Team', dbref=False)
+    reg_date = StringField(default=None)
+    on_team = BooleanField(default=True)
+
+    def __init__(self, *args, **values):
+        super().__init__(*args, **values)
+        self.team_id = values['team_id']
+        self.reg_date = values['reg_date']
+        self.on_team = values['on_team']
+
+
 class Stats(EmbeddedDocument):
     match_day_squad = IntField(default=0)
     starter = IntField(default=0)
@@ -34,9 +46,11 @@ class Player(DynamicDocument):
     dob = StringField()
     nationality = StringField(default='none')
     jersey_num = IntField(default=0)
+    position = StringField(default=None)
     stats = EmbeddedDocumentField(Stats)
-    teams_id = ListField(ReferenceField('Team', dbref=False))
+    teams = EmbeddedDocumentListField(PlayerTeam, default=[])
     matches = ListField(ReferenceField('Match'))
+    supporting_file = StringField(default=None)
 
     def __init__(self, *args, **values):
         super().__init__(*args, **values)
@@ -46,4 +60,6 @@ class Player(DynamicDocument):
         self.dob = values['dob']
         self.nationality = values['nationality']
         self.jersey_num = values['jersey_num']
+        self.supporting_file = values['supporting_file']
+        self.position = values['position']
         self.stats = Stats().to_mongo()
