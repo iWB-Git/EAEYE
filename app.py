@@ -394,11 +394,10 @@ def upload_fixture_data():
         comp_id = db_comp['_id']
         comp_year = data['competition_year']
         rounds_list = data['round_data']
-        rounds = []
         new_fixture = Fixture(competition=comp_id, comp_year=comp_year, rounds=[])
         for round in rounds_list:
             match_ids = []
-            for matchup in round[('round_data')]:
+            for matchup in round['round_data']:
                 home_team = matchup['HomeTeam']
                 away_team = matchup['AwayTeam']
                 home_id = db.teams.find_one({'name': home_team})['_id']
