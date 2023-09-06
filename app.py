@@ -135,6 +135,35 @@ def upload_match_data():
     #     return ERROR_400
 
 
+def update_player_stats(team, match_id):
+    for squad in team:
+        for player in team[squad]:
+            player_id = ObjectId(player['PlayerID'])
+            db_player = db.players.find_one({'_id': player_id})
+            if db_player:
+                if match_id in db_player['matches']:
+                    continue
+                stats = db_player['stats']
+                stats['match_day_squad'] += 1
+                min_played = 0
+                if player['starter'] == 'YES':
+                    print(player)
+                    stats['starter'] += 1
+                    min_played = 90 if player['SubOut'] == 'NO' else 90 - int(player['SubMinute'])
+                    stats['starter_minutes'] += min_played
+                elif player['substitute'] == 'NO':
+                    min_played = 90 - int(player['SubMinute']) if player['SubIn'] == 'YES' else 0
+                    stats['sub_minutes'] += min_played
+                stats['min_played'] += min_played
+                if player['Goal']:
+                    goal_mins = player['GoalMinute'].split(',')
+                    for i in range(0, player['Goal']):
+                        stats['goals'].append(Goal(minute=goal_mins[i], match_id=match_id).to_mongo())
+                db.players.update_one({'_id': player_id},
+                                      {'$set': {'stats': stats},
+                                       '$addToSet': {'matches': match_id}})
+
+
 @app.route('/api/v2/upload-match-data', methods=['POST'])
 def upload_match_data_v2():
     try:
@@ -143,79 +172,13 @@ def upload_match_data_v2():
         match_id = ObjectId(data['Competition']['MatchID'])
         home_id = ObjectId(data['HomeTeam']['teamID'])
         away_id = ObjectId(data['AwayTeam']['teamID'])
+
         db.teams.update_one({'_id': home_id}, {'$addToSet': {'matches': match_id}})
         db.teams.update_one({'_id': away_id}, {'$addToSet': {'matches': match_id}})
-        for player in data['HomeTeam']['Players']['Starters']:
-            db_player = db.players.find_one({'_id': ObjectId(player['PlayerID'])})
-            if db_player:
-                stats = db_player['stats']
-                stats['match_day_squad'] += 1
-                stats['starter'] += 1
-                min_played = 90 if player['SubOut'] == 'NO' else 90 - int(player['SubMinute'])
-                stats['min_played'] += min_played
-                stats['starter_minutes'] += min_played
-                if player['Goal']:
-                    for i in range(0, player['Goal']):
-                        stats['goals'].append(Goal(minute=player['GoalMinute'].split(',')[i], match_id=match_id).to_mongo())
-                db.players.update_one({'_id': ObjectId(player['PlayerID'])},
-                                      {'$set': {'stats': stats},
-                                       '$addToSet': {'matches': match_id}})
-                # db.players.update_one({'_id': ObjectId(player['PlayerID'])}, {'$set': {'stats': stats}})
-                # db.players.update_one({'_id': ObjectId(player['PlayerID'])}, {'$addToSet': {'matches': match_id}})
 
-        for player in data['HomeTeam']['Players']['Subbed']:
-            db_player = db.players.find_one({'_id': ObjectId(player['PlayerID'])})
-            if db_player:
-                stats = db_player['stats']
-                stats['match_day_squad'] += 1
-                min_played = 90 - int(player['SubMinute']) if player['SubIn'] == 'YES' else 0
-                stats['min_played'] += min_played
-                stats['sub_minutes'] += min_played
-                if player['Goal']:
-                    for i in range(0, player['Goal']):
-                        stats['goals'].append(Goal(minute=player['GoalMinute'].split(',')[i], match_id=match_id).to_mongo())
-                db.players.update_one({'_id': ObjectId(player['PlayerID'])},
-                                      {'$set': {'stats': stats},
-                                       '$addToSet': {'matches': match_id}})
-                # db.players.update_one({'_id': ObjectId(player['PlayerID'])}, {'$addToSet': {'matches': match_id}})
+        update_player_stats(data['HomeTeam']['Players'], match_id)
+        update_player_stats(data['AwayTeam']['Players'], match_id)
 
-        for player in data['AwayTeam']['Players']['Starters']:
-            db_player = db.players.find_one({'_id': ObjectId(player['PlayerID'])})
-            if db_player:
-                stats = db_player['stats']
-                stats['match_day_squad'] += 1
-                stats['starter'] += 1
-                min_played = 90 if player['SubOut'] == 'NO' else 90 - int(player['SubMinute'])
-                stats['min_played'] += min_played
-                stats['starter_minutes'] += min_played
-                if player['Goal']:
-                    for i in range(0, player['Goal']):
-                        stats['goals'].append(Goal(minute=player['GoalMinute'].split(',')[i], match_id=match_id).to_mongo())
-                db.players.update_one({'_id': ObjectId(player['PlayerID'])},
-                                      {'$set': {'stats': stats},
-                                       '$addToSet': {'matches': match_id}})
-                # db.players.update_one({'_id': ObjectId(player['PlayerID'])}, {'$set': {'stats': stats}})
-                # db.players.update_one({'_id': ObjectId(player['PlayerID'])}, {'$addToSet': {'matches': match_id}})
-
-        for player in data['AwayTeam']['Players']['Subbed']:
-            db_player = db.players.find_one({'_id': ObjectId(player['PlayerID'])})
-            if db_player:
-                stats = db_player['stats']
-                stats['match_day_squad'] += 1
-                min_played = 90 - int(player['SubMinute']) if player['SubIn'] == 'YES' else 0
-                stats['min_played'] += min_played
-                stats['sub_minutes'] += min_played
-                if player['Goal']:
-                    for i in range(0, player['Goal']):
-                        stats['goals'].append(Goal(minute=player['GoalMinute'].split(',')[i], match_id=match_id).to_mongo())
-                db.players.update_one({'_id': ObjectId(player['PlayerID'])},
-                                      {'$set': {'stats': stats},
-                                       '$addToSet': {'matches': match_id}})
-                # db.players.update_one({'_id': ObjectId(player['PlayerID'])}, {'$set': {'stats': stats}})
-                # db.players.update_one({'_id': ObjectId(player['PlayerID'])}, {'$addToSet': {'matches': match_id}})
-
-        # db_home_team = db.teams.find_one({'_id': home_id})
-        # db_away_team = db.teams.find_one({'_id': away_id})
         return SUCCESS_200
     except Exception as e:
         traceback.print_exception(type(e), e, e.__traceback__)
@@ -334,40 +297,21 @@ def move_player():
 @app.route('/api/v1/update-one/<collection>', methods=['POST'])
 def update_document(collection):
     try:
-        print('here0')
         new_doc = json.loads(request.data)
-        print('here1')
         _id = new_doc['_id']['$oid']
-        print(_id)
         db_doc = db[collection].find_one({'_id': ObjectId(_id)})
-        print('here2')
         if not db_doc:
             return edit_html_desc(ERROR_404, 'ID not found in players collection. Check your OID and try again.')
-        print('here3')
         new_values = {}
         for key in new_doc:
             if key == '_id':
                 continue
             if not new_doc[key] == db_doc[key]:
                 new_values[key] = new_doc[key]
-        print('here4')
-        update_result = db[collection].update_one({'_id': ObjectId(_id)}, {'$set': new_values})
-        print('here5')
-        print(update_result)
-
-        try:
-            print('here6')
-            print(update_result.raw_result)
-            print('here7')
-            print(update_result)
-        except Exception as e:
-            print(e)
-
+        # update_result = db[collection].update_one({'_id': ObjectId(_id)}, {'$set': new_values})
         updated_doc = db[collection].find_one({'_id': ObjectId(_id)})
-        print('here8')
         return append_data(updated_doc, SUCCESS_200)
     except Exception as e:
-        print('here9')
         traceback.print_exception(type(e), e, e.__traceback__)
         return edit_html_desc(ERROR_400, str(e))
 
