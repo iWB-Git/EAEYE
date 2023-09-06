@@ -140,11 +140,11 @@ def upload_match_data_v2():
     try:
         data = json.loads(request.data)
         # data = test_match_data
-        match_id = data['Competition']['MatchID']
-        home_id = data['HomeTeam']['teamID']
-        away_id = data['AwayTeam']['teamID']
-        db.teams.update_one({'_id': ObjectId(home_id)}, {'$addToSet': {'roster': ObjectId(match_id)}})
-        db.teams.update_one({'_id': ObjectId(away_id)}, {'$addToSet': {'roster': ObjectId(match_id)}})
+        match_id = ObjectId(data['Competition']['MatchID'])
+        home_id = ObjectId(data['HomeTeam']['teamID'])
+        away_id = ObjectId(data['AwayTeam']['teamID'])
+        db.teams.update_one({'_id': home_id}, {'$addToSet': {'matches': match_id}})
+        db.teams.update_one({'_id': away_id}, {'$addToSet': {'matches': match_id}})
         for player in data['HomeTeam']['Players']['Starters']:
             db_player = db.players.find_one({'_id': ObjectId(player['PlayerID'])})
             if db_player:
@@ -157,7 +157,11 @@ def upload_match_data_v2():
                 if player['Goal']:
                     for i in range(0, player['Goal']):
                         stats['goals'].append(Goal(minute=player['GoalMinute'].split(',')[i], match_id=match_id).to_mongo())
-                db.players.update_one({'_id': ObjectId(player['PlayerID'])}, {'$set': {'stats': stats}})
+                db.players.update_one({'_id': ObjectId(player['PlayerID'])},
+                                      {'$set': {'stats': stats},
+                                       '$addToSet': {'matches': match_id}})
+                # db.players.update_one({'_id': ObjectId(player['PlayerID'])}, {'$set': {'stats': stats}})
+                # db.players.update_one({'_id': ObjectId(player['PlayerID'])}, {'$addToSet': {'matches': match_id}})
 
         for player in data['HomeTeam']['Players']['Subbed']:
             db_player = db.players.find_one({'_id': ObjectId(player['PlayerID'])})
@@ -170,7 +174,10 @@ def upload_match_data_v2():
                 if player['Goal']:
                     for i in range(0, player['Goal']):
                         stats['goals'].append(Goal(minute=player['GoalMinute'].split(',')[i], match_id=match_id).to_mongo())
-                db.players.update_one({'_id': ObjectId(player['PlayerID'])}, {'$set': {'stats': stats}})
+                db.players.update_one({'_id': ObjectId(player['PlayerID'])},
+                                      {'$set': {'stats': stats},
+                                       '$addToSet': {'matches': match_id}})
+                # db.players.update_one({'_id': ObjectId(player['PlayerID'])}, {'$addToSet': {'matches': match_id}})
 
         for player in data['AwayTeam']['Players']['Starters']:
             db_player = db.players.find_one({'_id': ObjectId(player['PlayerID'])})
@@ -184,7 +191,11 @@ def upload_match_data_v2():
                 if player['Goal']:
                     for i in range(0, player['Goal']):
                         stats['goals'].append(Goal(minute=player['GoalMinute'].split(',')[i], match_id=match_id).to_mongo())
-                db.players.update_one({'_id': ObjectId(player['PlayerID'])}, {'$set': {'stats': stats}})
+                db.players.update_one({'_id': ObjectId(player['PlayerID'])},
+                                      {'$set': {'stats': stats},
+                                       '$addToSet': {'matches': match_id}})
+                # db.players.update_one({'_id': ObjectId(player['PlayerID'])}, {'$set': {'stats': stats}})
+                # db.players.update_one({'_id': ObjectId(player['PlayerID'])}, {'$addToSet': {'matches': match_id}})
 
         for player in data['AwayTeam']['Players']['Subbed']:
             db_player = db.players.find_one({'_id': ObjectId(player['PlayerID'])})
@@ -197,7 +208,14 @@ def upload_match_data_v2():
                 if player['Goal']:
                     for i in range(0, player['Goal']):
                         stats['goals'].append(Goal(minute=player['GoalMinute'].split(',')[i], match_id=match_id).to_mongo())
-                db.players.update_one({'_id': ObjectId(player['PlayerID'])}, {'$set': {'stats': stats}})
+                db.players.update_one({'_id': ObjectId(player['PlayerID'])},
+                                      {'$set': {'stats': stats},
+                                       '$addToSet': {'matches': match_id}})
+                # db.players.update_one({'_id': ObjectId(player['PlayerID'])}, {'$set': {'stats': stats}})
+                # db.players.update_one({'_id': ObjectId(player['PlayerID'])}, {'$addToSet': {'matches': match_id}})
+
+        # db_home_team = db.teams.find_one({'_id': home_id})
+        # db_away_team = db.teams.find_one({'_id': away_id})
         return SUCCESS_200
     except Exception as e:
         traceback.print_exception(type(e), e, e.__traceback__)
@@ -289,8 +307,32 @@ def insert_player():
         return edit_html_desc(ERROR_400, str(e))
 
 
+@app.route('/api/v1/move-player', methods=['POST'])
+def move_player():
+    try:
+        data = json.loads(request.data)
+        player_id = data['player_id']
+        old_team_id = data['old_team_id']
+        new_team_id = data['new_team_id']
+        reg_date = data['reg_date']
+        db_player = db.players.find_one({'_id': ObjectId(player_id)})
+        if not db_player:
+            return edit_html_desc(ERROR_404, 'ID not found in players collection. Check your OID and try again.')
+        for team in db_player['teams']:
+            if team['team_id']['$oid'] == old_team_id:
+                team['team_id']['on_team'] = False
+        new_team = PlayerTeam(team_id=new_team_id, reg_date=reg_date, on_team=True)
+        db.players.update_one({'_id': ObjectId(player_id)}, {'$addToSet': {'teams': new_team.to_mongo()}})
+        db.teams.update_one({'_id': ObjectId(new_team_id)}, {'$addToSet': {'roster': ObjectId(player_id)}})
+        db.teams.update_one({'_id': ObjectId(old_team_id)}, {'$pull': {'roster': {'$oid': ObjectId(player_id)}}})
+        return append_data(db.players.find_one({'_id': ObjectId(player_id)}), SUCCESS_200)
+    except Exception as e:
+        traceback.print_exception(type(e), e, e.__traceback__)
+        return edit_html_desc(ERROR_400, str(e))
+
+
 @app.route('/api/v1/update-one/<collection>', methods=['POST'])
-def update_player(collection):
+def update_document(collection):
     try:
         print('here0')
         new_doc = json.loads(request.data)
