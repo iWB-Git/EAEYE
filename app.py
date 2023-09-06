@@ -272,7 +272,7 @@ def move_player():
         new_team = PlayerTeam(team_id=new_team_id, reg_date=reg_date, on_team=True)
         db.players.update_one({'_id': ObjectId(player_id)}, {'$addToSet': {'teams': new_team.to_mongo()}})
         db.teams.update_one({'_id': ObjectId(new_team_id)}, {'$addToSet': {'roster': ObjectId(player_id)}})
-        db.teams.update_one({'_id': ObjectId(old_team_id)}, {'$pull': {'roster': {'$oid': ObjectId(player_id)}}})
+        db.teams.update_one({'_id': ObjectId(old_team_id)}, {'$pull': {'roster': {'_id': ObjectId(player_id)}}})
         return append_data(db.players.find_one({'_id': ObjectId(player_id)}), SUCCESS_200)
     except Exception as e:
         traceback.print_exception(type(e), e, e.__traceback__)
