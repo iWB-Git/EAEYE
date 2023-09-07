@@ -102,6 +102,18 @@ def clear_db_docs(collection, username, password):
         return ERROR_404
 
 
+@app.route('/api/v1/clear-team-stats/<team_id>/<username>/<password>', methods=['DELETE'])
+def clear_team_stats(team_id, username, password):
+    if (username == DIRECT_USERNAME or username == TONY_USERNAME) and password == DIRECT_PASSWORD:
+        db_team = db.teams.find_one({'_id': ObjectId(team_id)})
+        for player_id in db_team['roster']:
+            db.players.update_one({'_id': player_id}, {'$set': {'stats': Stats().to_mongo(), 'matches': []}})
+        db.teams.update_one({'_id': ObjectId(team_id)}, {'$set': {'matches': []}})
+        return SUCCESS_200
+    else:
+        return ERROR_404
+
+
 # endpoint to upload match data
 # verifies the data's formatting then parses and uploads to MongoDB
 # <data>: the data to be uploaded in JSON format
@@ -121,7 +133,9 @@ def upload_match_data():
     #     return ERROR_400
 
 
+# TODO: handle individual match document stats counting a player's total stats
 def update_player_stats(team, match_id):
+    stats_list = []
     for squad in team:
         for player in team[squad]:
             player_id = ObjectId(player['PlayerID'])
@@ -129,24 +143,32 @@ def update_player_stats(team, match_id):
             if db_player:
                 if match_id in db_player['matches']:
                     continue
-                stats = db_player['stats']
-                stats['match_day_squad'] += 1
+                player_stats = db_player['stats']
+                player_stats['match_day_squad'] += 1
                 min_played = 0
                 if player['starter'] == 'YES':
-                    stats['starter'] += 1
-                    min_played = 90 if player['SubOut'] == 'NO' else 90 - int(player['SubMinute'])
-                    stats['starter_minutes'] += min_played
+                    player_stats['starter'] += 1
+                    min_played = 90 if player['SubOut'] == 'NO' else int(player['SubMinute'])
+                    player_stats['starter_minutes'] += min_played
                 elif player['substitute'] == 'YES':
                     min_played = 90 - int(player['SubMinute']) if player['SubIn'] == 'YES' else 0
-                    stats['sub_minutes'] += min_played
-                stats['min_played'] += min_played
+                    player_stats['sub_minutes'] += min_played
+                player_stats['min_played'] += min_played
                 if player['Goal']:
                     goal_mins = player['GoalMinute'].split(',')
-                    for i in range(0, player['Goal']):
-                        stats['goals'].append(Goal(minute=goal_mins[i], match_id=match_id).to_mongo())
+                    for i in range(0, int(player['Goal'])):
+                        player_stats['goals'].append(Goal(minute=int(goal_mins[i]), match_id=match_id).to_mongo())
                 db.players.update_one({'_id': player_id},
-                                      {'$set': {'stats': stats},
+                                      {'$set': {'stats': player_stats},
                                        '$addToSet': {'matches': match_id}})
+                player_stats['player_id'] = player_id
+                print('current player_stats: ')
+                print(player_stats)
+                stats_list.append(player_stats)
+    print('stats_list: ')
+    print(stats_list)
+    print('\n')
+    return stats_list
 
 
 @app.route('/api/v2/upload-match-data', methods=['POST'])
@@ -161,8 +183,15 @@ def upload_match_data_v2():
         db.teams.update_one({'_id': home_id}, {'$addToSet': {'matches': match_id}})
         db.teams.update_one({'_id': away_id}, {'$addToSet': {'matches': match_id}})
 
-        update_player_stats(data['HomeTeam']['Players'], match_id)
-        update_player_stats(data['AwayTeam']['Players'], match_id)
+        home_stats = update_player_stats(data['HomeTeam']['Players'], match_id)
+        away_stats = update_player_stats(data['AwayTeam']['Players'], match_id)
+
+        db.matches.update_one({'_id': match_id},
+                              {'$set': {
+                                  'data_entered': True,
+                                  'home_stats': home_stats,
+                                  'away_stats': away_stats
+                              }})
 
         return SUCCESS_200
     except Exception as e:
@@ -192,6 +221,24 @@ def get_document_by_name(collection, name):
     # doc = db[collection].find({'name': {'$regex': '/^name$/i'}})
     doc = db[collection].find_one({'name': name})
     return append_data(doc, SUCCESS_200) if doc else ERROR_404
+
+
+@app.route('/api/v1/get-match-entries/<collection>', methods=['GET'])
+def get_match_entries(collection):
+    pass
+
+
+@app.route('/api/v1/get-stats-from-match/<match_id>', methods=['GET'])
+def get_stats_from_match(match_id):
+    try:
+        match_id = ObjectId(match_id)
+        # data = json.loads(request.data)
+        # match_id = data['match_id'] if type(data['match_id']) is ObjectId else ObjectId(data['match_id'])
+        db_match = db.matches.find_one({'_id': match_id})
+        return append_data({'home_stats': db_match['home_stats'], 'away_stats': db_match['away_stats']}, SUCCESS_200)
+    except Exception as e:
+        traceback.print_exception(type(e), e, e.__traceback__)
+        return edit_html_desc(ERROR_400, str(e))
 
 
 # endpoint to retrieve all documents in the players collection
@@ -230,7 +277,7 @@ def insert_player():
         player_data = json.loads(request.data)
         # player_data = TEST_JSON_PLAYER
 
-        name = player_data['names']
+        name = player_data['names'].strip()
         nationality = player_data['nationality']
         dob = player_data['dob']
         position = player_data['position']
@@ -258,24 +305,34 @@ def insert_player():
 @app.route('/api/v1/move-player', methods=['POST'])
 def move_player():
     try:
+        # load json data into dict
         data = json.loads(request.data)
-        player_id = ObjectId(data['player_id'])
-        old_team_id = ObjectId(data['old_team_id'])
-        new_team_id = ObjectId(data['new_team_id'])
-        reg_date = data['reg_date']
+
+        # check type of player_id to ensure it's stored as an ObjectId, then query the db for that player
+        # if no player exists return immediately indicating the missing player
+        player_id = data['player_id'] if type(data['player_id']) is ObjectId else ObjectId(data['player_id'])
         db_player = db.players.find_one({'_id': player_id})
         if not db_player:
             return edit_html_desc(ERROR_404, 'ID not found in players collection. Check your OID and try again.')
-        for team in db_player['teams']:
-            if type(team['team_id']) is ObjectId:
-                if team['team_id'] == old_team_id:
-                    team['on_team'] = False
-            elif ObjectId(team['team_id']['$oid']) == old_team_id:
-                team['on_team'] = False
+
+        # get the remaining id's from the html request in the same manner as before, and the registration date string
+        old_team_id = data['old_team_id'] if type(data['old_team_id']) is ObjectId else ObjectId(data['old_team_id'])
+        new_team_id = data['new_team_id'] if type(data['new_team_id']) is ObjectId else ObjectId(data['new_team_id'])
+        reg_date = data['reg_date']
+
+        # create new PlayerTeam embedded doc
         new_team = PlayerTeam(team_id=new_team_id, reg_date=reg_date, on_team=True)
+
+        # update the db as follows:
+        # 1. update player's team list to have the new team, and flip the old team's 'on_team' flag to false
+        # 2. add the player's id to his new team's roster
+        # 3. remove the player's id from his old team
         db.players.update_one({'_id': player_id}, {'$addToSet': {'teams': new_team.to_mongo()}})
+        db.players.update_one({'_id': player_id, 'teams.team_id': old_team_id}, {'$set': {'teams.$.on_team': False}})
         db.teams.update_one({'_id': new_team_id}, {'$addToSet': {'roster': player_id}})
-        db.teams.update_one({'_id': old_team_id}, {'$pull': {'roster': {'_id': player_id}}})
+        db.teams.update_one({'_id': old_team_id}, {'$pull': {'roster': player_id}})
+
+        # return the updated player document to front end
         return append_data(db.players.find_one({'_id': player_id}), SUCCESS_200)
     except Exception as e:
         traceback.print_exception(type(e), e, e.__traceback__)
@@ -337,7 +394,7 @@ def upload_fixture_data():
                 date = matchup['Date']
                 match_url = matchup['FullMatchURL']
                 venue = matchup['Venue']
-                new_match = Match(date=date, home_team=home_id, away_team=away_id, venue=venue, comp_id=comp_id, match_url=match_url)
+                new_match = Match(competition_id=comp_id, home_team=home_id, away_team=away_id, date=date, venue=venue, match_url=match_url)
                 match_ids.append(db.matches.insert_one(new_match.to_mongo()).inserted_id)
             new_round = Round(matchups=match_ids)
             new_fixture['rounds'].append(new_round.to_mongo())
@@ -368,5 +425,7 @@ if __name__ == '__main__':
     # upload_match_data_v2()
     # upload_fixture_data(TEST_JSON_FIXTURE)
     # add_supporting_file_key()
+    # test_match = Match(competition_id=ObjectId('64d52c9f4cdabb9dfc3b4a53'), home_team=ObjectId('64d52c9f4cdabb9dfc3b4a6a'), away_team=ObjectId('64d52c9f4cdabb9dfc3b4a83'), date='testDate', venue='testVen', match_url='testURL')
+    # print(test_match.to_mongo().to_dict())
     app.debug = False
     app.run()
