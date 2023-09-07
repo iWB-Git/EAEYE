@@ -185,7 +185,7 @@ def update_player_stats(team, match_id):
                                           }
                                       })
 
-                stats_list.append(match_stats)
+                stats_list.append(match_stats.to_mongo())
 
     return stats_list
 
