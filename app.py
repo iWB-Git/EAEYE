@@ -273,12 +273,12 @@ def get_match_entries(collection):
     pass
 
 
-@app.route('/api/v1/get-stats-from-match/<match_id>', methods=['GET'])
+@app.route('/api/v1/get-stats-from-match', methods=['GET'])
 def get_stats_from_match(match_id):
     try:
-        match_id = ObjectId(match_id)
-        # data = json.loads(request.data)
-        # match_id = data['match_id'] if type(data['match_id']) is ObjectId else ObjectId(data['match_id'])
+        # match_id = ObjectId(match_id)
+        data = json.loads(request.data)
+        match_id = data['match_id'] if type(data['match_id']) is ObjectId else ObjectId(data['match_id'])
         db_match = db.matches.find_one({'_id': match_id})
         return append_data({'home_stats': db_match['home_stats'], 'away_stats': db_match['away_stats']}, SUCCESS_200)
     except Exception as e:
