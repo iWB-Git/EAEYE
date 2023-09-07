@@ -274,7 +274,7 @@ def get_match_entries(collection):
 
 
 @app.route('/api/v1/get-stats-from-match', methods=['GET'])
-def get_stats_from_match(match_id):
+def get_stats_from_match():
     try:
         # match_id = ObjectId(match_id)
         data = json.loads(request.data)
