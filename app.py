@@ -107,8 +107,9 @@ def clear_team_stats(team_id, username, password):
     if (username == DIRECT_USERNAME or username == TONY_USERNAME) and password == DIRECT_PASSWORD:
         db_team = db.teams.find_one({'_id': ObjectId(team_id)})
         for player_id in db_team['roster']:
-            db.players.update_one({'_id': player_id}, {'$set': {'stats': Stats().to_mongo()}})
-            return SUCCESS_200
+            db.players.update_one({'_id': player_id}, {'$set': {'stats': Stats().to_mongo(), 'matches': []}})
+        db.teams.update_one({'_id': ObjectId(team_id)}, {'$set': {'matches': []}})
+        return SUCCESS_200
     else:
         return ERROR_404
 
