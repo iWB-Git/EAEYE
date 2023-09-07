@@ -214,10 +214,13 @@ def upload_match_data_v2():
         # load in match data from html request
         data = json.loads(request.data)
 
-        # get relevant match and team id's
-        match_id = ObjectId(data['Competition']['MatchID'])
-        home_id = ObjectId(data['HomeTeam']['teamID'])
-        away_id = ObjectId(data['AwayTeam']['teamID'])
+        # get relevant match and team id's and perform type checking/casting for safety
+        match_id = data['Competition']['MatchID']
+        home_id = data['HomeTeam']['teamID']
+        away_id = data['AwayTeam']['teamID']
+        match_id = match_id if type(match_id) is ObjectId else ObjectId(match_id)
+        home_id = home_id if type(home_id) is ObjectId else ObjectId(home_id)
+        away_id = away_id if type(away_id) is ObjectId else ObjectId(away_id)
 
         # add match id to team's list of played matches
         db.teams.update_one({'_id': home_id}, {'$addToSet': {'matches': match_id}})
