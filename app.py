@@ -292,7 +292,7 @@ def move_player():
                 print('here0')
                 print(team['team_id'])
                 print('\n\n')
-                print('old_team_id')
+                print(old_team_id)
                 if team['team_id'] == old_team_id:
                     print('here1')
                     team['on_team'] = False
@@ -300,8 +300,9 @@ def move_player():
                 team['on_team'] = False
         new_team = PlayerTeam(team_id=new_team_id, reg_date=reg_date, on_team=True)
         db.players.update_one({'_id': player_id}, {'$addToSet': {'teams': new_team.to_mongo()}})
+        # db.players.update_one({'_id'})
         db.teams.update_one({'_id': new_team_id}, {'$addToSet': {'roster': player_id}})
-        db.teams.update_one({'_id': old_team_id}, {'$pull': {'roster': {'_id': player_id}}})
+        db.teams.update_one({'_id': old_team_id}, {'$pull': {'roster.$': player_id}})
         return append_data(db.players.find_one({'_id': player_id}), SUCCESS_200)
     except Exception as e:
         traceback.print_exception(type(e), e, e.__traceback__)
