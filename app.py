@@ -133,6 +133,7 @@ def upload_match_data():
     #     return ERROR_400
 
 
+# TODO: handle individual match document stats counting a player's total stats
 def update_player_stats(team, match_id):
     stats_list = []
     for squad in team:
@@ -227,6 +228,19 @@ def get_match_entries(collection):
     pass
 
 
+@app.route('/api/v1/get-stats-from-match/<match_id>', methods=['GET'])
+def get_stats_from_match(match_id):
+    try:
+        match_id = ObjectId(match_id)
+        # data = json.loads(request.data)
+        # match_id = data['match_id'] if type(data['match_id']) is ObjectId else ObjectId(data['match_id'])
+        db_match = db.matches.find_one({'_id': match_id})
+        return append_data({'home_stats': db_match['home_stats'], 'away_stats': db_match['away_stats']}, SUCCESS_200)
+    except Exception as e:
+        traceback.print_exception(type(e), e, e.__traceback__)
+        return edit_html_desc(ERROR_400, str(e))
+
+
 # endpoint to retrieve all documents in the players collection
 @app.route('/api/v1/get-player-data/all', methods=['GET'])
 def get_all_player_data():
@@ -296,14 +310,14 @@ def move_player():
 
         # check type of player_id to ensure it's stored as an ObjectId, then query the db for that player
         # if no player exists return immediately indicating the missing player
-        player_id = ObjectId(data['player_id']) if type(data['player_id']) is not ObjectId else data['player_id']
+        player_id = data['player_id'] if type(data['player_id']) is ObjectId else ObjectId(data['player_id'])
         db_player = db.players.find_one({'_id': player_id})
         if not db_player:
             return edit_html_desc(ERROR_404, 'ID not found in players collection. Check your OID and try again.')
 
         # get the remaining id's from the html request in the same manner as before, and the registration date string
-        old_team_id = ObjectId(data['old_team_id']) if type(data['old_team_id']) is not ObjectId else data['old_team_id']
-        new_team_id = ObjectId(data['new_team_id']) if type(data['new_team_id']) is not ObjectId else data['new_team_id']
+        old_team_id = data['old_team_id'] if type(data['old_team_id']) is ObjectId else ObjectId(data['old_team_id'])
+        new_team_id = data['new_team_id'] if type(data['new_team_id']) is ObjectId else ObjectId(data['new_team_id'])
         reg_date = data['reg_date']
 
         # create new PlayerTeam embedded doc
