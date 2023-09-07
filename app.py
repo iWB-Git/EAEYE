@@ -29,21 +29,7 @@ from bson.objectid import ObjectId
 # import requests
 # from csv_parse import read_csv
 
-TEST_JSON_LONG = {"Team_A":{"Name":"Team A","Players":{"Starters":[{"Name":"John Smith","SubOut":"YES","SubMinute":"34","Goal":3,"GoalMinute":"25,37,72","JerseyNumber":10,"checkId":"leftStarterCheck0","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"YES","substitute":"NO"},{"Name":"Michael Johnson","SubOut":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":7,"checkId":"leftStarterCheck1","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"YES","substitute":"NO"},{"Name":"Robert Davis","SubOut":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":14,"checkId":"leftStarterCheck2","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"YES","substitute":"NO"},{"Name":"David Wilson","SubOut":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":5,"checkId":"leftStarterCheck3","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"YES","substitute":"NO"},{"Name":"Daniel Thompson","SubOut":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":3,"checkId":"leftStarterCheck4","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"YES","substitute":"NO"},{"Name":"Christopher Martinez","SubOut":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":9,"checkId":"leftStarterCheck5","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"YES","substitute":"NO"},{"Name":"Matthew Anderson","SubOut":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":23,"checkId":"leftStarterCheck6","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"YES","substitute":"NO"},{"Name":"Andrew Taylor","SubOut":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":16,"checkId":"leftStarterCheck7","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"YES","substitute":"NO"},{"Name":"Joseph Clark","SubOut":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":18,"checkId":"leftStarterCheck8","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"YES","substitute":"NO"},{"Name":"James Thomas","SubOut":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":21,"checkId":"leftStarterCheck9","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"YES","substitute":"NO"},{"Name":"Steven Walker","SubOut":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":2,"checkId":"leftStarterCheck10","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"YES","substitute":"NO"}],"Subbed":[{"Name":"Richard Rodriguez","SubIn":"YES","SubMinute":"34","Goal":0,"GoalMinute":"-","JerseyNumber":8,"checkId":"leftSubCheck11","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"NO","substitute":"YES"},{"Name":"Paul Young","SubIn":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":11,"checkId":"leftSubCheck12","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"NO","substitute":"YES"},{"Name":"Mark Hall","SubIn":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":6,"checkId":"leftSubCheck13","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"NO","substitute":"YES"},{"Name":"Kevin Green","SubIn":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":4,"checkId":"leftSubCheck14","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"NO","substitute":"YES"},{"Name":"Anthony Harris","SubIn":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":13,"checkId":"leftSubCheck15","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"NO","substitute":"YES"},{"Name":"Charles White","SubIn":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":17,"checkId":"leftSubCheck16","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"NO","substitute":"YES"},{"Name":"Kenneth King","SubIn":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":19,"checkId":"leftSubCheck17","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"NO","substitute":"YES"},{"Name":"George Lewis","SubIn":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":20,"checkId":"leftSubCheck18","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"NO","substitute":"YES"},{"Name":"Edward Turner","SubIn":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":22,"checkId":"leftSubCheck19","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"NO","substitute":"YES"},{"Name":"Thomas Hill","SubIn":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":1,"checkId":"leftSubCheck20","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"NO","substitute":"YES"},{"Name":"Brian Scott","SubIn":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":15,"checkId":"leftSubCheck21","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"NO","substitute":"YES"},{"Name":"William Walker","SubIn":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":12,"checkId":"leftSubCheck22","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"NO","substitute":"YES"}]}},"Team_B":{"Name":"Team B","Players":{"Starters":[{"Name":"Daniel Brown","SubOut":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":26,"checkId":"rightStarterCheck0","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"YES","substitute":"NO"},{"Name":"Andrew Johnson","SubOut":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":27,"checkId":"rightStarterCheck1","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"YES","substitute":"NO"},{"Name":"Christopher Davis","SubOut":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":28,"checkId":"rightStarterCheck2","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"YES","substitute":"NO"},{"Name":"Joseph Wilson","SubOut":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":29,"checkId":"rightStarterCheck3","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"YES","substitute":"NO"},{"Name":"Michael Thompson","SubOut":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":30,"checkId":"rightStarterCheck4","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"YES","substitute":"NO"},{"Name":"Matthew Thomas","SubOut":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":31,"checkId":"rightStarterCheck5","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"YES","substitute":"NO"},{"Name":"John Martinez","SubOut":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":32,"checkId":"rightStarterCheck6","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"YES","substitute":"NO"},{"Name":"Robert Anderson","SubOut":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":33,"checkId":"rightStarterCheck7","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"YES","substitute":"NO"},{"Name":"James Clark","SubOut":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":34,"checkId":"rightStarterCheck8","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"YES","substitute":"NO"},{"Name":"David Taylor","SubOut":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":35,"checkId":"rightStarterCheck9","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"YES","substitute":"NO"},{"Name":"Christopher Walker","SubOut":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":36,"checkId":"rightStarterCheck10","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"YES","substitute":"NO"}],"Subbed":[{"Name":"Steven Rodriguez","SubIn":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":37,"checkId":"rightSubCheck11","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"NO","substitute":"YES"},{"Name":"Richard Young","SubIn":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":38,"checkId":"rightSubCheck12","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"NO","substitute":"YES"},{"Name":"Mark Hall","SubIn":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":39,"checkId":"rightSubCheck13","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"NO","substitute":"YES"},{"Name":"Kevin Green","SubIn":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":40,"checkId":"rightSubCheck14","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"NO","substitute":"YES"},{"Name":"Anthony Harris","SubIn":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":41,"checkId":"rightSubCheck15","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"NO","substitute":"YES"},{"Name":"Charles White","SubIn":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":42,"checkId":"rightSubCheck16","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"NO","substitute":"YES"},{"Name":"Kenneth King","SubIn":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":43,"checkId":"rightSubCheck17","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"NO","substitute":"YES"},{"Name":"George Lewis","SubIn":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":44,"checkId":"rightSubCheck18","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"NO","substitute":"YES"},{"Name":"Edward Turner","SubIn":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":45,"checkId":"rightSubCheck19","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"NO","substitute":"YES"},{"Name":"Thomas Hill","SubIn":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":46,"checkId":"rightSubCheck20","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"NO","substitute":"YES"},{"Name":"Brian Scott","SubIn":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":47,"checkId":"rightSubCheck21","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"NO","substitute":"YES"},{"Name":"William Walker","SubIn":"NO","SubMinute":"-","Goal":0,"GoalMinute":"-","JerseyNumber":48,"checkId":"rightSubCheck22","competitionYear":"2022/2023","competitionName":"FKF Premier League","competitionRound":"Round 1","homeTeam":"Team A","awayTeam":"Team B","matchDaySquad":"YES","starter":"NO","substitute":"YES"}]}},"Competition":{"Name":"FKF Premier League","Year":"2022/2023","Round":"Round 1","Fixture":"Gor Mahia vs AFC"}}
-
-TEST_JSON = {"Team_A":{"Name": "Foxes", "Players":{"Starters":[{"Name": "Lightning Mcqueen", "SubOut": "NO", "SubMinute": "-", "Goal":0, "GoalMinute": ""}, {"Name": "David Degea", "SubOut": "NO", "SubMinute": "-", "Goal":0, "GoalMinute": ""}], "Subbed":[]}}, "Team_B":{"Name": "Lions", "Players":{"Starters":[{"Name": "Harry Maguire", "SubOut": "NO", "SubMinute": "-", "Goal":0, "GoalMinute": ""}, {"Name": "Bruno Fernandes", "SubOut": "YES", "SubMinute": "53", "Goal":0, "GoalMinute": ""}], "Subbed":[]}}, "Competition":{"Name": "Piston Cup", "Year": "2005", "Round": "2", "Fixture": "12"}}
-
 TEST_JSON_FIXTURE = {"competition_name":"Ligi Kuu Tanzania Bara","competition_year":"2023/24","rounds":"4","round_data":[{"round":1,"round_data":[{"MatchUp":1,"Date":"2023-08-08","HomeTeam":"Young Africans Sports Club","AwayTeam":"Singida BS","FullMatchURL":"https://www.youtube.com","Venue":"Bukhungu Stadium"},{"MatchUp":2,"Date":"2023-08-23","HomeTeam":"Young Africans Sports Club","AwayTeam":"Ihefu Sports Club","FullMatchURL":"https://www.youtube.com","Venue":"Bukhungu Stadium"},{"MatchUp":3,"Date":"2023-08-17","HomeTeam":"Azam Football Club","AwayTeam":"Mtibwa Sugar Sports Club","FullMatchURL":"https://www.youtube.com","Venue":"Bukhungu Stadium"},{"MatchUp":4,"Date":"2023-08-17","HomeTeam":"Young Africans Sports Club","AwayTeam":"Mtibwa Sugar Sports Club","FullMatchURL":"https://www.youtube.com","Venue":"Bukhungu Stadium"}]},{"round":2,"round_data":[{"MatchUp":1,"Date":"2023-08-04","HomeTeam":"Young Africans Sports Club","AwayTeam":"Azam Football Club","FullMatchURL":"https://www.youtube.com","Venue":"Bukhungu Stadium"},{"MatchUp":2,"Date":"2023-08-11","HomeTeam":"Young Africans Sports Club","AwayTeam":"Ihefu Sports Club","FullMatchURL":"https://www.youtube.com","Venue":"Bukhungu Stadium"},{"MatchUp":3,"Date":"2023-08-18","HomeTeam":"Geita Gold FC","AwayTeam":"Fountain Gate Princess","FullMatchURL":"https://www.youtube.com","Venue":"Bukhungu Stadium"},{"MatchUp":4,"Date":"2023-08-18","HomeTeam":"Mtibwa Sugar Sports Club","AwayTeam":"Singida BS","FullMatchURL":"-","Venue":"Bukhungu Stadium"}]},{"round":3,"round_data":[{"MatchUp":1,"Date":"2023-08-09","HomeTeam":"KMC FC","AwayTeam":"Geita Gold FC","FullMatchURL":"https://www.youtube.com","Venue":"-"},{"MatchUp":2,"Date":"2023-08-03","HomeTeam":"Namungo FC","AwayTeam":"Namungo FC","FullMatchURL":"https://www.youtube.com","Venue":"-"},{"MatchUp":3,"Date":"2023-08-18","HomeTeam":"Ihefu Sports Club","AwayTeam":"Coastal Union SC","FullMatchURL":"https://www.youtube.com","Venue":"-"},{"MatchUp":4,"Date":"2023-08-25","HomeTeam":"Singida BS","AwayTeam":"Fountain Gate Princess","FullMatchURL":"-","Venue":"-"}]}]}
-
-TEST_JSON_PLAYER = {
-    "names": "Test Player",
-    "nationality": "Kenyan",
-    "dob": "7 August 2023",
-    "jersey_num": 2,
-    "reg_date": "8 Septemper 2022",
-    "team_id": "64d67eb2aa60adcae5ef877d",
-    "supporting_file": ""
-}
 
 # rudimentary dev testing access codes
 DIRECT_USERNAME = os.environ['URL_DIRECT_USERNAME']
@@ -135,69 +121,49 @@ def upload_match_data():
     #     return ERROR_400
 
 
+def update_player_stats(team, match_id):
+    for squad in team:
+        for player in team[squad]:
+            player_id = ObjectId(player['PlayerID'])
+            db_player = db.players.find_one({'_id': player_id})
+            if db_player:
+                if match_id in db_player['matches']:
+                    continue
+                stats = db_player['stats']
+                stats['match_day_squad'] += 1
+                min_played = 0
+                if player['starter'] == 'YES':
+                    stats['starter'] += 1
+                    min_played = 90 if player['SubOut'] == 'NO' else 90 - int(player['SubMinute'])
+                    stats['starter_minutes'] += min_played
+                elif player['substitute'] == 'YES':
+                    min_played = 90 - int(player['SubMinute']) if player['SubIn'] == 'YES' else 0
+                    stats['sub_minutes'] += min_played
+                stats['min_played'] += min_played
+                if player['Goal']:
+                    goal_mins = player['GoalMinute'].split(',')
+                    for i in range(0, player['Goal']):
+                        stats['goals'].append(Goal(minute=goal_mins[i], match_id=match_id).to_mongo())
+                db.players.update_one({'_id': player_id},
+                                      {'$set': {'stats': stats},
+                                       '$addToSet': {'matches': match_id}})
+
+
 @app.route('/api/v2/upload-match-data', methods=['POST'])
 def upload_match_data_v2():
     try:
         data = json.loads(request.data)
         # data = test_match_data
-        match_id = data['Competition']['MatchID']
-        home_id = data['HomeTeam']['teamID']
-        away_id = data['AwayTeam']['teamID']
-        db.teams.update_one({'_id': ObjectId(home_id)}, {'$addToSet': {'roster': ObjectId(match_id)}})
-        db.teams.update_one({'_id': ObjectId(away_id)}, {'$addToSet': {'roster': ObjectId(match_id)}})
-        for player in data['HomeTeam']['Players']['Starters']:
-            db_player = db.players.find_one({'_id': ObjectId(player['PlayerID'])})
-            if db_player:
-                stats = db_player['stats']
-                stats['match_day_squad'] += 1
-                stats['starter'] += 1
-                min_played = 90 if player['SubOut'] == 'NO' else 90 - int(player['SubMinute'])
-                stats['min_played'] += min_played
-                stats['starter_minutes'] += min_played
-                if player['Goal']:
-                    for i in range(0, player['Goal']):
-                        stats['goals'].append(Goal(minute=player['GoalMinute'].split(',')[i], match_id=match_id).to_mongo())
-                db.players.update_one({'_id': ObjectId(player['PlayerID'])}, {'$set': {'stats': stats}})
+        match_id = ObjectId(data['Competition']['MatchID'])
+        home_id = ObjectId(data['HomeTeam']['teamID'])
+        away_id = ObjectId(data['AwayTeam']['teamID'])
 
-        for player in data['HomeTeam']['Players']['Subbed']:
-            db_player = db.players.find_one({'_id': ObjectId(player['PlayerID'])})
-            if db_player:
-                stats = db_player['stats']
-                stats['match_day_squad'] += 1
-                min_played = 90 - int(player['SubMinute']) if player['SubIn'] == 'YES' else 0
-                stats['min_played'] += min_played
-                stats['sub_minutes'] += min_played
-                if player['Goal']:
-                    for i in range(0, player['Goal']):
-                        stats['goals'].append(Goal(minute=player['GoalMinute'].split(',')[i], match_id=match_id).to_mongo())
-                db.players.update_one({'_id': ObjectId(player['PlayerID'])}, {'$set': {'stats': stats}})
+        db.teams.update_one({'_id': home_id}, {'$addToSet': {'matches': match_id}})
+        db.teams.update_one({'_id': away_id}, {'$addToSet': {'matches': match_id}})
 
-        for player in data['AwayTeam']['Players']['Starters']:
-            db_player = db.players.find_one({'_id': ObjectId(player['PlayerID'])})
-            if db_player:
-                stats = db_player['stats']
-                stats['match_day_squad'] += 1
-                stats['starter'] += 1
-                min_played = 90 if player['SubOut'] == 'NO' else 90 - int(player['SubMinute'])
-                stats['min_played'] += min_played
-                stats['starter_minutes'] += min_played
-                if player['Goal']:
-                    for i in range(0, player['Goal']):
-                        stats['goals'].append(Goal(minute=player['GoalMinute'].split(',')[i], match_id=match_id).to_mongo())
-                db.players.update_one({'_id': ObjectId(player['PlayerID'])}, {'$set': {'stats': stats}})
+        update_player_stats(data['HomeTeam']['Players'], match_id)
+        update_player_stats(data['AwayTeam']['Players'], match_id)
 
-        for player in data['AwayTeam']['Players']['Subbed']:
-            db_player = db.players.find_one({'_id': ObjectId(player['PlayerID'])})
-            if db_player:
-                stats = db_player['stats']
-                stats['match_day_squad'] += 1
-                min_played = 90 - int(player['SubMinute']) if player['SubIn'] == 'YES' else 0
-                stats['min_played'] += min_played
-                stats['sub_minutes'] += min_played
-                if player['Goal']:
-                    for i in range(0, player['Goal']):
-                        stats['goals'].append(Goal(minute=player['GoalMinute'].split(',')[i], match_id=match_id).to_mongo())
-                db.players.update_one({'_id': ObjectId(player['PlayerID'])}, {'$set': {'stats': stats}})
         return SUCCESS_200
     except Exception as e:
         traceback.print_exception(type(e), e, e.__traceback__)
@@ -289,43 +255,51 @@ def insert_player():
         return edit_html_desc(ERROR_400, str(e))
 
 
-@app.route('/api/v1/update-one/<collection>', methods=['POST'])
-def update_player(collection):
+@app.route('/api/v1/move-player', methods=['POST'])
+def move_player():
     try:
-        print('here0')
+        data = json.loads(request.data)
+        player_id = ObjectId(data['player_id'])
+        old_team_id = ObjectId(data['old_team_id'])
+        new_team_id = ObjectId(data['new_team_id'])
+        reg_date = data['reg_date']
+        db_player = db.players.find_one({'_id': player_id})
+        if not db_player:
+            return edit_html_desc(ERROR_404, 'ID not found in players collection. Check your OID and try again.')
+        for team in db_player['teams']:
+            if type(team['team_id']) is ObjectId:
+                if team['team_id'] == old_team_id:
+                    team['on_team'] = False
+            elif ObjectId(team['team_id']['$oid']) == old_team_id:
+                team['on_team'] = False
+        new_team = PlayerTeam(team_id=new_team_id, reg_date=reg_date, on_team=True)
+        db.players.update_one({'_id': player_id}, {'$addToSet': {'teams': new_team.to_mongo()}})
+        db.teams.update_one({'_id': new_team_id}, {'$addToSet': {'roster': player_id}})
+        db.teams.update_one({'_id': old_team_id}, {'$pull': {'roster': {'_id': player_id}}})
+        return append_data(db.players.find_one({'_id': player_id}), SUCCESS_200)
+    except Exception as e:
+        traceback.print_exception(type(e), e, e.__traceback__)
+        return edit_html_desc(ERROR_400, str(e))
+
+
+@app.route('/api/v1/update-one/<collection>', methods=['POST'])
+def update_document(collection):
+    try:
         new_doc = json.loads(request.data)
-        print('here1')
         _id = new_doc['_id']['$oid']
-        print(_id)
         db_doc = db[collection].find_one({'_id': ObjectId(_id)})
-        print('here2')
         if not db_doc:
             return edit_html_desc(ERROR_404, 'ID not found in players collection. Check your OID and try again.')
-        print('here3')
         new_values = {}
         for key in new_doc:
             if key == '_id':
                 continue
             if not new_doc[key] == db_doc[key]:
                 new_values[key] = new_doc[key]
-        print('here4')
-        update_result = db[collection].update_one({'_id': ObjectId(_id)}, {'$set': new_values})
-        print('here5')
-        print(update_result)
-
-        try:
-            print('here6')
-            print(update_result.raw_result)
-            print('here7')
-            print(update_result)
-        except Exception as e:
-            print(e)
-
+        # update_result = db[collection].update_one({'_id': ObjectId(_id)}, {'$set': new_values})
         updated_doc = db[collection].find_one({'_id': ObjectId(_id)})
-        print('here8')
         return append_data(updated_doc, SUCCESS_200)
     except Exception as e:
-        print('here9')
         traceback.print_exception(type(e), e, e.__traceback__)
         return edit_html_desc(ERROR_400, str(e))
 
@@ -352,11 +326,10 @@ def upload_fixture_data():
         comp_id = db_comp['_id']
         comp_year = data['competition_year']
         rounds_list = data['round_data']
-        rounds = []
         new_fixture = Fixture(competition=comp_id, comp_year=comp_year, rounds=[])
         for round in rounds_list:
             match_ids = []
-            for matchup in round[('round_data')]:
+            for matchup in round['round_data']:
                 home_team = matchup['HomeTeam']
                 away_team = matchup['AwayTeam']
                 home_id = db.teams.find_one({'name': home_team})['_id']
