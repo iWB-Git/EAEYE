@@ -270,7 +270,7 @@ def move_player():
             if type(team['team_id']) is ObjectId:
                 if team['team_id'] == old_team_id:
                     team['on_team'] = False
-            elif team['team_id']['$oid'] == old_team_id:
+            elif ObjectId(team['team_id']['$oid']) == old_team_id:
                 team['on_team'] = False
         new_team = PlayerTeam(team_id=new_team_id, reg_date=reg_date, on_team=True)
         db.players.update_one({'_id': player_id}, {'$addToSet': {'teams': new_team.to_mongo()}})
