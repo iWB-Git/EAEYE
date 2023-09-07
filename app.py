@@ -289,7 +289,12 @@ def move_player():
             return edit_html_desc(ERROR_404, 'ID not found in players collection. Check your OID and try again.')
         for team in db_player['teams']:
             if type(team['team_id']) is ObjectId:
+                print('here0')
+                print(team['team_id'])
+                print('\n\n')
+                print('old_team_id')
                 if team['team_id'] == old_team_id:
+                    print('here1')
                     team['on_team'] = False
             elif ObjectId(team['team_id']['$oid']) == old_team_id:
                 team['on_team'] = False
