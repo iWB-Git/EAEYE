@@ -135,7 +135,7 @@ def update_player_stats(team, match_id):
                 min_played = 0
                 if player['starter'] == 'YES':
                     player_stats['starter'] += 1
-                    min_played = 90 if player['SubOut'] == 'NO' else 90 - int(player['SubMinute'])
+                    min_played = 90 if player['SubOut'] == 'NO' else int(player['SubMinute'])
                     player_stats['starter_minutes'] += min_played
                 elif player['substitute'] == 'YES':
                     min_played = 90 - int(player['SubMinute']) if player['SubIn'] == 'YES' else 0
