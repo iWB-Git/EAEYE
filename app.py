@@ -148,7 +148,13 @@ def update_player_stats(team, match_id):
                 db.players.update_one({'_id': player_id},
                                       {'$set': {'stats': player_stats},
                                        '$addToSet': {'matches': match_id}})
+                player_stats['player_id'] = player_id
+                print('current player_stats: ')
+                print(player_stats)
                 stats_list.append(player_stats)
+    print('stats_list: ')
+    print(stats_list)
+    print('\n')
     return stats_list
 
 
