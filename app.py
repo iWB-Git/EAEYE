@@ -122,6 +122,7 @@ def upload_match_data():
 
 
 def update_player_stats(team, match_id):
+    stats_list = []
     for squad in team:
         for player in team[squad]:
             player_id = ObjectId(player['PlayerID'])
@@ -129,24 +130,26 @@ def update_player_stats(team, match_id):
             if db_player:
                 if match_id in db_player['matches']:
                     continue
-                stats = db_player['stats']
-                stats['match_day_squad'] += 1
+                player_stats = db_player['stats']
+                player_stats['match_day_squad'] += 1
                 min_played = 0
                 if player['starter'] == 'YES':
-                    stats['starter'] += 1
+                    player_stats['starter'] += 1
                     min_played = 90 if player['SubOut'] == 'NO' else 90 - int(player['SubMinute'])
-                    stats['starter_minutes'] += min_played
+                    player_stats['starter_minutes'] += min_played
                 elif player['substitute'] == 'YES':
                     min_played = 90 - int(player['SubMinute']) if player['SubIn'] == 'YES' else 0
-                    stats['sub_minutes'] += min_played
-                stats['min_played'] += min_played
+                    player_stats['sub_minutes'] += min_played
+                player_stats['min_played'] += min_played
                 if player['Goal']:
                     goal_mins = player['GoalMinute'].split(',')
                     for i in range(0, player['Goal']):
-                        stats['goals'].append(Goal(minute=goal_mins[i], match_id=match_id).to_mongo())
+                        player_stats['goals'].append(Goal(minute=goal_mins[i], match_id=match_id).to_mongo())
                 db.players.update_one({'_id': player_id},
-                                      {'$set': {'stats': stats},
+                                      {'$set': {'stats': player_stats},
                                        '$addToSet': {'matches': match_id}})
+                stats_list.append(player_stats)
+    return stats_list
 
 
 @app.route('/api/v2/upload-match-data', methods=['POST'])
@@ -161,8 +164,15 @@ def upload_match_data_v2():
         db.teams.update_one({'_id': home_id}, {'$addToSet': {'matches': match_id}})
         db.teams.update_one({'_id': away_id}, {'$addToSet': {'matches': match_id}})
 
-        update_player_stats(data['HomeTeam']['Players'], match_id)
-        update_player_stats(data['AwayTeam']['Players'], match_id)
+        home_stats = update_player_stats(data['HomeTeam']['Players'], match_id)
+        away_stats = update_player_stats(data['AwayTeam']['Players'], match_id)
+
+        db.matches.update_one({'_id': match_id},
+                              {'$set': {
+                                  'data_entered': True,
+                                  'home_stats': home_stats,
+                                  'away_stats': away_stats
+                              }})
 
         return SUCCESS_200
     except Exception as e:
@@ -192,6 +202,11 @@ def get_document_by_name(collection, name):
     # doc = db[collection].find({'name': {'$regex': '/^name$/i'}})
     doc = db[collection].find_one({'name': name})
     return append_data(doc, SUCCESS_200) if doc else ERROR_404
+
+
+@app.route('/api/v1/get-match-entries/<collection>', methods=['GET'])
+def get_match_entries(collection):
+    pass
 
 
 # endpoint to retrieve all documents in the players collection
@@ -337,7 +352,7 @@ def upload_fixture_data():
                 date = matchup['Date']
                 match_url = matchup['FullMatchURL']
                 venue = matchup['Venue']
-                new_match = Match(date=date, home_team=home_id, away_team=away_id, venue=venue, comp_id=comp_id, match_url=match_url)
+                new_match = Match(competition_id=comp_id, home_team=home_id, away_team=away_id, date=date, venue=venue, match_url=match_url)
                 match_ids.append(db.matches.insert_one(new_match.to_mongo()).inserted_id)
             new_round = Round(matchups=match_ids)
             new_fixture['rounds'].append(new_round.to_mongo())
@@ -368,5 +383,7 @@ if __name__ == '__main__':
     # upload_match_data_v2()
     # upload_fixture_data(TEST_JSON_FIXTURE)
     # add_supporting_file_key()
+    # test_match = Match(competition_id=ObjectId('64d52c9f4cdabb9dfc3b4a53'), home_team=ObjectId('64d52c9f4cdabb9dfc3b4a6a'), away_team=ObjectId('64d52c9f4cdabb9dfc3b4a83'), date='testDate', venue='testVen', match_url='testURL')
+    # print(test_match.to_mongo().to_dict())
     app.debug = False
     app.run()
