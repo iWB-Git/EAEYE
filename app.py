@@ -102,7 +102,7 @@ def clear_db_docs(collection, username, password):
         return ERROR_404
 
 
-@app.route('api/secret/clear-team-stats/<team_id>/<username>/<password>', methods=['DELETE'])
+@app.route('api/v1/clear-team-stats/<team_id>/<username>/<password>', methods=['DELETE'])
 def clear_team_stats(team_id, username, password):
     if (username == DIRECT_USERNAME or username == TONY_USERNAME) and password == DIRECT_PASSWORD:
         db_team = db.teams.find_one({'_id': ObjectId(team_id)})
