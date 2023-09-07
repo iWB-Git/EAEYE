@@ -14,7 +14,7 @@ import match_data_upload
 from html_responses import *
 from logging.config import dictConfig
 from models.player import Player, PlayerTeam, Stats, Goal
-from models.match import Match
+from models.match import Match, MatchStats
 from models.fixture import Fixture, Round
 from models.team import Team
 import os
@@ -135,39 +135,58 @@ def upload_match_data():
 
 # TODO: handle individual match document stats counting a player's total stats
 def update_player_stats(team, match_id):
+    match_id = match_id if type(match_id) is ObjectId else ObjectId(match_id)
     stats_list = []
+
     for squad in team:
+
         for player in team[squad]:
+
             player_id = ObjectId(player['PlayerID'])
             db_player = db.players.find_one({'_id': player_id})
+
             if db_player:
                 if match_id in db_player['matches']:
                     continue
+
                 player_stats = db_player['stats']
+                match_stats = MatchStats(match_id=match_id, player_id=player_id)
+
                 player_stats['match_day_squad'] += 1
+
                 min_played = 0
+
                 if player['starter'] == 'YES':
                     player_stats['starter'] += 1
                     min_played = 90 if player['SubOut'] == 'NO' else int(player['SubMinute'])
                     player_stats['starter_minutes'] += min_played
+                    match_stats['starter'] = True
                 elif player['substitute'] == 'YES':
                     min_played = 90 - int(player['SubMinute']) if player['SubIn'] == 'YES' else 0
                     player_stats['sub_minutes'] += min_played
+
                 player_stats['min_played'] += min_played
+                match_stats['min_played'] = min_played
+
                 if player['Goal']:
                     goal_mins = player['GoalMinute'].split(',')
                     for i in range(0, int(player['Goal'])):
-                        player_stats['goals'].append(Goal(minute=int(goal_mins[i]), match_id=match_id).to_mongo())
+                        goal = Goal(minute=int(goal_mins[i]), match_id=match_id)
+                        player_stats['goals'].append(goal.to_mongo())
+                        match_stats['goals'].append(goal.to_mongo())
+
                 db.players.update_one({'_id': player_id},
-                                      {'$set': {'stats': player_stats},
-                                       '$addToSet': {'matches': match_id}})
-                player_stats['player_id'] = player_id
-                print('current player_stats: ')
-                print(player_stats)
-                stats_list.append(player_stats)
-    print('stats_list: ')
-    print(stats_list)
-    print('\n')
+                                      {
+                                          '$set': {
+                                              'stats': player_stats
+                                          },
+                                          '$addToSet': {
+                                              'matches': match_id
+                                          }
+                                      })
+
+                stats_list.append(match_stats)
+
     return stats_list
 
 
@@ -187,11 +206,13 @@ def upload_match_data_v2():
         away_stats = update_player_stats(data['AwayTeam']['Players'], match_id)
 
         db.matches.update_one({'_id': match_id},
-                              {'$set': {
-                                  'data_entered': True,
-                                  'home_stats': home_stats,
-                                  'away_stats': away_stats
-                              }})
+                              {
+                                  '$set': {
+                                      'data_entered': True,
+                                      'home_stats': home_stats,
+                                      'away_stats': away_stats
+                                  }
+                              })
 
         return SUCCESS_200
     except Exception as e:
