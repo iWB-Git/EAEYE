@@ -325,7 +325,7 @@ def insert_player():
         player_data = json.loads(request.data)
         # player_data = TEST_JSON_PLAYER
 
-        name = player_data['names'].strip()
+        name = player_data['names'].strip().title()
         nationality = player_data['nationality']
         dob = player_data['dob']
         position = player_data['position']
