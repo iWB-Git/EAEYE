@@ -133,78 +133,101 @@ def upload_match_data():
     #     return ERROR_400
 
 
-# TODO: handle individual match document stats counting a player's total stats
 def update_player_stats(team, match_id):
+
+    # get match id and ensure it's the correct type, and set up the stats list to return at the end
     match_id = match_id if type(match_id) is ObjectId else ObjectId(match_id)
     stats_list = []
 
+    # squad: starters vs. subbed
     for squad in team:
 
+        # each player that was in the starters or subbed list
         for player in team[squad]:
 
+            # get player id and find that player in the db, if they have this match recorded somehow then skip
             player_id = ObjectId(player['PlayerID'])
             db_player = db.players.find_one({'_id': player_id})
-
             if db_player:
                 if match_id in db_player['matches']:
                     continue
 
-                player_stats = db_player['stats']
+                # create player_stats to increment career stats and match_stats to record just this match's stats
+                career_stats = db_player['stats']
                 match_stats = MatchStats(match_id=match_id, player_id=player_id)
 
-                player_stats['match_day_squad'] += 1
-
+                # increment number of match day squads and set min_played to 0
+                career_stats['match_day_squad'] += 1
                 min_played = 0
 
+                # if the player is a starter, increment their starter count and calculate minutes played
+                # min_played is 90 if they started and never came out, else equal to the minute they subbed out
+                # increment starter minutes by min_played and flip the single match stat starter parameter to true
                 if player['starter'] == 'YES':
-                    player_stats['starter'] += 1
+                    career_stats['starter'] += 1
                     min_played = 90 if player['SubOut'] == 'NO' else int(player['SubMinute'])
-                    player_stats['starter_minutes'] += min_played
+                    career_stats['starter_minutes'] += min_played
                     match_stats['starter'] = True
+
+                # if the player was a sub, their min_played are equal to 0 unless they subbed in
+                # if subbed in, min_played is equal to 90 - their sub in time
+                # increment their sub minutes by min_played
                 elif player['substitute'] == 'YES':
                     min_played = 90 - int(player['SubMinute']) if player['SubIn'] == 'YES' else 0
-                    player_stats['sub_minutes'] += min_played
+                    career_stats['sub_minutes'] += min_played
 
-                player_stats['min_played'] += min_played
+                # increment career stats by min_played and set match_stats to min_played
+                career_stats['min_played'] += min_played
                 match_stats['min_played'] = min_played
 
+                # if the player scored a goal, split goal minutes list by ',' and loop for how many they scored
+                # creating a new goal object each time and appending them to both career and match stats goals lists
                 if player['Goal']:
                     goal_mins = player['GoalMinute'].split(',')
                     for i in range(0, int(player['Goal'])):
                         goal = Goal(minute=int(goal_mins[i]), match_id=match_id)
-                        player_stats['goals'].append(goal.to_mongo())
+                        career_stats['goals'].append(goal.to_mongo())
                         match_stats['goals'].append(goal.to_mongo())
 
+                # update the player's career stats
                 db.players.update_one({'_id': player_id},
                                       {
                                           '$set': {
-                                              'stats': player_stats
+                                              'stats': career_stats
                                           },
                                           '$addToSet': {
                                               'matches': match_id
                                           }
                                       })
 
+                # append the player's match stats to the list of all player's match stats
                 stats_list.append(match_stats.to_mongo())
 
+    # return this team's individual player's match stats in a list to be uploaded to the match document
     return stats_list
 
 
+# TODO: INCREMENT A TOTAL POSSIBLE GAMES COUNTER FOR ALL PLAYERS ON TEAM WHO WERE NOT MATCH DAY SQUAD
 @app.route('/api/v2/upload-match-data', methods=['POST'])
 def upload_match_data_v2():
     try:
+        # load in match data from html request
         data = json.loads(request.data)
-        # data = test_match_data
+
+        # get relevant match and team id's
         match_id = ObjectId(data['Competition']['MatchID'])
         home_id = ObjectId(data['HomeTeam']['teamID'])
         away_id = ObjectId(data['AwayTeam']['teamID'])
 
+        # add match id to team's list of played matches
         db.teams.update_one({'_id': home_id}, {'$addToSet': {'matches': match_id}})
         db.teams.update_one({'_id': away_id}, {'$addToSet': {'matches': match_id}})
 
+        # update the stats for each player on the home and away teams
         home_stats = update_player_stats(data['HomeTeam']['Players'], match_id)
         away_stats = update_player_stats(data['AwayTeam']['Players'], match_id)
 
+        # add each team's individual player's match stats to the match document in the db
         db.matches.update_one({'_id': match_id},
                               {
                                   '$set': {
@@ -215,6 +238,7 @@ def upload_match_data_v2():
                               })
 
         return SUCCESS_200
+
     except Exception as e:
         traceback.print_exception(type(e), e, e.__traceback__)
         return edit_html_desc(ERROR_400, str(e))
@@ -326,6 +350,7 @@ def insert_player():
 @app.route('/api/v1/move-player', methods=['POST'])
 def move_player():
     try:
+
         # load json data into dict
         data = json.loads(request.data)
 
@@ -355,6 +380,7 @@ def move_player():
 
         # return the updated player document to front end
         return append_data(db.players.find_one({'_id': player_id}), SUCCESS_200)
+
     except Exception as e:
         traceback.print_exception(type(e), e, e.__traceback__)
         return edit_html_desc(ERROR_400, str(e))
@@ -442,11 +468,5 @@ def upload_fixture_data():
 
 
 if __name__ == '__main__':
-    # insert_player()
-    # upload_match_data_v2()
-    # upload_fixture_data(TEST_JSON_FIXTURE)
-    # add_supporting_file_key()
-    # test_match = Match(competition_id=ObjectId('64d52c9f4cdabb9dfc3b4a53'), home_team=ObjectId('64d52c9f4cdabb9dfc3b4a6a'), away_team=ObjectId('64d52c9f4cdabb9dfc3b4a83'), date='testDate', venue='testVen', match_url='testURL')
-    # print(test_match.to_mongo().to_dict())
     app.debug = False
     app.run()
