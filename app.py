@@ -287,17 +287,6 @@ def move_player():
         db_player = db.players.find_one({'_id': player_id})
         if not db_player:
             return edit_html_desc(ERROR_404, 'ID not found in players collection. Check your OID and try again.')
-        for team in db_player['teams']:
-            if type(team['team_id']) is ObjectId:
-                print('here0')
-                print(team['team_id'])
-                print('\n\n')
-                print(old_team_id)
-                if team['team_id'] == old_team_id:
-                    print('here1')
-                    team['on_team'] = False
-            elif ObjectId(team['team_id']['$oid']) == old_team_id:
-                team['on_team'] = False
         new_team = PlayerTeam(team_id=new_team_id, reg_date=reg_date, on_team=True)
         db.players.update_one({'_id': player_id}, {'$addToSet': {'teams': new_team.to_mongo()}})
         # db.players.update_one({'_id'})
