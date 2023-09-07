@@ -279,20 +279,34 @@ def insert_player():
 @app.route('/api/v1/move-player', methods=['POST'])
 def move_player():
     try:
+        # load json data into dict
         data = json.loads(request.data)
-        player_id = ObjectId(data['player_id'])
-        old_team_id = ObjectId(data['old_team_id'])
-        new_team_id = ObjectId(data['new_team_id'])
-        reg_date = data['reg_date']
+
+        # check type of player_id to ensure it's stored as an ObjectId, then query the db for that player
+        # if no player exists return immediately indicating the missing player
+        player_id = ObjectId(data['player_id']) if type(data['player_id']) is not ObjectId else data['player_id']
         db_player = db.players.find_one({'_id': player_id})
         if not db_player:
             return edit_html_desc(ERROR_404, 'ID not found in players collection. Check your OID and try again.')
+
+        # get the remaining id's from the html request in the same manner as before, and the registration date string
+        old_team_id = ObjectId(data['old_team_id']) if type(data['old_team_id']) is not ObjectId else data['old_team_id']
+        new_team_id = ObjectId(data['new_team_id']) if type(data['new_team_id']) is not ObjectId else data['new_team_id']
+        reg_date = data['reg_date']
+
+        # create new PlayerTeam embedded doc
         new_team = PlayerTeam(team_id=new_team_id, reg_date=reg_date, on_team=True)
+
+        # update the db as follows:
+        # 1. update player's team list to have the new team, and flip the old team's 'on_team' flag to false
+        # 2. add the player's id to his new team's roster
+        # 3. remove the player's id from his old team
         db.players.update_one({'_id': player_id}, {'$addToSet': {'teams': new_team.to_mongo()}})
         db.players.update_one({'_id': player_id, 'teams.team_id': old_team_id}, {'$set': {'teams.$.on_team': False}})
-        # db.players.update_one({'_id'})
         db.teams.update_one({'_id': new_team_id}, {'$addToSet': {'roster': player_id}})
         db.teams.update_one({'_id': old_team_id}, {'$pull': {'roster': player_id}})
+
+        # return the updated player document to front end
         return append_data(db.players.find_one({'_id': player_id}), SUCCESS_200)
     except Exception as e:
         traceback.print_exception(type(e), e, e.__traceback__)
