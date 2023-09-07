@@ -143,7 +143,7 @@ def update_player_stats(team, match_id):
                 player_stats['min_played'] += min_played
                 if player['Goal']:
                     goal_mins = player['GoalMinute'].split(',')
-                    for i in range(0, player['Goal']):
+                    for i in range(0, int(player['Goal'])):
                         player_stats['goals'].append(Goal(minute=goal_mins[i], match_id=match_id).to_mongo())
                 db.players.update_one({'_id': player_id},
                                       {'$set': {'stats': player_stats},
