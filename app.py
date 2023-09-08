@@ -251,8 +251,9 @@ def upload_match_data_v2():
 def get_collection(collection):
     if collection not in db.list_collection_names():
         return edit_html_desc(ERROR_404, 'Specified collection does not exist.')
+    docs = db[collection].find({})
     if collection in ['players', 'teams', 'competitions']:
-        docs = sorted(db[collection].find({}), key=lambda x: x['name'])
+        docs = sorted(docs, key=lambda x: x['name'])
     return append_data(docs, SUCCESS_200)
 
 
