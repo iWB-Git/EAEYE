@@ -251,7 +251,7 @@ def upload_match_data_v2():
 def get_collection(collection):
     if collection not in db.list_collection_names():
         return edit_html_desc(ERROR_404, 'Specified collection does not exist.')
-    docs = list(db[collection].find({}))
+    docs = list(db[collection].find({})).sort()
     return append_data(docs, SUCCESS_200)
 
 
@@ -319,6 +319,15 @@ def get_roster(team_id):
         return edit_html_desc(ERROR_400, str(e))
 
 
+def check_for_duplicate_player(name, dob, jersey_num):
+    db_players = list(db.players.find({'name': name}))
+    for player in db_players:
+        if player['dob'] == dob:
+            if player['jersey_num'] == jersey_num:
+                return True
+    return False
+
+
 @app.route('/api/v1/insert-player/', methods=['POST'])
 def insert_player():
     try:
@@ -332,6 +341,9 @@ def insert_player():
         jersey_num = player_data['jersey_num']
         supporting_file = player_data['supporting_file']
         reg_date = player_data['reg_date']
+
+        if check_for_duplicate_player(name, dob, jersey_num):
+            return edit_html_desc(SUCCESS_200, 'This player already exists in the database. Please use move player instead')
 
         db_team = db.teams.find_one({'_id': ObjectId(player_data['team_id'])})
 
@@ -471,5 +483,13 @@ def upload_fixture_data():
 
 
 if __name__ == '__main__':
+    # db_team = db.teams.find_one({'_id': ObjectId('64d52c9f4cdabb9dfc3b4a60')})
+    # unique_ids = list(set(db_team['roster']))
+    # db_players = db.players.find({'_id': {'$in': unique_ids}})
+    # unique_names = set()
+    # for player in db_players:
+    #     unique_names.add(player['name'].strip().title())
+    # for name in sorted(unique_names):
+    #     print(name)
     app.debug = False
     app.run()
