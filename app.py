@@ -251,7 +251,8 @@ def upload_match_data_v2():
 def get_collection(collection):
     if collection not in db.list_collection_names():
         return edit_html_desc(ERROR_404, 'Specified collection does not exist.')
-    docs = sorted(db[collection].find({}), key=lambda x: x['name'])
+    if collection in ['players', 'teams', 'competitions']:
+        docs = sorted(db[collection].find({}), key=lambda x: x['name'])
     return append_data(docs, SUCCESS_200)
 
 
@@ -312,7 +313,7 @@ def get_roster(team_id):
                 ids.append(_id)
             else:
                 ids.append(ObjectId(_id['$oid']))
-        players = list(db.players.find({'_id': {'$in': ids}}))
+        players = sorted(list(db.players.find({'_id': {'$in': ids}})), key=lambda x: x['name'])
         return append_data(players, SUCCESS_200)
     except Exception as e:
         traceback.print_exception(type(e), e, e.__traceback__)
@@ -430,7 +431,7 @@ def get_teams_from_comp(comp_id):
         if not competition:
             return edit_html_desc(ERROR_404, 'ID not found in competitions collection. Check your OID and try again.')
         team_ids = competition['teams']
-        teams = db.teams.find({'_id': {'$in': team_ids}})
+        teams = sorted(db.teams.find({'_id': {'$in': team_ids}}), key=lambda x: x['name'])
         return append_data(teams, SUCCESS_200)
     except Exception as e:
         return edit_html_desc(ERROR_400, str(e))
