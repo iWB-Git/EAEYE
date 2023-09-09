@@ -378,8 +378,15 @@ def move_player():
         if not db_player:
             return edit_html_desc(ERROR_404, 'ID not found in players collection. Check your OID and try again.')
 
-        # get the remaining id's from the html request in the same manner as before, and the registration date string
-        old_team_id = data['old_team_id'] if type(data['old_team_id']) is ObjectId else ObjectId(data['old_team_id'])
+        # check if player has a team they are being moved from. if yes, update the player's team list and update
+        # the team's roster. if not, do nothing and move on to adding the new team and updating its roster
+        if data['old_team_id'] == '':
+            pass
+        else:
+            old_team_id = data['old_team_id'] if type(data['old_team_id']) is ObjectId else ObjectId(data['old_team_id'])
+            db.players.update_one({'_id': player_id, 'teams.team_id': old_team_id}, {'$set': {'teams.$.on_team': False}})
+            db.teams.update_one({'_id': old_team_id}, {'$pull': {'roster': player_id}})
+
         new_team_id = data['new_team_id'] if type(data['new_team_id']) is ObjectId else ObjectId(data['new_team_id'])
         reg_date = data['reg_date']
 
@@ -391,9 +398,7 @@ def move_player():
         # 2. add the player's id to his new team's roster
         # 3. remove the player's id from his old team
         db.players.update_one({'_id': player_id}, {'$addToSet': {'teams': new_team.to_mongo()}})
-        db.players.update_one({'_id': player_id, 'teams.team_id': old_team_id}, {'$set': {'teams.$.on_team': False}})
         db.teams.update_one({'_id': new_team_id}, {'$addToSet': {'roster': player_id}})
-        db.teams.update_one({'_id': old_team_id}, {'$pull': {'roster': player_id}})
 
         # return the updated player document to front end
         return append_data(db.players.find_one({'_id': player_id}), SUCCESS_200)
