@@ -274,9 +274,16 @@ def get_document_by_name(collection, name):
     return append_data(doc, SUCCESS_200) if doc else ERROR_404
 
 
-@app.route('/api/v1/get-match-entries/<collection>', methods=['GET'])
-def get_match_entries(collection):
-    pass
+@app.route('/api/v1/get-team-match-entries', methods=['GET'])
+def get_team_match_entries():
+    try:
+        data = json.loads(request.data)
+        team_id = data['team_id'] if type(data['team_id']) is ObjectId else ObjectId(data['team_id'])
+        db_team = db.teams.find_one({'_id': team_id})
+        return append_data(db_team['matches'], SUCCESS_200)
+    except Exception as e:
+        traceback.print_exception(type(e), e, e.__traceback__)
+        return edit_html_desc(ERROR_400, str(e))
 
 
 @app.route('/api/v1/get-stats-from-match', methods=['GET'])
@@ -501,6 +508,6 @@ if __name__ == '__main__':
     #     unique_names.add(player['name'].strip().title())
     # for name in sorted(unique_names):
     #     print(name)
-    upload_countries()
+    # upload_countries()
     app.debug = False
     app.run()
