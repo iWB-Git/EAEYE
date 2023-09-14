@@ -80,6 +80,10 @@ def edit_html_desc(html_response, new_desc):
     return new_response
 
 
+def return_oid(_id):
+    return _id if type(_id) is ObjectId else ObjectId(_id)
+
+
 # brief landing page if someone somehow ends up on the API's home page
 @app.route('/')
 def index():
@@ -137,7 +141,7 @@ def upload_match_data():
 def update_player_stats(team, match_id):
 
     # get match id and ensure it's the correct type, and set up the stats list to return at the end
-    match_id = match_id if type(match_id) is ObjectId else ObjectId(match_id)
+    # match_id = match_id if type(match_id) is ObjectId else ObjectId(match_id)
     stats_list = []
 
     # squad: starters vs. subbed
