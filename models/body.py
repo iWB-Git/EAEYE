@@ -2,7 +2,7 @@ from mongoengine import *
 from models.competition import Competition
 
 
-class Country(Document):
+class Body(Document):
     name = StringField(required=True)
     competitions = ListField(ReferenceField('Competition', dbref=False), default=[])
 
