@@ -451,8 +451,8 @@ def get_document():
 def delete_document():
     try:
         data = json.loads(request.data)
-        deleted_doc = db[data['collection']].delete_one({'_id': return_oid(data['_id'])})
-        return append_data(deleted_doc, SUCCESS_200)
+        db[data['collection']].delete_one({'_id': return_oid(data['_id'])})
+        return SUCCESS_200
     except Exception as e:
         return print_and_return_error(e)
 
