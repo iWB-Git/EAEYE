@@ -423,18 +423,18 @@ def check_for_duplicate_player(name, dob, jersey_num):
 #         return print_and_return_error(e)
 #
 #
-# @app.route('/api/v2/get-document/', methods=['GET'])
-# def get_document():
-#     try:
-#         data = json.loads(request.data)
-#         db_doc = db[data['collection']].find_one({'_id': return_oid(data['_id'])})
-#         if not db_doc:
-#             return edit_html_desc(ERROR_404, 'The specified collection/document pair does not exist, check your ID and try again.')
-#         return append_data(db_doc, SUCCESS_200)
-#     except Exception as e:
-#         return print_and_return_error(e)
-#
-#
+@app.route('/api/v2/get-document/', methods=['GET'])
+def get_document():
+    try:
+        data = json.loads(request.data)
+        db_doc = db[data['collection']].find_one({'_id': return_oid(data['_id'])})
+        if not db_doc:
+            return edit_html_desc(ERROR_404, 'The specified collection/document pair does not exist, check your ID and try again.')
+        return append_data(db_doc, SUCCESS_200)
+    except Exception as e:
+        return print_and_return_error(e)
+
+
 @app.route('/api/v2/delete-document', methods=['DELETE'])
 def delete_document():
     try:
