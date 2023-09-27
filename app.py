@@ -355,99 +355,99 @@ def check_for_duplicate_player(name, dob, jersey_num):
     return False
 
 
-@app.route('/api/v2/insert-document/', methods=['POST'])
-def insert_document():
-    try:
-        data = json.loads(request.data)
-        collection = data['collection']
-        if collection not in db.list_collection_names():
-            return edit_html_desc(ERROR_400, 'Specified collection/document type does not exist')
-        if collection == 'players':
-            name = data['names'].strip().title()
-            nationality = data['nationality']
-            dob = data['dob']
-            position = data['position']
-            jersey_num = data['jersey_num']
-            supporting_file = data['supporting_file']
-            reg_date = data['reg_date']
-            team_id = return_oid(data['team_id'])
-            db_team = db.teams.find_one({'_id': team_id})
-            new_player = Player(
-                name=name,
-                dob=dob,
-                nationality=nationality,
-                jersey_num=jersey_num,
-                supporting_file=supporting_file,
-                position=position
-            )
-            player_club = PlayerTeam(
-                team_id=db_team['_id'],
-                teg_date=reg_date,
-                on_team=True
-            )
-            new_player['teams'].append(player_club.to_mongo())
-            db_player = db.players.insert_one(new_player.to_mongo())
-            db.teams.update_one({'_id': db_team['_id']}, {'$addToSet': {'roster': db_player.inserted_id}})
-        elif collection == 'teams':
-            name = data['name'].strip().title()
-            comp_id = return_oid(data['competition_id'])
-            new_team = Team(name=name, roster=None, matches=None, comps=[comp_id])
-            db.teams.insert_one(new_team.to_mongo())
-        elif collection == 'competitions':
-            name = data['name'].strip().title()
-            new_comp = Competition(name=name, teams=[])
-            db.competitions.insert_one(new_comp.to_mongo())
-        return SUCCESS_201
-    except Exception as e:
-        return print_and_return_error(e)
-
-
-@app.route('/api/v2/update-document/', methods=['POST'])
-def update_document():
-    try:
-        data = json.loads(request.data)
-        collection = data['collection']
-        _id = return_oid(data['_id'])
-        db_doc = db[collection].find_one({'_id': _id})
-        if not db_doc:
-            return edit_html_desc(ERROR_404, 'ID not found in players collection. Check your OID and try again.')
-        new_vals = {}
-        for key in data:
-            if key == '_id' or key == 'collection':
-                continue
-            if not data[key] == db_doc[key]:
-                new_vals[key] = data[key]
-        db[collection].update_one({'_id': _id}, {'$set': new_vals})
-        return append_data(db[collection].find_one({'_id': _id}), SUCCESS_200)
-    except Exception as e:
-        return print_and_return_error(e)
-
-
-@app.route('/api/v2/get-document/', methods=['GET'])
-def get_document():
-    try:
-        data = json.loads(request.data)
-        db_doc = db[data['collection']].find_one({'_id': return_oid(data['_id'])})
-        if not db_doc:
-            return edit_html_desc(ERROR_404, 'The specified collection/document pair does not exist, check your ID and try again.')
-        return append_data(db_doc, SUCCESS_200)
-    except Exception as e:
-        return print_and_return_error(e)
-
-
-@app.route('/api/v2/delete-document', methods=['DELETE'])
-def delete_document():
-    try:
-        data = json.loads(request.data)
-        deleted_doc = db[data['collection']].delete_one({'_id': return_oid(data['_id'])})
-        return append_data(deleted_doc, SUCCESS_200)
-    except Exception as e:
-        return print_and_return_error(e)
-
-
-def print_and_return_error(e):
-    traceback.print_exception(type(e), e, e.__traceback__)
-    return edit_html_desc(ERROR_400, str(e))
+# @app.route('/api/v2/insert-document/', methods=['POST'])
+# def insert_document():
+#     try:
+#         data = json.loads(request.data)
+#         collection = data['collection']
+#         if collection not in db.list_collection_names():
+#             return edit_html_desc(ERROR_400, 'Specified collection/document type does not exist')
+#         if collection == 'players':
+#             name = data['names'].strip().title()
+#             nationality = data['nationality']
+#             dob = data['dob']
+#             position = data['position']
+#             jersey_num = data['jersey_num']
+#             supporting_file = data['supporting_file']
+#             reg_date = data['reg_date']
+#             team_id = return_oid(data['team_id'])
+#             db_team = db.teams.find_one({'_id': team_id})
+#             new_player = Player(
+#                 name=name,
+#                 dob=dob,
+#                 nationality=nationality,
+#                 jersey_num=jersey_num,
+#                 supporting_file=supporting_file,
+#                 position=position
+#             )
+#             player_club = PlayerTeam(
+#                 team_id=db_team['_id'],
+#                 teg_date=reg_date,
+#                 on_team=True
+#             )
+#             new_player['teams'].append(player_club.to_mongo())
+#             db_player = db.players.insert_one(new_player.to_mongo())
+#             db.teams.update_one({'_id': db_team['_id']}, {'$addToSet': {'roster': db_player.inserted_id}})
+#         elif collection == 'teams':
+#             name = data['name'].strip().title()
+#             comp_id = return_oid(data['competition_id'])
+#             new_team = Team(name=name, roster=None, matches=None, comps=[comp_id])
+#             db.teams.insert_one(new_team.to_mongo())
+#         elif collection == 'competitions':
+#             name = data['name'].strip().title()
+#             new_comp = Competition(name=name, teams=[])
+#             db.competitions.insert_one(new_comp.to_mongo())
+#         return SUCCESS_201
+#     except Exception as e:
+#         return print_and_return_error(e)
+#
+#
+# @app.route('/api/v2/update-document/', methods=['POST'])
+# def update_document():
+#     try:
+#         data = json.loads(request.data)
+#         collection = data['collection']
+#         _id = return_oid(data['_id'])
+#         db_doc = db[collection].find_one({'_id': _id})
+#         if not db_doc:
+#             return edit_html_desc(ERROR_404, 'ID not found in players collection. Check your OID and try again.')
+#         new_vals = {}
+#         for key in data:
+#             if key == '_id' or key == 'collection':
+#                 continue
+#             if not data[key] == db_doc[key]:
+#                 new_vals[key] = data[key]
+#         db[collection].update_one({'_id': _id}, {'$set': new_vals})
+#         return append_data(db[collection].find_one({'_id': _id}), SUCCESS_200)
+#     except Exception as e:
+#         return print_and_return_error(e)
+#
+#
+# @app.route('/api/v2/get-document/', methods=['GET'])
+# def get_document():
+#     try:
+#         data = json.loads(request.data)
+#         db_doc = db[data['collection']].find_one({'_id': return_oid(data['_id'])})
+#         if not db_doc:
+#             return edit_html_desc(ERROR_404, 'The specified collection/document pair does not exist, check your ID and try again.')
+#         return append_data(db_doc, SUCCESS_200)
+#     except Exception as e:
+#         return print_and_return_error(e)
+#
+#
+# @app.route('/api/v2/delete-document', methods=['DELETE'])
+# def delete_document():
+#     try:
+#         data = json.loads(request.data)
+#         deleted_doc = db[data['collection']].delete_one({'_id': return_oid(data['_id'])})
+#         return append_data(deleted_doc, SUCCESS_200)
+#     except Exception as e:
+#         return print_and_return_error(e)
+#
+#
+# def print_and_return_error(e):
+#     traceback.print_exception(type(e), e, e.__traceback__)
+#     return edit_html_desc(ERROR_400, str(e))
 
 
 @app.route('/api/v1/insert-player/', methods=['POST'])
