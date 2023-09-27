@@ -424,13 +424,13 @@ def check_for_duplicate_player(name, dob, jersey_num):
 #     if not db_doc:
 #         return edit_html_desc(ERROR_404, 'The specified collection/document pair does not exist, check your ID and try again.')
 #     return append_data(db_doc, SUCCESS_200)
-#
-#
-# @app.route('/api/v2/delete-document', methods=['DELETE'])
-# def delete_document():
-#     data = json.loads(request.data)
-#     deleted_doc = db[data['collection']].delete_one({'_id': return_oid(data['_id'])})
-#     return append_data(deleted_doc, SUCCESS_200)
+
+
+@app.route('/api/v2/delete-document', methods=['DELETE'])
+def delete_document():
+    data = json.loads(request.data)
+    deleted_doc = db[data['collection']].delete_one({'_id': return_oid(data['_id'])})
+    return append_data(deleted_doc, SUCCESS_200)
 
 
 @app.route('/api/v1/insert-player/', methods=['POST'])
