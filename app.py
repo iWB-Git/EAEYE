@@ -435,19 +435,19 @@ def check_for_duplicate_player(name, dob, jersey_num):
 #         return print_and_return_error(e)
 #
 #
-# @app.route('/api/v2/delete-document', methods=['DELETE'])
-# def delete_document():
-#     try:
-#         data = json.loads(request.data)
-#         deleted_doc = db[data['collection']].delete_one({'_id': return_oid(data['_id'])})
-#         return append_data(deleted_doc, SUCCESS_200)
-#     except Exception as e:
-#         return print_and_return_error(e)
-#
-#
-# def print_and_return_error(e):
-#     traceback.print_exception(type(e), e, e.__traceback__)
-#     return edit_html_desc(ERROR_400, str(e))
+@app.route('/api/v2/delete-document', methods=['DELETE'])
+def delete_document():
+    try:
+        data = json.loads(request.data)
+        deleted_doc = db[data['collection']].delete_one({'_id': return_oid(data['_id'])})
+        return append_data(deleted_doc, SUCCESS_200)
+    except Exception as e:
+        return print_and_return_error(e)
+
+
+def print_and_return_error(e):
+    traceback.print_exception(type(e), e, e.__traceback__)
+    return edit_html_desc(ERROR_400, str(e))
 
 
 @app.route('/api/v1/insert-player/', methods=['POST'])
