@@ -435,6 +435,18 @@ def check_for_duplicate_player(name, dob, jersey_num):
 #         return print_and_return_error(e)
 #
 #
+@app.route('/api/v2/get-document', methods=['GET'])
+def get_document():
+    try:
+        data = json.loads(request.data)
+        collection = data['collection']
+        _id = return_oid(data['_id'])
+        db_doc = db[collection].find_one({'_id': _id})
+        return append_data(db_doc, SUCCESS_200)
+    except Exception as e:
+        return print_and_return_error(e)
+
+
 @app.route('/api/v2/delete-document', methods=['DELETE'])
 def delete_document():
     try:
