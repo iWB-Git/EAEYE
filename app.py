@@ -397,7 +397,7 @@ def create_document():
     #     name = data['name'].strip().title()
     #     new_comp = Competition(name=name, teams=[])
     #     db.competitions.insert_one(new_comp.to_mongo())
-    return SUCCESS_201
+    # return SUCCESS_201
 
 
 @app.route('/api/v2/update-document/', methods=['POST'])
