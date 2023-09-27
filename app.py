@@ -517,7 +517,7 @@ def update_document():
     return append_data(db[collection].find_one({'_id': _id}), SUCCESS_200)
 
 
-@app.route('api/v2/get-document/', methods=['GET'])
+@app.route('/api/v2/get-document/', methods=['GET'])
 def get_document():
     data = json.loads(request.data)
     db_doc = db[data['collection']].find_one({'_id': return_oid(data['_id'])})
