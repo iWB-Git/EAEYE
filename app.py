@@ -357,36 +357,37 @@ def check_for_duplicate_player(name, dob, jersey_num):
 
 @app.route('/api/v2/create-document', methods=['POST'])
 def create_document():
-    data = json.loads(request.data)
-    collection = data['collection']
-    if collection not in db.list_collection_names():
-        return edit_html_desc(ERROR_400, 'Specified collection/document type does not exist')
-    if collection == 'players':
-        name = data['names'].strip().title()
-        nationality = data['nationality']
-        dob = data['dob']
-        position = data['position']
-        jersey_num = data['jersey_num']
-        supporting_file = data['supporting_file']
-        reg_date = data['reg_date']
-        team_id = return_oid(data['team_id'])
-        db_team = db.teams.find_one({'_id': team_id})
-        new_player = Player(
-            name=name,
-            dob=dob,
-            nationality=nationality,
-            jersey_num=jersey_num,
-            supporting_file=supporting_file,
-            position=position
-        )
-        player_club = PlayerTeam(
-            team_id=db_team['_id'],
-            teg_date=reg_date,
-            on_team=True
-        )
-        new_player['teams'].append(player_club.to_mongo())
-        db_player = db.players.insert_one(new_player.to_mongo())
-        db.teams.update_one({'_id': db_team['_id']}, {'$addToSet': {'roster': db_player.inserted_id}})
+    return 'hello'
+    # data = json.loads(request.data)
+    # collection = data['collection']
+    # if collection not in db.list_collection_names():
+    #     return edit_html_desc(ERROR_400, 'Specified collection/document type does not exist')
+    # if collection == 'players':
+    #     name = data['names'].strip().title()
+    #     nationality = data['nationality']
+    #     dob = data['dob']
+    #     position = data['position']
+    #     jersey_num = data['jersey_num']
+    #     supporting_file = data['supporting_file']
+    #     reg_date = data['reg_date']
+    #     team_id = return_oid(data['team_id'])
+    #     db_team = db.teams.find_one({'_id': team_id})
+    #     new_player = Player(
+    #         name=name,
+    #         dob=dob,
+    #         nationality=nationality,
+    #         jersey_num=jersey_num,
+    #         supporting_file=supporting_file,
+    #         position=position
+    #     )
+    #     player_club = PlayerTeam(
+    #         team_id=db_team['_id'],
+    #         teg_date=reg_date,
+    #         on_team=True
+    #     )
+    #     new_player['teams'].append(player_club.to_mongo())
+    #     db_player = db.players.insert_one(new_player.to_mongo())
+    #     db.teams.update_one({'_id': db_team['_id']}, {'$addToSet': {'roster': db_player.inserted_id}})
     # elif collection == 'teams':
     #     name = data['name'].strip().title()
     #     comp_id = return_oid(data['competition_id'])
