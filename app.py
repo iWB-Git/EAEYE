@@ -402,27 +402,27 @@ def check_for_duplicate_player(name, dob, jersey_num):
 #         return print_and_return_error(e)
 #
 #
-# @app.route('/api/v2/update-document/', methods=['POST'])
-# def update_document():
-#     try:
-#         data = json.loads(request.data)
-#         collection = data['collection']
-#         _id = return_oid(data['_id'])
-#         db_doc = db[collection].find_one({'_id': _id})
-#         if not db_doc:
-#             return edit_html_desc(ERROR_404, 'ID not found in players collection. Check your OID and try again.')
-#         new_vals = {}
-#         for key in data:
-#             if key == '_id' or key == 'collection':
-#                 continue
-#             if not data[key] == db_doc[key]:
-#                 new_vals[key] = data[key]
-#         db[collection].update_one({'_id': _id}, {'$set': new_vals})
-#         return append_data(db[collection].find_one({'_id': _id}), SUCCESS_200)
-#     except Exception as e:
-#         return print_and_return_error(e)
-#
-#
+@app.route('/api/v2/update-document/', methods=['POST'])
+def update_document():
+    try:
+        data = json.loads(request.data)
+        collection = data['collection']
+        _id = return_oid(data['_id'])
+        db_doc = db[collection].find_one({'_id': _id})
+        if not db_doc:
+            return edit_html_desc(ERROR_404, 'ID not found in players collection. Check your OID and try again.')
+        new_vals = {}
+        for key in data:
+            if key == '_id' or key == 'collection':
+                continue
+            if not data[key] == db_doc[key]:
+                new_vals[key] = data[key]
+        db[collection].update_one({'_id': _id}, {'$set': new_vals})
+        return append_data(db[collection].find_one({'_id': _id}), SUCCESS_200)
+    except Exception as e:
+        return print_and_return_error(e)
+
+
 @app.route('/api/v2/get-document/', methods=['GET'])
 def get_document():
     try:
