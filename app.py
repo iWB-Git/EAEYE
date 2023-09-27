@@ -355,7 +355,7 @@ def check_for_duplicate_player(name, dob, jersey_num):
     return False
 
 
-@app.route('/api/v2/create-document', methods=['POST'])
+@app.route('/api/v2/create-document/', methods=['POST'])
 def create_document():
     return 'hello'
     # data = json.loads(request.data)
