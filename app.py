@@ -387,15 +387,15 @@ def create_document():
         new_player['teams'].append(player_club.to_mongo())
         db_player = db.players.insert_one(new_player.to_mongo())
         db.teams.update_one({'_id': db_team['_id']}, {'$addToSet': {'roster': db_player.inserted_id}})
-    elif collection == 'teams':
-        name = data['name']
-        comp_id = return_oid(data['competition_id'])
-        new_team = Team(name=name, roster=None, matches=None, comps=[comp_id])
-        db.teams.insert_one(new_team.to_mongo())
-    elif collection == 'competitions':
-        name = data['name']
-        new_comp = Competition(name=name, teams=[])
-        db.competitions.insert_one(new_comp.to_mongo())
+    # elif collection == 'teams':
+    #     name = data['name'].strip().title()
+    #     comp_id = return_oid(data['competition_id'])
+    #     new_team = Team(name=name, roster=None, matches=None, comps=[comp_id])
+    #     db.teams.insert_one(new_team.to_mongo())
+    # elif collection == 'competitions':
+    #     name = data['name'].strip().title()
+    #     new_comp = Competition(name=name, teams=[])
+    #     db.competitions.insert_one(new_comp.to_mongo())
     return SUCCESS_201
 
 
