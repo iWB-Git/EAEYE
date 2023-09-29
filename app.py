@@ -2944,7 +2944,7 @@ def upload_players_csv():
 
 
 if __name__ == '__main__':
-    upload_fixture_csv(CSV_JSON_FIXTURE)
+    # upload_fixture_csv(CSV_JSON_FIXTURE)
     app.debug = False
     app.run()
     # test_player = Player(name='test', dob='testdob', nationality='testNat', jersey_num='', supporting_file='asdf', position='pog')
