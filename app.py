@@ -3455,8 +3455,8 @@ def upload_fixture_csv():
             print('ROUND: ' + str(round['round']) + '\n\n')
             for i in range(0, len(round['round_data'])):
                 print(round['round_data'][i])
-                home_id = db.teams.find_one({'name': round['round_data'][i]['HomeTeam']})['_id']
-                away_id = db.teams.find_one({'name': round['round_data'][i]['AwayTeam']})['_id']
+                home_id = return_oid(db.teams.find_one({'name': round['round_data'][i]['HomeTeam']})['_id'])
+                away_id = return_oid(db.teams.find_one({'name': round['round_data'][i]['AwayTeam']})['_id'])
                 new_match = Match(
                     competition_id=comp_id,
                     home_team=home_id,
