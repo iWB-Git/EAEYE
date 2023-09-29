@@ -33,6 +33,2323 @@ from bson.objectid import ObjectId
 # from fixture_csv_parse import parse_fixtures
 
 TEST_JSON_FIXTURE = {"competition_name":"Ligi Kuu Tanzania Bara","competition_year":"2023/24","rounds":"4","round_data":[{"round":1,"round_data":[{"MatchUp":1,"Date":"2023-08-08","HomeTeam":"Young Africans Sports Club","AwayTeam":"Singida BS","FullMatchURL":"https://www.youtube.com","Venue":"Bukhungu Stadium"},{"MatchUp":2,"Date":"2023-08-23","HomeTeam":"Young Africans Sports Club","AwayTeam":"Ihefu Sports Club","FullMatchURL":"https://www.youtube.com","Venue":"Bukhungu Stadium"},{"MatchUp":3,"Date":"2023-08-17","HomeTeam":"Azam Football Club","AwayTeam":"Mtibwa Sugar Sports Club","FullMatchURL":"https://www.youtube.com","Venue":"Bukhungu Stadium"},{"MatchUp":4,"Date":"2023-08-17","HomeTeam":"Young Africans Sports Club","AwayTeam":"Mtibwa Sugar Sports Club","FullMatchURL":"https://www.youtube.com","Venue":"Bukhungu Stadium"}]},{"round":2,"round_data":[{"MatchUp":1,"Date":"2023-08-04","HomeTeam":"Young Africans Sports Club","AwayTeam":"Azam Football Club","FullMatchURL":"https://www.youtube.com","Venue":"Bukhungu Stadium"},{"MatchUp":2,"Date":"2023-08-11","HomeTeam":"Young Africans Sports Club","AwayTeam":"Ihefu Sports Club","FullMatchURL":"https://www.youtube.com","Venue":"Bukhungu Stadium"},{"MatchUp":3,"Date":"2023-08-18","HomeTeam":"Geita Gold FC","AwayTeam":"Fountain Gate Princess","FullMatchURL":"https://www.youtube.com","Venue":"Bukhungu Stadium"},{"MatchUp":4,"Date":"2023-08-18","HomeTeam":"Mtibwa Sugar Sports Club","AwayTeam":"Singida BS","FullMatchURL":"-","Venue":"Bukhungu Stadium"}]},{"round":3,"round_data":[{"MatchUp":1,"Date":"2023-08-09","HomeTeam":"KMC FC","AwayTeam":"Geita Gold FC","FullMatchURL":"https://www.youtube.com","Venue":"-"},{"MatchUp":2,"Date":"2023-08-03","HomeTeam":"Namungo FC","AwayTeam":"Namungo FC","FullMatchURL":"https://www.youtube.com","Venue":"-"},{"MatchUp":3,"Date":"2023-08-18","HomeTeam":"Ihefu Sports Club","AwayTeam":"Coastal Union SC","FullMatchURL":"https://www.youtube.com","Venue":"-"},{"MatchUp":4,"Date":"2023-08-25","HomeTeam":"Singida BS","AwayTeam":"Fountain Gate Princess","FullMatchURL":"-","Venue":"-"}]}]}
+CSV_JSON_FIXTURE = {
+  "competition_name": "CAF Confederations Cup",
+  "competition_year": "2023/24",
+  "rounds": 30,
+  "round_data": [
+    {
+      "round": 1,
+      "round_data": [
+        {
+          "MatchUp": 1,
+          "Date": "Tuesday 15/08/2023",
+          "HomeTeam": "Ihefu Sports Club",
+          "AwayTeam": "Geita Gold FC",
+          "FullMatchURL": "",
+          "Venue": "Highland Estates",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 2,
+          "Date": "Tuesday 15/08/2023",
+          "HomeTeam": "Namungo FC",
+          "AwayTeam": "JKT Tanzania Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Majaliwa Stadium",
+          "Time": "6:00:00 PM"
+        },
+        {
+          "MatchUp": 3,
+          "Date": "Tuesday 15/08/2023",
+          "HomeTeam": "Dodoma Jiji FC",
+          "AwayTeam": "Coastal Union SC",
+          "FullMatchURL": "",
+          "Venue": "Jamhuri Stadium",
+          "Time": "9:00:00 PM"
+        },
+        {
+          "MatchUp": 4,
+          "Date": "Wednesday 16/08/2023",
+          "HomeTeam": "Mashujaa FC",
+          "AwayTeam": "Kagera Sugar Football Club",
+          "FullMatchURL": "",
+          "Venue": "Lake Tanganyika",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 5,
+          "Date": "Wednesday 16/08/2023",
+          "HomeTeam": "Azam Football Club",
+          "AwayTeam": "Kitayosa FC",
+          "FullMatchURL": "",
+          "Venue": "Azam Complex",
+          "Time": "7:00:00 PM"
+        },
+        {
+          "MatchUp": 6,
+          "Date": "Thursday 17/08/2023",
+          "HomeTeam": "Mtibwa Sugar Sports Club",
+          "AwayTeam": "Simba Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Manungu Stadium",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 7,
+          "Date": "Tuesday 22/08/2023",
+          "HomeTeam": "Singida BS",
+          "AwayTeam": "Tanzania Prisons Football Club",
+          "FullMatchURL": "",
+          "Venue": "Liti Stadium",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 8,
+          "Date": "Wednesday 23/08/2023",
+          "HomeTeam": "Young Africans Sports Club",
+          "AwayTeam": "KMC FC",
+          "FullMatchURL": "",
+          "Venue": "Azam Complex",
+          "Time": "7:00:00 PM"
+        }
+      ]
+    },
+    {
+      "round": 2,
+      "round_data": [
+        {
+          "MatchUp": 1,
+          "Date": "Saturday 19/08/2023",
+          "HomeTeam": "Ihefu Sports Club",
+          "AwayTeam": "Kagera Sugar Football Club",
+          "FullMatchURL": "",
+          "Venue": "Highland Estates",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 2,
+          "Date": "Saturday 19/08/2023",
+          "HomeTeam": "Namungo FC",
+          "AwayTeam": "KMC FC",
+          "FullMatchURL": "",
+          "Venue": "Majaliwa Stadium",
+          "Time": "7:00:00 PM"
+        },
+        {
+          "MatchUp": 3,
+          "Date": "Sunday 20/08/2023",
+          "HomeTeam": "Mtibwa Sugar Sports Club",
+          "AwayTeam": "Coastal Union SC",
+          "FullMatchURL": "",
+          "Venue": "Manungu Stadium",
+          "Time": "2:00:00 PM"
+        },
+        {
+          "MatchUp": 4,
+          "Date": "Sunday 20/08/2023",
+          "HomeTeam": "Simba Sports Club",
+          "AwayTeam": "Dodoma Jiji FC",
+          "FullMatchURL": "",
+          "Venue": "Uhuru Stadium",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 5,
+          "Date": "Monday 21/08/2023",
+          "HomeTeam": "Mashujaa FC",
+          "AwayTeam": "Geita Gold FC",
+          "FullMatchURL": "",
+          "Venue": "Lake Tanganyika",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 6,
+          "Date": "Monday 28/08/2023",
+          "HomeTeam": "Azam Football Club",
+          "AwayTeam": "Tanzania Prisons Football Club",
+          "FullMatchURL": "",
+          "Venue": "Azam Complex",
+          "Time": "9:00:00 PM"
+        },
+        {
+          "MatchUp": 7,
+          "Date": "Tuesday 29/08/2023",
+          "HomeTeam": "Young Africans Sports Club",
+          "AwayTeam": "JKT Tanzania Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Azam Complex",
+          "Time": "7:00:00 PM"
+        },
+        {
+          "MatchUp": 8,
+          "Date": "Thursday 31/08/2023",
+          "HomeTeam": "Singida BS",
+          "AwayTeam": "Kitayosa FC",
+          "FullMatchURL": "",
+          "Venue": "Liti Stadium",
+          "Time": "4:00:00 PM"
+        }
+      ]
+    },
+    {
+      "round": 3,
+      "round_data": [
+        {
+          "MatchUp": 1,
+          "Date": "Friday 15/09/2023",
+          "HomeTeam": "KMC FC",
+          "AwayTeam": "JKT Tanzania Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Uhuru Stadium",
+          "Time": "2:00:00 PM"
+        },
+        {
+          "MatchUp": 2,
+          "Date": "Friday 15/09/2023",
+          "HomeTeam": "Kitayosa FC",
+          "AwayTeam": "Tanzania Prisons Football Club",
+          "FullMatchURL": "",
+          "Venue": "Ali Hassan Mwinyi",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 3,
+          "Date": "Friday 15/09/2023",
+          "HomeTeam": "Dodoma Jiji FC",
+          "AwayTeam": "Mtibwa Sugar Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Jamhuri Stadium",
+          "Time": "7:00:00 PM"
+        },
+        {
+          "MatchUp": 4,
+          "Date": "Saturday 16/09/2023",
+          "HomeTeam": "Simba Sports Club",
+          "AwayTeam": "Coastal Union SC",
+          "FullMatchURL": "",
+          "Venue": "Uhuru Stadium",
+          "Time": "1:00:00 AM"
+        },
+        {
+          "MatchUp": 5,
+          "Date": "Saturday 16/09/2023",
+          "HomeTeam": "Young Africans Sports Club",
+          "AwayTeam": "Namungo FC",
+          "FullMatchURL": "",
+          "Venue": "Azam Complex",
+          "Time": "1:00:00 AM"
+        },
+        {
+          "MatchUp": 6,
+          "Date": "Saturday 16/09/2023",
+          "HomeTeam": "Azam Football Club",
+          "AwayTeam": "Singida BS",
+          "FullMatchURL": "",
+          "Venue": "Azam Complex",
+          "Time": "1:00:00 AM"
+        },
+        {
+          "MatchUp": 7,
+          "Date": "Saturday 16/09/2023",
+          "HomeTeam": "Mashujaa FC",
+          "AwayTeam": "Ihefu Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Lake Tanganyika",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 8,
+          "Date": "Saturday 16/09/2023",
+          "HomeTeam": "Kagera Sugar Football Club",
+          "AwayTeam": "Geita Gold FC",
+          "FullMatchURL": "",
+          "Venue": "Kaitaba Stadium",
+          "Time": "7:00:00 PM"
+        }
+      ]
+    },
+    {
+      "round": 4,
+      "round_data": [
+        {
+          "MatchUp": 1,
+          "Date": "Friday 29/09/2023",
+          "HomeTeam": "JKT Tanzania Sports Club",
+          "AwayTeam": "Kagera Sugar Football Club",
+          "FullMatchURL": "",
+          "Venue": "Black Rhino Stadium",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 2,
+          "Date": "Friday 29/09/2023",
+          "HomeTeam": "Coastal Union SC",
+          "AwayTeam": "Kitayosa FC",
+          "FullMatchURL": "",
+          "Venue": "Mkwakwani Stadium",
+          "Time": "7:00:00 PM"
+        },
+        {
+          "MatchUp": 3,
+          "Date": "Saturday 30/09/2023",
+          "HomeTeam": "Geita Gold FC",
+          "AwayTeam": "KMC FC",
+          "FullMatchURL": "",
+          "Venue": "Nyankumbu Stadium",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 4,
+          "Date": "Saturday 30/09/2023",
+          "HomeTeam": "Namungo FC",
+          "AwayTeam": "Mashujaa FC",
+          "FullMatchURL": "",
+          "Venue": "Majaliwa Stadium",
+          "Time": "7:00:00 PM"
+        },
+        {
+          "MatchUp": 5,
+          "Date": "Tuesday 03/10/2023",
+          "HomeTeam": "Tanzania Prisons Football Club",
+          "AwayTeam": "Simba Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Sokoine Stadium",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 6,
+          "Date": "Tuesday 03/10/2023",
+          "HomeTeam": "Dodoma Jiji FC",
+          "AwayTeam": "Azam Football Club",
+          "FullMatchURL": "",
+          "Venue": "Jamhuri Stadium",
+          "Time": "7:00:00 PM"
+        },
+        {
+          "MatchUp": 7,
+          "Date": "Wednesday 04/10/2023",
+          "HomeTeam": "Ihefu Sports Club",
+          "AwayTeam": "Young Africans Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Highland Estates",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 8,
+          "Date": "Thursday 05/10/2023",
+          "HomeTeam": "Mtibwa Sugar Sports Club",
+          "AwayTeam": "Singida BS",
+          "FullMatchURL": "",
+          "Venue": "Manungu Stadium",
+          "Time": "4:00:00 PM"
+        }
+      ]
+    },
+    {
+      "round": 5,
+      "round_data": [
+        {
+          "MatchUp": 1,
+          "Date": "Thursday 19/10/2023",
+          "HomeTeam": "Tanzania Prisons Football Club",
+          "AwayTeam": "Mtibwa Sugar Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Sokoine Stadium",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 2,
+          "Date": "Friday 20/10/2023",
+          "HomeTeam": "JKT Tanzania Sports Club",
+          "AwayTeam": "Mashujaa FC",
+          "FullMatchURL": "",
+          "Venue": "Black Rhino Stadium",
+          "Time": "2:00:00 PM"
+        },
+        {
+          "MatchUp": 3,
+          "Date": "Friday 20/10/2023",
+          "HomeTeam": "KMC FC",
+          "AwayTeam": "Ihefu Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Uhuru Stadium",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 4,
+          "Date": "Friday 20/10/2023",
+          "HomeTeam": "Kagera Sugar Football Club",
+          "AwayTeam": "Namungo FC",
+          "FullMatchURL": "",
+          "Venue": "Kaitaba Stadium",
+          "Time": "7:00:00 PM"
+        },
+        {
+          "MatchUp": 5,
+          "Date": "Saturday 21/10/2023",
+          "HomeTeam": "Coastal Union SC",
+          "AwayTeam": "Azam Football Club",
+          "FullMatchURL": "",
+          "Venue": "Mkwakwani Stadium",
+          "Time": "7:00:00 PM"
+        },
+        {
+          "MatchUp": 6,
+          "Date": "Sunday 22/10/2023",
+          "HomeTeam": "Singida BS",
+          "AwayTeam": "Simba Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Liti Stadium",
+          "Time": "1:00:00 AM"
+        },
+        {
+          "MatchUp": 7,
+          "Date": "Sunday 22/10/2023",
+          "HomeTeam": "Kitayosa FC",
+          "AwayTeam": "Dodoma Jiji FC",
+          "FullMatchURL": "",
+          "Venue": "Ali Hassan Mwinyi",
+          "Time": "2:00:00 PM"
+        },
+        {
+          "MatchUp": 8,
+          "Date": "Sunday 22/10/2023",
+          "HomeTeam": "Geita Gold FC",
+          "AwayTeam": "Young Africans Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Nyankumbu Stadium",
+          "Time": "4:00:00 PM"
+        }
+      ]
+    },
+    {
+      "round": 6,
+      "round_data": [
+        {
+          "MatchUp": 1,
+          "Date": "Monday 23/10/2023",
+          "HomeTeam": "Mtibwa Sugar Sports Club",
+          "AwayTeam": "Kagera Sugar Football Club",
+          "FullMatchURL": "",
+          "Venue": "Manungu Stadium",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 2,
+          "Date": "Tuesday 24/10/2023",
+          "HomeTeam": "Tanzania Prisons Football Club",
+          "AwayTeam": "JKT Tanzania Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Sokoine Stadium",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 3,
+          "Date": "Wednesday 25/10/2023",
+          "HomeTeam": "Geita Gold FC",
+          "AwayTeam": "Dodoma Jiji FC",
+          "FullMatchURL": "",
+          "Venue": "Nyankumbu Stadium",
+          "Time": "2:00:00 PM"
+        },
+        {
+          "MatchUp": 4,
+          "Date": "Wednesday 25/10/2023",
+          "HomeTeam": "Kitayosa FC",
+          "AwayTeam": "KMC FC",
+          "FullMatchURL": "",
+          "Venue": "Ali Hassan Mwinyi",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 5,
+          "Date": "Wednesday 25/10/2023",
+          "HomeTeam": "Young Africans Sports Club",
+          "AwayTeam": "Azam Football Club",
+          "FullMatchURL": "",
+          "Venue": "Benjamin Mkapa",
+          "Time": "6:00:00 PM"
+        },
+        {
+          "MatchUp": 6,
+          "Date": "Wednesday 25/10/2023",
+          "HomeTeam": "Namungo FC",
+          "AwayTeam": "Singida BS",
+          "FullMatchURL": "",
+          "Venue": "Majaliwa Stadium",
+          "Time": "9:00:00 PM"
+        },
+        {
+          "MatchUp": 7,
+          "Date": "Thursday 26/10/2023",
+          "HomeTeam": "Mashujaa FC",
+          "AwayTeam": "Simba Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Lake Tanganyika",
+          "Time": "1:00:00 AM"
+        },
+        {
+          "MatchUp": 8,
+          "Date": "Thursday 26/10/2023",
+          "HomeTeam": "Ihefu Sports Club",
+          "AwayTeam": "Coastal Union SC",
+          "FullMatchURL": "",
+          "Venue": "Highland Estates",
+          "Time": "4:00:00 PM"
+        }
+      ]
+    },
+    {
+      "round": 7,
+      "round_data": [
+        {
+          "MatchUp": 1,
+          "Date": "Saturday 28/10/2023",
+          "HomeTeam": "JKT Tanzania Sports Club",
+          "AwayTeam": "Kitayosa FC",
+          "FullMatchURL": "",
+          "Venue": "Black Rhino Stadium",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 2,
+          "Date": "Saturday 28/10/2023",
+          "HomeTeam": "Young Africans Sports Club",
+          "AwayTeam": "Singida BS",
+          "FullMatchURL": "",
+          "Venue": "Benjamin Mkapa",
+          "Time": "6:00:00 PM"
+        },
+        {
+          "MatchUp": 3,
+          "Date": "Saturday 28/10/2023",
+          "HomeTeam": "Dodoma Jiji FC",
+          "AwayTeam": "Kagera Sugar Football Club",
+          "FullMatchURL": "",
+          "Venue": "Jamhuri Stadium",
+          "Time": "9:00:00 PM"
+        },
+        {
+          "MatchUp": 4,
+          "Date": "Sunday 29/10/2023",
+          "HomeTeam": "Simba Sports Club",
+          "AwayTeam": "Ihefu Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Benjamin Mkapa",
+          "Time": "1:00:00 AM"
+        },
+        {
+          "MatchUp": 5,
+          "Date": "Sunday 29/10/2023",
+          "HomeTeam": "KMC FC",
+          "AwayTeam": "Tanzania Prisons Football Club",
+          "FullMatchURL": "",
+          "Venue": "Uhuru Stadium",
+          "Time": "2:00:00 PM"
+        },
+        {
+          "MatchUp": 6,
+          "Date": "Sunday 29/10/2023",
+          "HomeTeam": "Mtibwa Sugar Sports Club",
+          "AwayTeam": "Geita Gold FC",
+          "FullMatchURL": "",
+          "Venue": "Manungu Stadium",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 7,
+          "Date": "Sunday 29/10/2023",
+          "HomeTeam": "Coastal Union SC",
+          "AwayTeam": "Mashujaa FC",
+          "FullMatchURL": "",
+          "Venue": "Mkwakwani Stadium",
+          "Time": "6:00:00 PM"
+        },
+        {
+          "MatchUp": 8,
+          "Date": "Sunday 29/10/2023",
+          "HomeTeam": "Azam Football Club",
+          "AwayTeam": "Namungo FC",
+          "FullMatchURL": "",
+          "Venue": "Azam Complex",
+          "Time": "9:00:00 PM"
+        }
+      ]
+    },
+    {
+      "round": 8,
+      "round_data": [
+        {
+          "MatchUp": 1,
+          "Date": "Tuesday 31/10/2023",
+          "HomeTeam": "JKT Tanzania Sports Club",
+          "AwayTeam": "Dodoma Jiji FC",
+          "FullMatchURL": "",
+          "Venue": "Black Rhino Stadium",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 2,
+          "Date": "Wednesday 01/11/2023",
+          "HomeTeam": "KMC FC",
+          "AwayTeam": "Mtibwa Sugar Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Uhuru Stadium",
+          "Time": "2:00:00 PM"
+        },
+        {
+          "MatchUp": 3,
+          "Date": "Wednesday 01/11/2023",
+          "HomeTeam": "Tanzania Prisons Football Club",
+          "AwayTeam": "Geita Gold FC",
+          "FullMatchURL": "",
+          "Venue": "Sokoine Stadium",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 4,
+          "Date": "Wednesday 01/11/2023",
+          "HomeTeam": "Kagera Sugar Football Club",
+          "AwayTeam": "Kitayosa FC",
+          "FullMatchURL": "",
+          "Venue": "Kaitaba Stadium",
+          "Time": "7:00:00 PM"
+        },
+        {
+          "MatchUp": 5,
+          "Date": "Thursday 02/11/2023",
+          "HomeTeam": "Singida BS",
+          "AwayTeam": "Ihefu Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Liti Stadium",
+          "Time": "2:00:00 PM"
+        },
+        {
+          "MatchUp": 6,
+          "Date": "Thursday 02/11/2023",
+          "HomeTeam": "Mashujaa FC",
+          "AwayTeam": "Azam Football Club",
+          "FullMatchURL": "",
+          "Venue": "Lake Tanganyika",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 7,
+          "Date": "Thursday 02/11/2023",
+          "HomeTeam": "Coastal Union SC",
+          "AwayTeam": "Namungo FC",
+          "FullMatchURL": "",
+          "Venue": "Mkwakwani Stadium",
+          "Time": "7:00:00 PM"
+        },
+        {
+          "MatchUp": 8,
+          "Date": "Sunday 05/11/2023",
+          "HomeTeam": "Simba Sports Club",
+          "AwayTeam": "Young Africans Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Benjamin Mkapa",
+          "Time": "5:00:00 PM"
+        }
+      ]
+    },
+    {
+      "round": 9,
+      "round_data": [
+        {
+          "MatchUp": 1,
+          "Date": "Saturday 04/11/2023",
+          "HomeTeam": "KMC FC",
+          "AwayTeam": "Dodoma Jiji FC",
+          "FullMatchURL": "",
+          "Venue": "Uhuru Stadium",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 2,
+          "Date": "Sunday 05/11/2023",
+          "HomeTeam": "Mtibwa Sugar Sports Club",
+          "AwayTeam": "JKT Tanzania Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Manungu Stadium",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 3,
+          "Date": "Sunday 05/11/2023",
+          "HomeTeam": "Kagera Sugar Football Club",
+          "AwayTeam": "Tanzania Prisons Football Club",
+          "FullMatchURL": "",
+          "Venue": "Kaitaba Stadium",
+          "Time": "7:00:00 PM"
+        },
+        {
+          "MatchUp": 4,
+          "Date": "Monday 06/11/2023",
+          "HomeTeam": "Ihefu Sports Club",
+          "AwayTeam": "Azam Football Club",
+          "FullMatchURL": "",
+          "Venue": "Highland Estates",
+          "Time": "2:00:00 PM"
+        },
+        {
+          "MatchUp": 5,
+          "Date": "Monday 06/11/2023",
+          "HomeTeam": "Mashujaa FC",
+          "AwayTeam": "Singida BS",
+          "FullMatchURL": "",
+          "Venue": "Lake Tanganyika",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 6,
+          "Date": "Tuesday 07/11/2023",
+          "HomeTeam": "Geita Gold FC",
+          "AwayTeam": "Kitayosa FC",
+          "FullMatchURL": "",
+          "Venue": "Nyankumbu Stadium",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 7,
+          "Date": "Saturday 11/11/2023",
+          "HomeTeam": "Simba Sports Club",
+          "AwayTeam": "Namungo FC",
+          "FullMatchURL": "",
+          "Venue": "Mkwakwani Stadium",
+          "Time": "2:00:00 AM"
+        },
+        {
+          "MatchUp": 8,
+          "Date": "Saturday 11/11/2023",
+          "HomeTeam": "Coastal Union SC",
+          "AwayTeam": "Young Africans Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Benjamin Mkapa",
+          "Time": "7:00:00 PM"
+        }
+      ]
+    },
+    {
+      "round": 10,
+      "round_data": [
+        {
+          "MatchUp": 1,
+          "Date": "Friday 24/11/2023",
+          "HomeTeam": "Geita Gold FC",
+          "AwayTeam": "JKT Tanzania Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Nyankumbu Stadium",
+          "Time": "2:00:00 PM"
+        },
+        {
+          "MatchUp": 2,
+          "Date": "Friday 24/11/2023",
+          "HomeTeam": "Kagera Sugar Football Club",
+          "AwayTeam": "KMC FC",
+          "FullMatchURL": "",
+          "Venue": "Kaitaba Stadium",
+          "Time": "7:00:00 PM"
+        },
+        {
+          "MatchUp": 3,
+          "Date": "Saturday 25/11/2023",
+          "HomeTeam": "Kitayosa FC",
+          "AwayTeam": "Simba Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Ali Hassan Mwinyi",
+          "Time": "2:00:00 AM"
+        },
+        {
+          "MatchUp": 4,
+          "Date": "Saturday 25/11/2023",
+          "HomeTeam": "Dodoma Jiji FC",
+          "AwayTeam": "Singida BS",
+          "FullMatchURL": "",
+          "Venue": "Jamhuri Stadium",
+          "Time": "2:00:00 AM"
+        },
+        {
+          "MatchUp": 5,
+          "Date": "Saturday 25/11/2023",
+          "HomeTeam": "Young Africans Sports Club",
+          "AwayTeam": "Mashujaa FC",
+          "FullMatchURL": "",
+          "Venue": "Benjamin Mkapa",
+          "Time": "2:00:00 AM"
+        },
+        {
+          "MatchUp": 6,
+          "Date": "Saturday 25/11/2023",
+          "HomeTeam": "Azam Football Club",
+          "AwayTeam": "Mtibwa Sugar Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Azam Complex",
+          "Time": "2:00:00 AM"
+        },
+        {
+          "MatchUp": 7,
+          "Date": "Saturday 25/11/2023",
+          "HomeTeam": "Tanzania Prisons Football Club",
+          "AwayTeam": "Coastal Union SC",
+          "FullMatchURL": "",
+          "Venue": "Sokoine Stadium",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 8,
+          "Date": "Saturday 25/11/2023",
+          "HomeTeam": "Namungo FC",
+          "AwayTeam": "Ihefu Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Majaliwa Stadium",
+          "Time": "7:00:00 PM"
+        }
+      ]
+    },
+    {
+      "round": 11,
+      "round_data": [
+        {
+          "MatchUp": 1,
+          "Date": "Tuesday 28/11/2023",
+          "HomeTeam": "Geita Gold FC",
+          "AwayTeam": "Namungo FC",
+          "FullMatchURL": "",
+          "Venue": "Nyankumbu Stadium",
+          "Time": "2:00:00 PM"
+        },
+        {
+          "MatchUp": 2,
+          "Date": "Tuesday 28/11/2023",
+          "HomeTeam": "Singida BS",
+          "AwayTeam": "Coastal Union SC",
+          "FullMatchURL": "",
+          "Venue": "Liti Stadium",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 3,
+          "Date": "Tuesday 28/11/2023",
+          "HomeTeam": "Simba Sports Club",
+          "AwayTeam": "Azam Football Club",
+          "FullMatchURL": "",
+          "Venue": "Benjamin Mkapa",
+          "Time": "7:00:00 PM"
+        },
+        {
+          "MatchUp": 4,
+          "Date": "Wednesday 29/11/2023",
+          "HomeTeam": "Tanzania Prisons Football Club",
+          "AwayTeam": "Dodoma Jiji FC",
+          "FullMatchURL": "",
+          "Venue": "Sokoine Stadium",
+          "Time": "2:00:00 PM"
+        },
+        {
+          "MatchUp": 5,
+          "Date": "Wednesday 29/11/2023",
+          "HomeTeam": "KMC FC",
+          "AwayTeam": "Mashujaa FC",
+          "FullMatchURL": "",
+          "Venue": "Uhuru Stadium",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 6,
+          "Date": "Wednesday 29/11/2023",
+          "HomeTeam": "Kagera Sugar Football Club",
+          "AwayTeam": "Young Africans Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Kaitaba Stadium",
+          "Time": "7:00:00 PM"
+        },
+        {
+          "MatchUp": 7,
+          "Date": "Thursday 30/11/2023",
+          "HomeTeam": "JKT Tanzania Sports Club",
+          "AwayTeam": "Ihefu Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Black Rhino Stadium",
+          "Time": "2:00:00 PM"
+        },
+        {
+          "MatchUp": 8,
+          "Date": "Thursday 30/11/2023",
+          "HomeTeam": "Kitayosa FC",
+          "AwayTeam": "Mtibwa Sugar Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Ali Hassan Mwinyi",
+          "Time": "4:00:00 PM"
+        }
+      ]
+    },
+    {
+      "round": 12,
+      "round_data": [
+        {
+          "MatchUp": 1,
+          "Date": "Sunday 03/12/2023",
+          "HomeTeam": "Mashujaa FC",
+          "AwayTeam": "Kitayosa FC",
+          "FullMatchURL": "",
+          "Venue": "Lake Tanganyika",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 2,
+          "Date": "Sunday 03/12/2023",
+          "HomeTeam": "Coastal Union SC",
+          "AwayTeam": "Geita Gold FC",
+          "FullMatchURL": "",
+          "Venue": "Mkwakwani Stadium",
+          "Time": "6:00:00 PM"
+        },
+        {
+          "MatchUp": 3,
+          "Date": "Sunday 03/12/2023",
+          "HomeTeam": "Namungo FC",
+          "AwayTeam": "Dodoma Jiji FC",
+          "FullMatchURL": "",
+          "Venue": "Majaliwa Stadium",
+          "Time": "9:00:00 PM"
+        },
+        {
+          "MatchUp": 4,
+          "Date": "Monday 04/12/2023",
+          "HomeTeam": "Young Africans Sports Club",
+          "AwayTeam": "Mtibwa Sugar Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Benjamin Mkapa",
+          "Time": "2:00:00 AM"
+        },
+        {
+          "MatchUp": 5,
+          "Date": "Monday 04/12/2023",
+          "HomeTeam": "Simba Sports Club",
+          "AwayTeam": "Kagera Sugar Football Club",
+          "FullMatchURL": "",
+          "Venue": "Benjamin Mkapa",
+          "Time": "2:00:00 AM"
+        },
+        {
+          "MatchUp": 6,
+          "Date": "Monday 04/12/2023",
+          "HomeTeam": "Azam Football Club",
+          "AwayTeam": "KMC FC",
+          "FullMatchURL": "",
+          "Venue": "Azam Complex",
+          "Time": "2:00:00 AM"
+        },
+        {
+          "MatchUp": 7,
+          "Date": "Monday 04/12/2023",
+          "HomeTeam": "Singida BS",
+          "AwayTeam": "JKT Tanzania Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Liti Stadium",
+          "Time": "2:00:00 AM"
+        },
+        {
+          "MatchUp": 8,
+          "Date": "Monday 04/12/2023",
+          "HomeTeam": "Ihefu Sports Club",
+          "AwayTeam": "Tanzania Prisons Football Club",
+          "FullMatchURL": "",
+          "Venue": "Highland Estates",
+          "Time": "4:00:00 PM"
+        }
+      ]
+    },
+    {
+      "round": 13,
+      "round_data": [
+        {
+          "MatchUp": 1,
+          "Date": "Saturday 09/12/2023",
+          "HomeTeam": "Mashujaa FC",
+          "AwayTeam": "Tanzania Prisons Football Club",
+          "FullMatchURL": "",
+          "Venue": "Lake Tanganyika",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 2,
+          "Date": "Saturday 09/12/2023",
+          "HomeTeam": "Namungo FC",
+          "AwayTeam": "Mtibwa Sugar Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Majaliwa Stadium",
+          "Time": "7:00:00 PM"
+        },
+        {
+          "MatchUp": 3,
+          "Date": "Sunday 10/12/2023",
+          "HomeTeam": "Geita Gold FC",
+          "AwayTeam": "Simba Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Nyankumbu Stadium",
+          "Time": "2:00:00 AM"
+        },
+        {
+          "MatchUp": 4,
+          "Date": "Sunday 10/12/2023",
+          "HomeTeam": "Singida BS",
+          "AwayTeam": "KMC FC",
+          "FullMatchURL": "",
+          "Venue": "Liti Stadium",
+          "Time": "2:00:00 AM"
+        },
+        {
+          "MatchUp": 5,
+          "Date": "Sunday 10/12/2023",
+          "HomeTeam": "Young Africans Sports Club",
+          "AwayTeam": "Dodoma Jiji FC",
+          "FullMatchURL": "",
+          "Venue": "Benjamin Mkapa",
+          "Time": "2:00:00 AM"
+        },
+        {
+          "MatchUp": 6,
+          "Date": "Sunday 10/12/2023",
+          "HomeTeam": "Azam Football Club",
+          "AwayTeam": "JKT Tanzania Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Azam Complex",
+          "Time": "2:00:00 AM"
+        },
+        {
+          "MatchUp": 7,
+          "Date": "Sunday 10/12/2023",
+          "HomeTeam": "Ihefu Sports Club",
+          "AwayTeam": "Kitayosa FC",
+          "FullMatchURL": "",
+          "Venue": "Highland Estates",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 8,
+          "Date": "Sunday 10/12/2023",
+          "HomeTeam": "Coastal Union SC",
+          "AwayTeam": "Kagera Sugar Football Club",
+          "FullMatchURL": "",
+          "Venue": "Mkwakwani Stadium",
+          "Time": "7:00:00 PM"
+        }
+      ]
+    },
+    {
+      "round": 14,
+      "round_data": [
+        {
+          "MatchUp": 1,
+          "Date": "Tuesday 19/12/2023",
+          "HomeTeam": "JKT Tanzania Sports Club",
+          "AwayTeam": "Coastal Union SC",
+          "FullMatchURL": "",
+          "Venue": "Black Rhino Stadium",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 2,
+          "Date": "Wednesday 20/12/2023",
+          "HomeTeam": "Mtibwa Sugar Sports Club",
+          "AwayTeam": "Mashujaa FC",
+          "FullMatchURL": "",
+          "Venue": "Manungu Stadium",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 3,
+          "Date": "Wednesday 20/12/2023",
+          "HomeTeam": "Dodoma Jiji FC",
+          "AwayTeam": "Ihefu Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Jamhuri Stadium",
+          "Time": "7:00:00 PM"
+        },
+        {
+          "MatchUp": 4,
+          "Date": "Thursday 21/12/2023",
+          "HomeTeam": "Geita Gold FC",
+          "AwayTeam": "Singida BS",
+          "FullMatchURL": "",
+          "Venue": "Nyankumbu Stadium",
+          "Time": "2:00:00 AM"
+        },
+        {
+          "MatchUp": 5,
+          "Date": "Thursday 21/12/2023",
+          "HomeTeam": "Kitayosa FC",
+          "AwayTeam": "Young Africans Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Ali Hassan Mwinyi",
+          "Time": "2:00:00 AM"
+        },
+        {
+          "MatchUp": 6,
+          "Date": "Thursday 21/12/2023",
+          "HomeTeam": "KMC FC",
+          "AwayTeam": "Simba Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Benjamin Mkapa",
+          "Time": "2:00:00 AM"
+        },
+        {
+          "MatchUp": 7,
+          "Date": "Thursday 21/12/2023",
+          "HomeTeam": "Kagera Sugar Football Club",
+          "AwayTeam": "Azam Football Club",
+          "FullMatchURL": "",
+          "Venue": "Kaitaba Stadium",
+          "Time": "2:00:00 AM"
+        },
+        {
+          "MatchUp": 8,
+          "Date": "Thursday 21/12/2023",
+          "HomeTeam": "Tanzania Prisons Football Club",
+          "AwayTeam": "Namungo FC",
+          "FullMatchURL": "",
+          "Venue": "Sokoine Stadium",
+          "Time": "4:00:00 PM"
+        }
+      ]
+    },
+    {
+      "round": 15,
+      "round_data": [
+        {
+          "MatchUp": 1,
+          "Date": "Tuesday 26/12/2023",
+          "HomeTeam": "Mtibwa Sugar Sports Club",
+          "AwayTeam": "Ihefu Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Manungu Stadium",
+          "Time": "2:00:00 PM"
+        },
+        {
+          "MatchUp": 2,
+          "Date": "Tuesday 26/12/2023",
+          "HomeTeam": "KMC FC",
+          "AwayTeam": "Coastal Union SC",
+          "FullMatchURL": "",
+          "Venue": "Uhuru Stadium",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 3,
+          "Date": "Tuesday 26/12/2023",
+          "HomeTeam": "Kagera Sugar Football Club",
+          "AwayTeam": "Singida BS",
+          "FullMatchURL": "",
+          "Venue": "Kaitaba Stadium",
+          "Time": "7:00:00 PM"
+        },
+        {
+          "MatchUp": 4,
+          "Date": "Wednesday 27/12/2023",
+          "HomeTeam": "Tanzania Prisons Football Club",
+          "AwayTeam": "Young Africans Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Sokoine Stadium",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 5,
+          "Date": "Wednesday 27/12/2023",
+          "HomeTeam": "Dodoma Jiji FC",
+          "AwayTeam": "Mashujaa FC",
+          "FullMatchURL": "",
+          "Venue": "Jamhuri Stadium",
+          "Time": "7:00:00 PM"
+        },
+        {
+          "MatchUp": 6,
+          "Date": "Thursday 28/12/2023",
+          "HomeTeam": "Kitayosa FC",
+          "AwayTeam": "Namungo FC",
+          "FullMatchURL": "",
+          "Venue": "Ali Hassan Mwinyi",
+          "Time": "2:00:00 PM"
+        },
+        {
+          "MatchUp": 7,
+          "Date": "Thursday 28/12/2023",
+          "HomeTeam": "JKT Tanzania Sports Club",
+          "AwayTeam": "Simba Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Black Rhino Stadium",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 8,
+          "Date": "Thursday 28/12/2023",
+          "HomeTeam": "Azam Football Club",
+          "AwayTeam": "Geita Gold FC",
+          "FullMatchURL": "",
+          "Venue": "Azam Complex",
+          "Time": "7:00:00 PM"
+        }
+      ]
+    },
+    {
+      "round": 16,
+      "round_data": [
+        {
+          "MatchUp": 1,
+          "Date": "Saturday 30/12/2023",
+          "HomeTeam": "KMC FC",
+          "AwayTeam": "Young Africans Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Benjamin Mkapa",
+          "Time": "6:00:00 PM"
+        },
+        {
+          "MatchUp": 2,
+          "Date": "Saturday 30/12/2023",
+          "HomeTeam": "Coastal Union SC",
+          "AwayTeam": "Dodoma Jiji FC",
+          "FullMatchURL": "",
+          "Venue": "Mkwakwani Stadium",
+          "Time": "9:00:00 PM"
+        },
+        {
+          "MatchUp": 3,
+          "Date": "Sunday 31/12/2023",
+          "HomeTeam": "Tanzania Prisons Football Club",
+          "AwayTeam": "Singida BS",
+          "FullMatchURL": "",
+          "Venue": "Sokoine Stadium",
+          "Time": "2:00:00 PM"
+        },
+        {
+          "MatchUp": 4,
+          "Date": "Sunday 31/12/2023",
+          "HomeTeam": "Kitayosa FC",
+          "AwayTeam": "Azam Football Club",
+          "FullMatchURL": "",
+          "Venue": "Ali Hassan Mwinyi",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 5,
+          "Date": "Sunday 31/12/2023",
+          "HomeTeam": "Simba Sports Club",
+          "AwayTeam": "Mtibwa Sugar Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Benjamin Mkapa",
+          "Time": "7:00:00 PM"
+        },
+        {
+          "MatchUp": 6,
+          "Date": "Monday 01/01/2024",
+          "HomeTeam": "JKT Tanzania Sports Club",
+          "AwayTeam": "Namungo FC",
+          "FullMatchURL": "",
+          "Venue": "Black Rhino Stadium",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 7,
+          "Date": "Monday 01/01/2024",
+          "HomeTeam": "Kagera Sugar Football Club",
+          "AwayTeam": "Mashujaa FC",
+          "FullMatchURL": "",
+          "Venue": "Kaitaba Stadium",
+          "Time": "7:00:00 PM"
+        },
+        {
+          "MatchUp": 8,
+          "Date": "Tuesday 02/01/2024",
+          "HomeTeam": "Geita Gold FC",
+          "AwayTeam": "Ihefu Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Nyankumbu Stadium",
+          "Time": "4:00:00 PM"
+        }
+      ]
+    },
+    {
+      "round": 17,
+      "round_data": [
+        {
+          "MatchUp": 1,
+          "Date": "Friday 16/02/2024",
+          "HomeTeam": "Tanzania Prisons Football Club",
+          "AwayTeam": "Azam Football Club",
+          "FullMatchURL": "",
+          "Venue": "Sokoine Stadium",
+          "Time": "2:00:00 PM"
+        },
+        {
+          "MatchUp": 2,
+          "Date": "Friday 16/02/2024",
+          "HomeTeam": "Kitayosa FC",
+          "AwayTeam": "Singida BS",
+          "FullMatchURL": "",
+          "Venue": "Ali Hassan Mwinyi",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 3,
+          "Date": "Friday 16/02/2024",
+          "HomeTeam": "Coastal Union SC",
+          "AwayTeam": "Mtibwa Sugar Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Mkwakwani Stadium",
+          "Time": "7:00:00 PM"
+        },
+        {
+          "MatchUp": 4,
+          "Date": "Saturday 17/02/2024",
+          "HomeTeam": "Geita Gold FC",
+          "AwayTeam": "Mashujaa FC",
+          "FullMatchURL": "",
+          "Venue": "Nyankumbu Stadium",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 5,
+          "Date": "Saturday 17/02/2024",
+          "HomeTeam": "Dodoma Jiji FC",
+          "AwayTeam": "Simba Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Jamhuri Stadium",
+          "Time": "7:00:00 PM"
+        },
+        {
+          "MatchUp": 6,
+          "Date": "Sunday 18/02/2024",
+          "HomeTeam": "KMC FC",
+          "AwayTeam": "Namungo FC",
+          "FullMatchURL": "",
+          "Venue": "Uhuru Stadium",
+          "Time": "2:00:00 PM"
+        },
+        {
+          "MatchUp": 7,
+          "Date": "Sunday 18/02/2024",
+          "HomeTeam": "JKT Tanzania Sports Club",
+          "AwayTeam": "Young Africans Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Black Rhino Stadium",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 8,
+          "Date": "Sunday 18/02/2024",
+          "HomeTeam": "Kagera Sugar Football Club",
+          "AwayTeam": "Ihefu Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Kaitaba Stadium",
+          "Time": "7:00:00 PM"
+        }
+      ]
+    },
+    {
+      "round": 18,
+      "round_data": [
+        {
+          "MatchUp": 1,
+          "Date": "Friday 23/02/2024",
+          "HomeTeam": "Mtibwa Sugar Sports Club",
+          "AwayTeam": "Dodoma Jiji FC",
+          "FullMatchURL": "",
+          "Venue": "Manungu Stadium",
+          "Time": "2:00:00 PM"
+        },
+        {
+          "MatchUp": 2,
+          "Date": "Friday 23/02/2024",
+          "HomeTeam": "Tanzania Prisons Football Club",
+          "AwayTeam": "Kitayosa FC",
+          "FullMatchURL": "",
+          "Venue": "Sokoine Stadium",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 3,
+          "Date": "Saturday 24/02/2024",
+          "HomeTeam": "Geita Gold FC",
+          "AwayTeam": "Kagera Sugar Football Club",
+          "FullMatchURL": "",
+          "Venue": "Nyankumbu Stadium",
+          "Time": "2:00:00 PM"
+        },
+        {
+          "MatchUp": 4,
+          "Date": "Saturday 24/02/2024",
+          "HomeTeam": "JKT Tanzania Sports Club",
+          "AwayTeam": "KMC FC",
+          "FullMatchURL": "",
+          "Venue": "Black Rhino Stadium",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 5,
+          "Date": "Sunday 25/02/2024",
+          "HomeTeam": "Coastal Union SC",
+          "AwayTeam": "Simba Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Mkwakwani Stadium",
+          "Time": "2:00:00 AM"
+        },
+        {
+          "MatchUp": 6,
+          "Date": "Sunday 25/02/2024",
+          "HomeTeam": "Singida BS",
+          "AwayTeam": "Azam Football Club",
+          "FullMatchURL": "",
+          "Venue": "Liti Stadium",
+          "Time": "2:00:00 AM"
+        },
+        {
+          "MatchUp": 7,
+          "Date": "Sunday 25/02/2024",
+          "HomeTeam": "Namungo FC",
+          "AwayTeam": "Young Africans Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Majaliwa Stadium",
+          "Time": "2:00:00 AM"
+        },
+        {
+          "MatchUp": 8,
+          "Date": "Sunday 25/02/2024",
+          "HomeTeam": "Ihefu Sports Club",
+          "AwayTeam": "Mashujaa FC",
+          "FullMatchURL": "",
+          "Venue": "Highland Estates",
+          "Time": "4:00:00 PM"
+        }
+      ]
+    },
+    {
+      "round": 19,
+      "round_data": [
+        {
+          "MatchUp": 1,
+          "Date": "Tuesday 27/02/2024",
+          "HomeTeam": "KMC FC",
+          "AwayTeam": "Geita Gold FC",
+          "FullMatchURL": "",
+          "Venue": "Uhuru Stadium",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 2,
+          "Date": "Tuesday 27/02/2024",
+          "HomeTeam": "Simba Sports Club",
+          "AwayTeam": "Tanzania Prisons Football Club",
+          "FullMatchURL": "",
+          "Venue": "Benjamin Mkapa",
+          "Time": "7:00:00 PM"
+        },
+        {
+          "MatchUp": 3,
+          "Date": "Wednesday 28/02/2024",
+          "HomeTeam": "Kitayosa FC",
+          "AwayTeam": "Coastal Union SC",
+          "FullMatchURL": "",
+          "Venue": "Ali Hassan Mwinyi",
+          "Time": "2:00:00 PM"
+        },
+        {
+          "MatchUp": 4,
+          "Date": "Wednesday 28/02/2024",
+          "HomeTeam": "Singida BS",
+          "AwayTeam": "Mtibwa Sugar Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Liti Stadium",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 5,
+          "Date": "Wednesday 28/02/2024",
+          "HomeTeam": "Young Africans Sports Club",
+          "AwayTeam": "Ihefu Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Benjamin Mkapa",
+          "Time": "7:00:00 PM"
+        },
+        {
+          "MatchUp": 6,
+          "Date": "Thursday 29/02/2024",
+          "HomeTeam": "Mashujaa FC",
+          "AwayTeam": "Namungo FC",
+          "FullMatchURL": "",
+          "Venue": "Lake Tanganyika",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 7,
+          "Date": "Thursday 29/02/2024",
+          "HomeTeam": "Kagera Sugar Football Club",
+          "AwayTeam": "JKT Tanzania Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Kaitaba Stadium",
+          "Time": "6:00:00 PM"
+        },
+        {
+          "MatchUp": 8,
+          "Date": "Thursday 29/02/2024",
+          "HomeTeam": "Azam Football Club",
+          "AwayTeam": "Dodoma Jiji FC",
+          "FullMatchURL": "",
+          "Venue": "Azam Complex",
+          "Time": "9:00:00 PM"
+        }
+      ]
+    },
+    {
+      "round": 20,
+      "round_data": [
+        {
+          "MatchUp": 1,
+          "Date": "Sunday 03/03/2024",
+          "HomeTeam": "Ihefu Sports Club",
+          "AwayTeam": "KMC FC",
+          "FullMatchURL": "",
+          "Venue": "Highland Estates",
+          "Time": "2:00:00 PM"
+        },
+        {
+          "MatchUp": 2,
+          "Date": "Sunday 03/03/2024",
+          "HomeTeam": "Mtibwa Sugar Sports Club",
+          "AwayTeam": "Tanzania Prisons Football Club",
+          "FullMatchURL": "",
+          "Venue": "Manungu Stadium",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 3,
+          "Date": "Sunday 03/03/2024",
+          "HomeTeam": "Dodoma Jiji FC",
+          "AwayTeam": "Kitayosa FC",
+          "FullMatchURL": "",
+          "Venue": "Jamhuri Stadium",
+          "Time": "7:00:00 PM"
+        },
+        {
+          "MatchUp": 4,
+          "Date": "Monday 04/03/2024",
+          "HomeTeam": "Young Africans Sports Club",
+          "AwayTeam": "Geita Gold FC",
+          "FullMatchURL": "",
+          "Venue": "Benjamin Mkapa",
+          "Time": "2:00:00 AM"
+        },
+        {
+          "MatchUp": 5,
+          "Date": "Monday 04/03/2024",
+          "HomeTeam": "Azam Football Club",
+          "AwayTeam": "Coastal Union SC",
+          "FullMatchURL": "",
+          "Venue": "Azam Complex",
+          "Time": "2:00:00 AM"
+        },
+        {
+          "MatchUp": 6,
+          "Date": "Monday 04/03/2024",
+          "HomeTeam": "Simba Sports Club",
+          "AwayTeam": "Singida BS",
+          "FullMatchURL": "",
+          "Venue": "Benjamin Mkapa",
+          "Time": "2:00:00 AM"
+        },
+        {
+          "MatchUp": 7,
+          "Date": "Monday 04/03/2024",
+          "HomeTeam": "Mashujaa FC",
+          "AwayTeam": "JKT Tanzania Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Lake Tanganyika",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 8,
+          "Date": "Monday 04/03/2024",
+          "HomeTeam": "Namungo FC",
+          "AwayTeam": "Kagera Sugar Football Club",
+          "FullMatchURL": "",
+          "Venue": "Majaliwa Stadium",
+          "Time": "9:00:00 PM"
+        }
+      ]
+    },
+    {
+      "round": 21,
+      "round_data": [
+        {
+          "MatchUp": 1,
+          "Date": "Friday 29/03/2024",
+          "HomeTeam": "Dodoma Jiji FC",
+          "AwayTeam": "Geita Gold FC",
+          "FullMatchURL": "",
+          "Venue": "Jamhuri Stadium",
+          "Time": "7:00:00 PM"
+        },
+        {
+          "MatchUp": 2,
+          "Date": "Saturday 30/03/2024",
+          "HomeTeam": "KMC FC",
+          "AwayTeam": "Kitayosa FC",
+          "FullMatchURL": "",
+          "Venue": "Uhuru Stadium",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 3,
+          "Date": "Saturday 30/03/2024",
+          "HomeTeam": "Coastal Union SC",
+          "AwayTeam": "Ihefu Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Mkwakwani Stadium",
+          "Time": "7:00:00 PM"
+        },
+        {
+          "MatchUp": 4,
+          "Date": "Sunday 31/03/2024",
+          "HomeTeam": "Simba Sports Club",
+          "AwayTeam": "Mashujaa FC",
+          "FullMatchURL": "",
+          "Venue": "Benjamin Mkapa",
+          "Time": "2:00:00 AM"
+        },
+        {
+          "MatchUp": 5,
+          "Date": "Sunday 31/03/2024",
+          "HomeTeam": "Singida BS",
+          "AwayTeam": "Namungo FC",
+          "FullMatchURL": "",
+          "Venue": "Liti Stadium",
+          "Time": "2:00:00 AM"
+        },
+        {
+          "MatchUp": 6,
+          "Date": "Sunday 31/03/2024",
+          "HomeTeam": "Azam Football Club",
+          "AwayTeam": "Young Africans Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Azam Complex",
+          "Time": "2:00:00 AM"
+        },
+        {
+          "MatchUp": 7,
+          "Date": "Sunday 31/03/2024",
+          "HomeTeam": "JKT Tanzania Sports Club",
+          "AwayTeam": "Tanzania Prisons Football Club",
+          "FullMatchURL": "",
+          "Venue": "Black Rhino Stadium",
+          "Time": "3:00:00 PM"
+        },
+        {
+          "MatchUp": 8,
+          "Date": "Sunday 31/03/2024",
+          "HomeTeam": "Kagera Sugar Football Club",
+          "AwayTeam": "Mtibwa Sugar Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Kaitaba Stadium",
+          "Time": "6:00:00 PM"
+        }
+      ]
+    },
+    {
+      "round": 22,
+      "round_data": [
+        {
+          "MatchUp": 1,
+          "Date": "Friday 05/04/2024",
+          "HomeTeam": "Kitayosa FC",
+          "AwayTeam": "JKT Tanzania Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Ali Hassan Mwinyi",
+          "Time": "3:00:00 PM"
+        },
+        {
+          "MatchUp": 2,
+          "Date": "Saturday 06/04/2024",
+          "HomeTeam": "Geita Gold FC",
+          "AwayTeam": "Mtibwa Sugar Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Nyankumbu Stadium",
+          "Time": "3:00:00 PM"
+        },
+        {
+          "MatchUp": 3,
+          "Date": "Sunday 07/04/2024",
+          "HomeTeam": "Mashujaa FC",
+          "AwayTeam": "Coastal Union SC",
+          "FullMatchURL": "",
+          "Venue": "Lake Tanganyika",
+          "Time": "3:00:00 PM"
+        },
+        {
+          "MatchUp": 4,
+          "Date": "Sunday 07/04/2024",
+          "HomeTeam": "Kagera Sugar Football Club",
+          "AwayTeam": "Dodoma Jiji FC",
+          "FullMatchURL": "",
+          "Venue": "Kaitaba Stadium",
+          "Time": "6:00:00 PM"
+        },
+        {
+          "MatchUp": 5,
+          "Date": "Monday 08/04/2024",
+          "HomeTeam": "Ihefu Sports Club",
+          "AwayTeam": "Simba Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Highland Estates",
+          "Time": "1:00:00 AM"
+        },
+        {
+          "MatchUp": 6,
+          "Date": "Monday 08/04/2024",
+          "HomeTeam": "Namungo FC",
+          "AwayTeam": "Azam Football Club",
+          "FullMatchURL": "",
+          "Venue": "Majaliwa Stadium",
+          "Time": "1:00:00 AM"
+        },
+        {
+          "MatchUp": 7,
+          "Date": "Monday 08/04/2024",
+          "HomeTeam": "Singida BS",
+          "AwayTeam": "Young Africans Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Liti Stadium",
+          "Time": "1:00:00 AM"
+        },
+        {
+          "MatchUp": 8,
+          "Date": "Monday 08/04/2024",
+          "HomeTeam": "Tanzania Prisons Football Club",
+          "AwayTeam": "KMC FC",
+          "FullMatchURL": "",
+          "Venue": "Sokoine Stadium",
+          "Time": "3:00:00 PM"
+        }
+      ]
+    },
+    {
+      "round": 23,
+      "round_data": [
+        {
+          "MatchUp": 1,
+          "Date": "Friday 12/04/2024",
+          "HomeTeam": "Kitayosa FC",
+          "AwayTeam": "Kagera Sugar Football Club",
+          "FullMatchURL": "",
+          "Venue": "Ali Hassan Mwinyi",
+          "Time": "1:00:00 PM"
+        },
+        {
+          "MatchUp": 2,
+          "Date": "Friday 12/04/2024",
+          "HomeTeam": "Mtibwa Sugar Sports Club",
+          "AwayTeam": "KMC FC",
+          "FullMatchURL": "",
+          "Venue": "Manungu Stadium",
+          "Time": "3:00:00 PM"
+        },
+        {
+          "MatchUp": 3,
+          "Date": "Friday 12/04/2024",
+          "HomeTeam": "Azam Football Club",
+          "AwayTeam": "Mashujaa FC",
+          "FullMatchURL": "",
+          "Venue": "Azam Complex",
+          "Time": "6:00:00 PM"
+        },
+        {
+          "MatchUp": 4,
+          "Date": "Saturday 13/04/2024",
+          "HomeTeam": "Young Africans Sports Club",
+          "AwayTeam": "Simba Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Benjamin Mkapa",
+          "Time": "4:00:00 PM"
+        },
+        {
+          "MatchUp": 5,
+          "Date": "Sunday 14/04/2024",
+          "HomeTeam": "Geita Gold FC",
+          "AwayTeam": "Tanzania Prisons Football Club",
+          "FullMatchURL": "",
+          "Venue": "Nyankumbu Stadium",
+          "Time": "3:00:00 PM"
+        },
+        {
+          "MatchUp": 6,
+          "Date": "Sunday 14/04/2024",
+          "HomeTeam": "Namungo FC",
+          "AwayTeam": "Coastal Union SC",
+          "FullMatchURL": "",
+          "Venue": "Majaliwa Stadium",
+          "Time": "5:00:00 PM"
+        },
+        {
+          "MatchUp": 7,
+          "Date": "Sunday 14/04/2024",
+          "HomeTeam": "Dodoma Jiji FC",
+          "AwayTeam": "JKT Tanzania Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Jamhuri Stadium",
+          "Time": "8:00:00 PM"
+        },
+        {
+          "MatchUp": 8,
+          "Date": "Monday 15/04/2024",
+          "HomeTeam": "Ihefu Sports Club",
+          "AwayTeam": "Singida BS",
+          "FullMatchURL": "",
+          "Venue": "Highland Estates",
+          "Time": "3:00:00 PM"
+        }
+      ]
+    },
+    {
+      "round": 24,
+      "round_data": [
+        {
+          "MatchUp": 1,
+          "Date": "Friday 19/04/2024",
+          "HomeTeam": "Tanzania Prisons Football Club",
+          "AwayTeam": "Kagera Sugar Football Club",
+          "FullMatchURL": "",
+          "Venue": "Sokoine Stadium",
+          "Time": "3:00:00 PM"
+        },
+        {
+          "MatchUp": 2,
+          "Date": "Saturday 20/04/2024",
+          "HomeTeam": "Kitayosa FC",
+          "AwayTeam": "Geita Gold FC",
+          "FullMatchURL": "",
+          "Venue": "Ali Hassan Mwinyi",
+          "Time": "3:00:00 PM"
+        },
+        {
+          "MatchUp": 3,
+          "Date": "Saturday 20/04/2024",
+          "HomeTeam": "Dodoma Jiji FC",
+          "AwayTeam": "KMC FC",
+          "FullMatchURL": "",
+          "Venue": "Jamhuri Stadium",
+          "Time": "5:00:00 PM"
+        },
+        {
+          "MatchUp": 4,
+          "Date": "Sunday 21/04/2024",
+          "HomeTeam": "Namungo FC",
+          "AwayTeam": "Simba Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Black Rhino Stadium",
+          "Time": "1:00:00 AM"
+        },
+        {
+          "MatchUp": 5,
+          "Date": "Sunday 21/04/2024",
+          "HomeTeam": "Azam Football Club",
+          "AwayTeam": "Ihefu Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Azam Complex",
+          "Time": "1:00:00 AM"
+        },
+        {
+          "MatchUp": 6,
+          "Date": "Sunday 21/04/2024",
+          "HomeTeam": "Singida BS",
+          "AwayTeam": "Mashujaa FC",
+          "FullMatchURL": "",
+          "Venue": "Liti Stadium",
+          "Time": "1:00:00 AM"
+        },
+        {
+          "MatchUp": 7,
+          "Date": "Sunday 21/04/2024",
+          "HomeTeam": "Young Africans Sports Club",
+          "AwayTeam": "Coastal Union SC",
+          "FullMatchURL": "",
+          "Venue": "Benjamin Mkapa",
+          "Time": "1:00:00 AM"
+        },
+        {
+          "MatchUp": 8,
+          "Date": "Sunday 21/04/2024",
+          "HomeTeam": "JKT Tanzania Sports Club",
+          "AwayTeam": "Mtibwa Sugar Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Black Rhino Stadium",
+          "Time": "3:00:00 PM"
+        }
+      ]
+    },
+    {
+      "round": 25,
+      "round_data": [
+        {
+          "MatchUp": 1,
+          "Date": "Friday 26/04/2024",
+          "HomeTeam": "KMC FC",
+          "AwayTeam": "Kagera Sugar Football Club",
+          "FullMatchURL": "",
+          "Venue": "Uhuru Stadium",
+          "Time": "3:00:00 PM"
+        },
+        {
+          "MatchUp": 2,
+          "Date": "Saturday 27/04/2024",
+          "HomeTeam": "Ihefu Sports Club",
+          "AwayTeam": "Namungo FC",
+          "FullMatchURL": "",
+          "Venue": "Highland Estates",
+          "Time": "3:00:00 PM"
+        },
+        {
+          "MatchUp": 3,
+          "Date": "Sunday 28/04/2024",
+          "HomeTeam": "Singida BS",
+          "AwayTeam": "Dodoma Jiji FC",
+          "FullMatchURL": "",
+          "Venue": "Liti Stadium",
+          "Time": "1:00:00 AM"
+        },
+        {
+          "MatchUp": 4,
+          "Date": "Sunday 28/04/2024",
+          "HomeTeam": "Mashujaa FC",
+          "AwayTeam": "Young Africans Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Lake Tanganyika",
+          "Time": "1:00:00 AM"
+        },
+        {
+          "MatchUp": 5,
+          "Date": "Sunday 28/04/2024",
+          "HomeTeam": "Mtibwa Sugar Sports Club",
+          "AwayTeam": "Azam Football Club",
+          "FullMatchURL": "",
+          "Venue": "Manungu Stadium",
+          "Time": "1:00:00 AM"
+        },
+        {
+          "MatchUp": 6,
+          "Date": "Sunday 28/04/2024",
+          "HomeTeam": "Simba Sports Club",
+          "AwayTeam": "Kitayosa FC",
+          "FullMatchURL": "",
+          "Venue": "Benjamin Mkapa",
+          "Time": "1:00:00 AM"
+        },
+        {
+          "MatchUp": 7,
+          "Date": "Sunday 28/04/2024",
+          "HomeTeam": "JKT Tanzania Sports Club",
+          "AwayTeam": "Geita Gold FC",
+          "FullMatchURL": "",
+          "Venue": "Black Rhino Stadium",
+          "Time": "3:00:00 PM"
+        },
+        {
+          "MatchUp": 8,
+          "Date": "Sunday 28/04/2024",
+          "HomeTeam": "Coastal Union SC",
+          "AwayTeam": "Tanzania Prisons Football Club",
+          "FullMatchURL": "",
+          "Venue": "Mkwakwani Stadium",
+          "Time": "6:00:00 PM"
+        }
+      ]
+    },
+    {
+      "round": 26,
+      "round_data": [
+        {
+          "MatchUp": 1,
+          "Date": "Tuesday 30/04/2024",
+          "HomeTeam": "Young Africans Sports Club",
+          "AwayTeam": "Kagera Sugar Football Club",
+          "FullMatchURL": "",
+          "Venue": "Benjamin Mkapa",
+          "Time": "6:00:00 PM"
+        },
+        {
+          "MatchUp": 2,
+          "Date": "Wednesday 01/05/2024",
+          "HomeTeam": "Mtibwa Sugar Sports Club",
+          "AwayTeam": "Kitayosa FC",
+          "FullMatchURL": "",
+          "Venue": "Manungu Stadium",
+          "Time": "1:00:00 PM"
+        },
+        {
+          "MatchUp": 3,
+          "Date": "Wednesday 01/05/2024",
+          "HomeTeam": "Ihefu Sports Club",
+          "AwayTeam": "JKT Tanzania Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Highland Estates",
+          "Time": "3:00:00 PM"
+        },
+        {
+          "MatchUp": 4,
+          "Date": "Wednesday 01/05/2024",
+          "HomeTeam": "Azam Football Club",
+          "AwayTeam": "Simba Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Azam Complex",
+          "Time": "5:00:00 PM"
+        },
+        {
+          "MatchUp": 5,
+          "Date": "Wednesday 01/05/2024",
+          "HomeTeam": "Dodoma Jiji FC",
+          "AwayTeam": "Tanzania Prisons Football Club",
+          "FullMatchURL": "",
+          "Venue": "Jamhuri Stadium",
+          "Time": "8:00:00 PM"
+        },
+        {
+          "MatchUp": 6,
+          "Date": "Thursday 02/05/2024",
+          "HomeTeam": "Mashujaa FC",
+          "AwayTeam": "KMC FC",
+          "FullMatchURL": "",
+          "Venue": "Lake Tanganyika",
+          "Time": "3:00:00 PM"
+        },
+        {
+          "MatchUp": 7,
+          "Date": "Thursday 02/05/2024",
+          "HomeTeam": "Coastal Union SC",
+          "AwayTeam": "Singida BS",
+          "FullMatchURL": "",
+          "Venue": "Mkwakwani Stadium",
+          "Time": "5:00:00 PM"
+        },
+        {
+          "MatchUp": 8,
+          "Date": "Thursday 02/05/2024",
+          "HomeTeam": "Namungo FC",
+          "AwayTeam": "Geita Gold FC",
+          "FullMatchURL": "",
+          "Venue": "Majaliwa Stadium",
+          "Time": "8:00:00 PM"
+        }
+      ]
+    },
+    {
+      "round": 27,
+      "round_data": [
+        {
+          "MatchUp": 1,
+          "Date": "Friday 10/05/2024",
+          "HomeTeam": "Geita Gold FC",
+          "AwayTeam": "Coastal Union SC",
+          "FullMatchURL": "",
+          "Venue": "Nyankumbu Stadium",
+          "Time": "3:00:00 PM"
+        },
+        {
+          "MatchUp": 2,
+          "Date": "Saturday 11/05/2024",
+          "HomeTeam": "Kitayosa FC",
+          "AwayTeam": "Mashujaa FC",
+          "FullMatchURL": "",
+          "Venue": "Ali Hassan Mwinyi",
+          "Time": "1:00:00 PM"
+        },
+        {
+          "MatchUp": 3,
+          "Date": "Saturday 11/05/2024",
+          "HomeTeam": "Mtibwa Sugar Sports Club",
+          "AwayTeam": "Young Africans Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Manungu Stadium",
+          "Time": "3:00:00 PM"
+        },
+        {
+          "MatchUp": 4,
+          "Date": "Saturday 11/05/2024",
+          "HomeTeam": "Dodoma Jiji FC",
+          "AwayTeam": "Namungo FC",
+          "FullMatchURL": "",
+          "Venue": "Jamhuri Stadium",
+          "Time": "6:00:00 PM"
+        },
+        {
+          "MatchUp": 5,
+          "Date": "Sunday 12/05/2024",
+          "HomeTeam": "JKT Tanzania Sports Club",
+          "AwayTeam": "Singida BS",
+          "FullMatchURL": "",
+          "Venue": "Black Rhino Stadium",
+          "Time": "1:00:00 AM"
+        },
+        {
+          "MatchUp": 6,
+          "Date": "Sunday 12/05/2024",
+          "HomeTeam": "KMC FC",
+          "AwayTeam": "Azam Football Club",
+          "FullMatchURL": "",
+          "Venue": "Uhuru Stadium",
+          "Time": "1:00:00 AM"
+        },
+        {
+          "MatchUp": 7,
+          "Date": "Sunday 12/05/2024",
+          "HomeTeam": "Tanzania Prisons Football Club",
+          "AwayTeam": "Ihefu Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Sokoine Stadium",
+          "Time": "3:00:00 PM"
+        },
+        {
+          "MatchUp": 8,
+          "Date": "Sunday 12/05/2024",
+          "HomeTeam": "Kagera Sugar Football Club",
+          "AwayTeam": "Simba Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Kaitaba Stadium",
+          "Time": "5:00:00 PM"
+        }
+      ]
+    },
+    {
+      "round": 28,
+      "round_data": [
+        {
+          "MatchUp": 1,
+          "Date": "Friday 17/05/2024",
+          "HomeTeam": "Kitayosa FC",
+          "AwayTeam": "Ihefu Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Ali Hassan Mwinyi",
+          "Time": "3:00:00 PM"
+        },
+        {
+          "MatchUp": 2,
+          "Date": "Friday 17/05/2024",
+          "HomeTeam": "Kagera Sugar Football Club",
+          "AwayTeam": "Coastal Union SC",
+          "FullMatchURL": "",
+          "Venue": "Kaitaba Stadium",
+          "Time": "6:00:00 PM"
+        },
+        {
+          "MatchUp": 3,
+          "Date": "Saturday 18/05/2024",
+          "HomeTeam": "Tanzania Prisons Football Club",
+          "AwayTeam": "Mashujaa FC",
+          "FullMatchURL": "",
+          "Venue": "Sokoine Stadium",
+          "Time": "3:00:00 PM"
+        },
+        {
+          "MatchUp": 4,
+          "Date": "Sunday 19/05/2024",
+          "HomeTeam": "Mtibwa Sugar Sports Club",
+          "AwayTeam": "Namungo FC",
+          "FullMatchURL": "",
+          "Venue": "Manungu Stadium",
+          "Time": "3:00:00 PM"
+        },
+        {
+          "MatchUp": 5,
+          "Date": "Monday 20/05/2024",
+          "HomeTeam": "Dodoma Jiji FC",
+          "AwayTeam": "Young Africans Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Jamhuri Stadium",
+          "Time": "1:00:00 AM"
+        },
+        {
+          "MatchUp": 6,
+          "Date": "Monday 20/05/2024",
+          "HomeTeam": "JKT Tanzania Sports Club",
+          "AwayTeam": "Azam Football Club",
+          "FullMatchURL": "",
+          "Venue": "Black Rhino Stadium",
+          "Time": "1:00:00 AM"
+        },
+        {
+          "MatchUp": 7,
+          "Date": "Monday 20/05/2024",
+          "HomeTeam": "Simba Sports Club",
+          "AwayTeam": "Geita Gold FC",
+          "FullMatchURL": "",
+          "Venue": "Benjamin Mkapa",
+          "Time": "1:00:00 AM"
+        },
+        {
+          "MatchUp": 8,
+          "Date": "Monday 20/05/2024",
+          "HomeTeam": "KMC FC",
+          "AwayTeam": "Singida BS",
+          "FullMatchURL": "",
+          "Venue": "Uhuru Stadium",
+          "Time": "1:00:00 AM"
+        }
+      ]
+    },
+    {
+      "round": 29,
+      "round_data": [
+        {
+          "MatchUp": 1,
+          "Date": "Monday 20/05/2024",
+          "HomeTeam": "Coastal Union SC",
+          "AwayTeam": "JKT Tanzania Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Mkwakwani Stadium",
+          "Time": "1:00:00 AM"
+        },
+        {
+          "MatchUp": 2,
+          "Date": "Monday 20/05/2024",
+          "HomeTeam": "Simba Sports Club",
+          "AwayTeam": "KMC FC",
+          "FullMatchURL": "",
+          "Venue": "Benjamin Mkapa",
+          "Time": "1:00:00 AM"
+        },
+        {
+          "MatchUp": 3,
+          "Date": "Monday 20/05/2024",
+          "HomeTeam": "Ihefu Sports Club",
+          "AwayTeam": "Dodoma Jiji FC",
+          "FullMatchURL": "",
+          "Venue": "Highland Estates",
+          "Time": "1:00:00 AM"
+        },
+        {
+          "MatchUp": 4,
+          "Date": "Monday 20/05/2024",
+          "HomeTeam": "Mashujaa FC",
+          "AwayTeam": "Mtibwa Sugar Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Lake Tanganyika",
+          "Time": "1:00:00 AM"
+        },
+        {
+          "MatchUp": 5,
+          "Date": "Monday 20/05/2024",
+          "HomeTeam": "Namungo FC",
+          "AwayTeam": "Tanzania Prisons Football Club",
+          "FullMatchURL": "",
+          "Venue": "Majaliwa Stadium",
+          "Time": "1:00:00 AM"
+        },
+        {
+          "MatchUp": 6,
+          "Date": "Monday 20/05/2024",
+          "HomeTeam": "Young Africans Sports Club",
+          "AwayTeam": "Kitayosa FC",
+          "FullMatchURL": "",
+          "Venue": "Benjamin Mkapa",
+          "Time": "1:00:00 AM"
+        },
+        {
+          "MatchUp": 7,
+          "Date": "Monday 20/05/2024",
+          "HomeTeam": "Singida BS",
+          "AwayTeam": "Geita Gold FC",
+          "FullMatchURL": "",
+          "Venue": "Liti Stadium",
+          "Time": "1:00:00 AM"
+        },
+        {
+          "MatchUp": 8,
+          "Date": "Monday 20/05/2024",
+          "HomeTeam": "Azam Football Club",
+          "AwayTeam": "Kagera Sugar Football Club",
+          "FullMatchURL": "",
+          "Venue": "Azam Complex",
+          "Time": "1:00:00 AM"
+        }
+      ]
+    },
+    {
+      "round": 30,
+      "round_data": [
+        {
+          "MatchUp": 1,
+          "Date": "Wednesday 29/05/2024",
+          "HomeTeam": "Simba Sports Club",
+          "AwayTeam": "JKT Tanzania Sports Club",
+          "FullMatchURL": "",
+          "Venue": "TBC",
+          "Time": "1:00:00 AM"
+        },
+        {
+          "MatchUp": 2,
+          "Date": "Wednesday 29/05/2024",
+          "HomeTeam": "Coastal Union SC",
+          "AwayTeam": "KMC FC",
+          "FullMatchURL": "",
+          "Venue": "Mkwakwani Stadium",
+          "Time": "1:00:00 AM"
+        },
+        {
+          "MatchUp": 3,
+          "Date": "Wednesday 29/05/2024",
+          "HomeTeam": "Mashujaa FC",
+          "AwayTeam": "Dodoma Jiji FC",
+          "FullMatchURL": "",
+          "Venue": "Lake Tanganyika",
+          "Time": "1:00:00 AM"
+        },
+        {
+          "MatchUp": 4,
+          "Date": "Wednesday 29/05/2024",
+          "HomeTeam": "Ihefu Sports Club",
+          "AwayTeam": "Mtibwa Sugar Sports Club",
+          "FullMatchURL": "",
+          "Venue": "Highland Estates",
+          "Time": "1:00:00 AM"
+        },
+        {
+          "MatchUp": 5,
+          "Date": "Wednesday 29/05/2024",
+          "HomeTeam": "Young Africans Sports Club",
+          "AwayTeam": "Tanzania Prisons Football Club",
+          "FullMatchURL": "",
+          "Venue": "TBC",
+          "Time": "1:00:00 AM"
+        },
+        {
+          "MatchUp": 6,
+          "Date": "Wednesday 29/05/2024",
+          "HomeTeam": "Namungo FC",
+          "AwayTeam": "Kitayosa FC",
+          "FullMatchURL": "",
+          "Venue": "Majaliwa Stadium",
+          "Time": "1:00:00 AM"
+        },
+        {
+          "MatchUp": 7,
+          "Date": "Wednesday 29/05/2024",
+          "HomeTeam": "Geita Gold FC",
+          "AwayTeam": "Azam Football Club",
+          "FullMatchURL": "",
+          "Venue": "Nyankumbu Stadium",
+          "Time": "1:00:00 AM"
+        },
+        {
+          "MatchUp": 8,
+          "Date": "Wednesday 29/05/2024",
+          "HomeTeam": "Singida BS",
+          "AwayTeam": "Kagera Sugar Football Club",
+          "FullMatchURL": "",
+          "Venue": "Liti Stadium",
+          "Time": "1:00:00 AM"
+        }
+      ]
+    }
+  ]
+}
 
 # rudimentary dev testing access codes
 DIRECT_USERNAME = os.environ['URL_DIRECT_USERNAME']
@@ -594,6 +2911,22 @@ def upload_fixture_data():
         return edit_html_desc(ERROR_400, str(e))
 
 
+@app.route('/api/v2/upload-csv/fixtures', methods=['POST'])
+def upload_fixture_csv(data):
+    # data =json.loads(request.data)
+    print(data)
+    # print(data['competition_name'])
+    # for key in data['round_data']:
+    #     for match in key['round_data']:
+    #         print(match)
+    return SUCCESS_200
+
+
+@app.route('/api/v2/upload-csv/players', methods=['POST'])
+def upload_players_csv():
+    return SUCCESS_200
+
+
 # USED TO UPDATE PLAYER DB TO ENSURE ALL HAVE 'supporting_file' KEY/VAL PAIR
 # NO LONGER NEEDED BUT LEAVING IN PLACE FOR NOW
 # def add_supporting_file_key():
@@ -611,6 +2944,7 @@ def upload_fixture_data():
 
 
 if __name__ == '__main__':
+    upload_fixture_csv(CSV_JSON_FIXTURE)
     app.debug = False
     app.run()
     # test_player = Player(name='test', dob='testdob', nationality='testNat', jersey_num='', supporting_file='asdf', position='pog')
