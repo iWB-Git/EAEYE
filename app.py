@@ -3527,7 +3527,7 @@ def upload_players_csv():
 
 
 if __name__ == '__main__':
-    upload_fixture_csv(FIXTURES_CSV_JSON)
+    # upload_fixture_csv(FIXTURES_CSV_JSON)
     # upload_players_csv(PLAYERS_CSV_JSON)
     app.debug = False
     app.run()
