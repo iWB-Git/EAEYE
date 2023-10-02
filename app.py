@@ -1,16 +1,10 @@
 import copy
 import traceback
 import urllib
-
-import bson
 from flask import Flask, request  # , jsonify, stream_with_context, render_template
 from flask_cors import CORS
-from pymongo.mongo_client import MongoClient
-from pymongo.server_api import ServerApi
 import bson.json_util as json_util
 import json
-# import data_parse_methods
-import match_data_upload
 from html_responses import *
 from logging.config import dictConfig
 from models.competition import Competition
@@ -20,17 +14,7 @@ from models.fixture import Fixture, Round
 from models.team import Team
 import os
 import mongoengine
-from datetime import datetime
-# from test_json import TEST_JSON_NEW as test_match_data
-# import json
-# from templates import Player
-# import yaml
 from bson.objectid import ObjectId
-# from requests_html import HTMLSession
-# import requests
-# from csv_parse import read_csv
-# from country_parse import upload_countries
-# from fixture_csv_parse import parse_fixtures
 
 # rudimentary dev testing access codes
 DIRECT_USERNAME = os.environ['URL_DIRECT_USERNAME']
@@ -223,13 +207,17 @@ def upload_match_data_v2():
         match_id = data['Competition']['MatchID']
         home_id = data['HomeTeam']['teamID']
         away_id = data['AwayTeam']['teamID']
-        match_id = match_id if type(match_id) is ObjectId else ObjectId(match_id)
-        home_id = home_id if type(home_id) is ObjectId else ObjectId(home_id)
-        away_id = away_id if type(away_id) is ObjectId else ObjectId(away_id)
+        # match_id = match_id if type(match_id) is ObjectId else ObjectId(match_id)
+        match_id = return_oid(match_id)
+        # home_id = home_id if type(home_id) is ObjectId else ObjectId(home_id)
+        home_id = return_oid(home_id)
+        # away_id = away_id if type(away_id) is ObjectId else ObjectId(away_id)
+        away_id = return_oid(away_id)
 
         # add match id to team's list of played matches
-        db.teams.update_one({'_id': home_id}, {'$addToSet': {'matches': match_id}})
-        db.teams.update_one({'_id': away_id}, {'$addToSet': {'matches': match_id}})
+        db.teams.update_many({'_id': {'$in': [home_id, away_id]}}, {'$addToSet': {'matches': match_id}})
+        # db.teams.update_one({'_id': home_id}, {'$addToSet': {'matches': match_id}})
+        # db.teams.update_one({'_id': away_id}, {'$addToSet': {'matches': match_id}})
 
         # update the stats for each player on the home and away teams
         home_stats = update_player_stats(data['HomeTeam']['Players'], match_id)
@@ -576,7 +564,14 @@ def insert_player():
 
         db_team = db.teams.find_one({'_id': ObjectId(player_data['team_id'])})
 
-        new_player = Player(name=name, dob=dob, nationality=nationality, jersey_num=jersey_num, supporting_file=supporting_file, position=position)
+        new_player = Player(
+            name=name,
+            dob=dob,
+            nationality=nationality,
+            jersey_num=jersey_num,
+            supporting_file=supporting_file,
+            position=position
+        )
         player_club = PlayerTeam(team_id=db_team['_id'], reg_date=reg_date, on_team=True)
 
         new_player['teams'].append(player_club.to_mongo())
@@ -639,18 +634,18 @@ def move_player():
 def update_document(collection):
     try:
         new_doc = json.loads(request.data)
-        _id = new_doc['_id']['$oid']
-        db_doc = db[collection].find_one({'_id': ObjectId(_id)})
+        _id = return_oid(new_doc['_id'])
+        db_doc = db[collection].find_one({'_id': _id})
         if not db_doc:
-            return edit_html_desc(ERROR_404, 'ID not found in players collection. Check your OID and try again.')
+            return edit_html_desc(ERROR_404, 'ID not found in given collection. Check your OID and try again.')
         new_values = {}
         for key in new_doc:
             if key == '_id':
                 continue
             if not new_doc[key] == db_doc[key]:
                 new_values[key] = new_doc[key]
-        # update_result = db[collection].update_one({'_id': ObjectId(_id)}, {'$set': new_values})
-        updated_doc = db[collection].find_one({'_id': ObjectId(_id)})
+        db[collection].update_one({'_id': _id}, {'$set': new_values})
+        updated_doc = db[collection].find_one({'_id': _id})
         return append_data(updated_doc, SUCCESS_200)
     except Exception as e:
         traceback.print_exception(type(e), e, e.__traceback__)
@@ -771,45 +766,7 @@ def upload_players_csv():
     except Exception as e:
         print_and_return_error(e)
 
-# USED TO UPDATE PLAYER DB TO ENSURE ALL HAVE 'supporting_file' KEY/VAL PAIR
-# NO LONGER NEEDED BUT LEAVING IN PLACE FOR NOW
-# def add_supporting_file_key():
-#     try:
-#         players = list(db.players.find({}))
-#         counter = 0
-#         for player in players:
-#             if 'supporting_file' in player:
-#                 continue
-#             db.players.update_one({'_id': player['_id']}, {'$set': {'supporting_file': ''}})
-#             print(counter + 1)
-#             counter += 1
-#     except Exception as e:
-#         traceback.print_exception(type(e), e, e.__traceback__)
-
 
 if __name__ == '__main__':
-    # upload_fixture_csv(FIXTURES_CSV_JSON)
-    # upload_players_csv(PLAYERS_CSV_JSON)
     app.debug = False
     app.run()
-    # test_player = Player(name='test', dob='testdob', nationality='testNat', jersey_num='', supporting_file='asdf', position='pog')
-    # print(test_player.to_mongo().to_dict())
-    # db_team = db.teams.find_one({'_id': ObjectId('64d52c9f4cdabb9dfc3b4a60')})
-    # unique_ids = list(set(db_team['roster']))
-    # db_players = db.players.find({'_id': {'$in': unique_ids}})
-    # unique_names = set()
-    # for player in db_players:
-    #     unique_names.add(player['name'].strip().title())
-    # for name in sorted(unique_names):
-    #     print(name)
-    # upload_countries()
-    # comp_list = db.competitions.find({})
-    # for comp in comp_list:
-    #     db.competitions.update_one({'_id': comp['_id']}, {'$set': {'body_id': None}})
-
-    # roster = db.teams.find_one({'name': 'Simba Sports Club'})['roster']
-    # players = db.players.find({'_id': {'$in': roster}})
-    # unique = []
-    # duplicates = []
-    # filename = '/Users/brycesczekan/PycharmProjects/ea-eye-api/static/tz_fixtures.csv'
-    # parse_fixtures(filename)
