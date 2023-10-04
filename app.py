@@ -1,35 +1,20 @@
 import copy
 import traceback
 import urllib
-
-import bson
 from flask import Flask, request  # , jsonify, stream_with_context, render_template
 from flask_cors import CORS
-from pymongo.mongo_client import MongoClient
-from pymongo.server_api import ServerApi
 import bson.json_util as json_util
 import json
-# import data_parse_methods
-import match_data_upload
 from html_responses import *
 from logging.config import dictConfig
+from models.competition import Competition
 from models.player import Player, PlayerTeam, Stats, Goal
-from models.match import Match
+from models.match import Match, MatchStats
 from models.fixture import Fixture, Round
 from models.team import Team
 import os
 import mongoengine
-from datetime import datetime
-# from test_json import TEST_JSON_NEW as test_match_data
-# import json
-# from templates import Player
-# import yaml
 from bson.objectid import ObjectId
-# from requests_html import HTMLSession
-# import requests
-# from csv_parse import read_csv
-
-TEST_JSON_FIXTURE = {"competition_name":"Ligi Kuu Tanzania Bara","competition_year":"2023/24","rounds":"4","round_data":[{"round":1,"round_data":[{"MatchUp":1,"Date":"2023-08-08","HomeTeam":"Young Africans Sports Club","AwayTeam":"Singida BS","FullMatchURL":"https://www.youtube.com","Venue":"Bukhungu Stadium"},{"MatchUp":2,"Date":"2023-08-23","HomeTeam":"Young Africans Sports Club","AwayTeam":"Ihefu Sports Club","FullMatchURL":"https://www.youtube.com","Venue":"Bukhungu Stadium"},{"MatchUp":3,"Date":"2023-08-17","HomeTeam":"Azam Football Club","AwayTeam":"Mtibwa Sugar Sports Club","FullMatchURL":"https://www.youtube.com","Venue":"Bukhungu Stadium"},{"MatchUp":4,"Date":"2023-08-17","HomeTeam":"Young Africans Sports Club","AwayTeam":"Mtibwa Sugar Sports Club","FullMatchURL":"https://www.youtube.com","Venue":"Bukhungu Stadium"}]},{"round":2,"round_data":[{"MatchUp":1,"Date":"2023-08-04","HomeTeam":"Young Africans Sports Club","AwayTeam":"Azam Football Club","FullMatchURL":"https://www.youtube.com","Venue":"Bukhungu Stadium"},{"MatchUp":2,"Date":"2023-08-11","HomeTeam":"Young Africans Sports Club","AwayTeam":"Ihefu Sports Club","FullMatchURL":"https://www.youtube.com","Venue":"Bukhungu Stadium"},{"MatchUp":3,"Date":"2023-08-18","HomeTeam":"Geita Gold FC","AwayTeam":"Fountain Gate Princess","FullMatchURL":"https://www.youtube.com","Venue":"Bukhungu Stadium"},{"MatchUp":4,"Date":"2023-08-18","HomeTeam":"Mtibwa Sugar Sports Club","AwayTeam":"Singida BS","FullMatchURL":"-","Venue":"Bukhungu Stadium"}]},{"round":3,"round_data":[{"MatchUp":1,"Date":"2023-08-09","HomeTeam":"KMC FC","AwayTeam":"Geita Gold FC","FullMatchURL":"https://www.youtube.com","Venue":"-"},{"MatchUp":2,"Date":"2023-08-03","HomeTeam":"Namungo FC","AwayTeam":"Namungo FC","FullMatchURL":"https://www.youtube.com","Venue":"-"},{"MatchUp":3,"Date":"2023-08-18","HomeTeam":"Ihefu Sports Club","AwayTeam":"Coastal Union SC","FullMatchURL":"https://www.youtube.com","Venue":"-"},{"MatchUp":4,"Date":"2023-08-25","HomeTeam":"Singida BS","AwayTeam":"Fountain Gate Princess","FullMatchURL":"-","Venue":"-"}]}]}
 
 # rudimentary dev testing access codes
 DIRECT_USERNAME = os.environ['URL_DIRECT_USERNAME']
@@ -77,6 +62,10 @@ def edit_html_desc(html_response, new_desc):
     new_response = copy.deepcopy(html_response)
     new_response[0]['Description'] = new_desc
     return new_response
+
+
+def return_oid(_id):
+    return _id if type(_id) is ObjectId else ObjectId(_id)
 
 
 # brief landing page if someone somehow ends up on the API's home page
@@ -133,67 +122,119 @@ def upload_match_data():
     #     return ERROR_400
 
 
-# TODO: handle individual match document stats counting a player's total stats
 def update_player_stats(team, match_id):
+
+    # get match id and ensure it's the correct type, and set up the stats list to return at the end
+    # match_id = match_id if type(match_id) is ObjectId else ObjectId(match_id)
     stats_list = []
+
+    # squad: starters vs. subbed
     for squad in team:
+
+        # each player that was in the starters or subbed list
         for player in team[squad]:
+
+            # get player id and find that player in the db, if they have this match recorded somehow then skip
             player_id = ObjectId(player['PlayerID'])
             db_player = db.players.find_one({'_id': player_id})
             if db_player:
                 if match_id in db_player['matches']:
                     continue
-                player_stats = db_player['stats']
-                player_stats['match_day_squad'] += 1
+
+                # create player_stats to increment career stats and match_stats to record just this match's stats
+                career_stats = db_player['stats']
+                match_stats = MatchStats(match_id=match_id, player_id=player_id)
+
+                # increment number of match day squads and set min_played to 0
+                career_stats['match_day_squad'] += 1
                 min_played = 0
+
+                # if the player is a starter, increment their starter count and calculate minutes played
+                # min_played is 90 if they started and never came out, else equal to the minute they subbed out
+                # increment starter minutes by min_played and flip the single match stat starter parameter to true
                 if player['starter'] == 'YES':
-                    player_stats['starter'] += 1
+                    career_stats['starter'] += 1
                     min_played = 90 if player['SubOut'] == 'NO' else int(player['SubMinute'])
-                    player_stats['starter_minutes'] += min_played
+                    career_stats['starter_minutes'] += min_played
+                    match_stats['starter'] = True
+
+                # if the player was a sub, their min_played are equal to 0 unless they subbed in
+                # if subbed in, min_played is equal to 90 - their sub in time
+                # increment their sub minutes by min_played
                 elif player['substitute'] == 'YES':
                     min_played = 90 - int(player['SubMinute']) if player['SubIn'] == 'YES' else 0
-                    player_stats['sub_minutes'] += min_played
-                player_stats['min_played'] += min_played
+                    career_stats['sub_minutes'] += min_played
+
+                # increment career stats by min_played and set match_stats to min_played
+                career_stats['min_played'] += min_played
+                match_stats['min_played'] = min_played
+
+                # if the player scored a goal, split goal minutes list by ',' and loop for how many they scored
+                # creating a new goal object each time and appending them to both career and match stats goals lists
                 if player['Goal']:
                     goal_mins = player['GoalMinute'].split(',')
                     for i in range(0, int(player['Goal'])):
-                        player_stats['goals'].append(Goal(minute=int(goal_mins[i]), match_id=match_id).to_mongo())
+                        goal = Goal(minute=int(goal_mins[i]), match_id=match_id)
+                        career_stats['goals'].append(goal.to_mongo())
+                        match_stats['goals'].append(goal.to_mongo())
+
+                # update the player's career stats
                 db.players.update_one({'_id': player_id},
-                                      {'$set': {'stats': player_stats},
-                                       '$addToSet': {'matches': match_id}})
-                player_stats['player_id'] = player_id
-                print('current player_stats: ')
-                print(player_stats)
-                stats_list.append(player_stats)
-    print('stats_list: ')
-    print(stats_list)
-    print('\n')
+                                      {
+                                          '$set': {
+                                              'stats': career_stats
+                                          },
+                                          '$addToSet': {
+                                              'matches': match_id
+                                          }
+                                      })
+
+                # append the player's match stats to the list of all player's match stats
+                stats_list.append(match_stats.to_mongo())
+
+    # return this team's individual player's match stats in a list to be uploaded to the match document
     return stats_list
 
 
+# TODO: INCREMENT A TOTAL POSSIBLE GAMES COUNTER FOR ALL PLAYERS ON TEAM WHO WERE NOT MATCH DAY SQUAD
 @app.route('/api/v2/upload-match-data', methods=['POST'])
 def upload_match_data_v2():
     try:
+        # load in match data from html request
         data = json.loads(request.data)
-        # data = test_match_data
-        match_id = ObjectId(data['Competition']['MatchID'])
-        home_id = ObjectId(data['HomeTeam']['teamID'])
-        away_id = ObjectId(data['AwayTeam']['teamID'])
 
-        db.teams.update_one({'_id': home_id}, {'$addToSet': {'matches': match_id}})
-        db.teams.update_one({'_id': away_id}, {'$addToSet': {'matches': match_id}})
+        # get relevant match and team id's and perform type checking/casting for safety
+        match_id = data['Competition']['MatchID']
+        home_id = data['HomeTeam']['teamID']
+        away_id = data['AwayTeam']['teamID']
+        # match_id = match_id if type(match_id) is ObjectId else ObjectId(match_id)
+        match_id = return_oid(match_id)
+        # home_id = home_id if type(home_id) is ObjectId else ObjectId(home_id)
+        home_id = return_oid(home_id)
+        # away_id = away_id if type(away_id) is ObjectId else ObjectId(away_id)
+        away_id = return_oid(away_id)
 
+        # add match id to team's list of played matches
+        db.teams.update_many({'_id': {'$in': [home_id, away_id]}}, {'$addToSet': {'matches': match_id}})
+        # db.teams.update_one({'_id': home_id}, {'$addToSet': {'matches': match_id}})
+        # db.teams.update_one({'_id': away_id}, {'$addToSet': {'matches': match_id}})
+
+        # update the stats for each player on the home and away teams
         home_stats = update_player_stats(data['HomeTeam']['Players'], match_id)
         away_stats = update_player_stats(data['AwayTeam']['Players'], match_id)
 
+        # add each team's individual player's match stats to the match document in the db
         db.matches.update_one({'_id': match_id},
-                              {'$set': {
-                                  'data_entered': True,
-                                  'home_stats': home_stats,
-                                  'away_stats': away_stats
-                              }})
+                              {
+                                  '$set': {
+                                      'data_entered': True,
+                                      'home_stats': home_stats,
+                                      'away_stats': away_stats
+                                  }
+                              })
 
         return SUCCESS_200
+
     except Exception as e:
         traceback.print_exception(type(e), e, e.__traceback__)
         return edit_html_desc(ERROR_400, str(e))
@@ -203,7 +244,9 @@ def upload_match_data_v2():
 def get_collection(collection):
     if collection not in db.list_collection_names():
         return edit_html_desc(ERROR_404, 'Specified collection does not exist.')
-    docs = list(db[collection].find({}))
+    docs = db[collection].find({})
+    if collection in ['players', 'teams', 'competitions']:
+        docs = sorted(docs, key=lambda x: x['name'])
     return append_data(docs, SUCCESS_200)
 
 
@@ -223,17 +266,35 @@ def get_document_by_name(collection, name):
     return append_data(doc, SUCCESS_200) if doc else ERROR_404
 
 
-@app.route('/api/v1/get-match-entries/<collection>', methods=['GET'])
-def get_match_entries(collection):
-    pass
-
-
-@app.route('/api/v1/get-stats-from-match/<match_id>', methods=['GET'])
-def get_stats_from_match(match_id):
+@app.route('/api/v1/get-competitions-from-body', methods=['GET'])
+def get_comps_from_body():
     try:
-        match_id = ObjectId(match_id)
-        # data = json.loads(request.data)
-        # match_id = data['match_id'] if type(data['match_id']) is ObjectId else ObjectId(data['match_id'])
+        data = json.loads(request.data)
+        body_id = data['body_id'] if type(data['body_id']) is ObjectId else ObjectId(data['body_id'])
+        db_body = db.bodies.find_one({'_id': body_id})
+        return append_data(db_body['competitions'], SUCCESS_200)
+    except Exception as e:
+        traceback.print_exception(type(e), e, e.__traceback__)
+
+
+@app.route('/api/v1/get-team-match-entries', methods=['GET'])
+def get_team_match_entries():
+    try:
+        data = json.loads(request.data)
+        team_id = data['team_id'] if type(data['team_id']) is ObjectId else ObjectId(data['team_id'])
+        db_team = db.teams.find_one({'_id': team_id})
+        return append_data(db_team['matches'], SUCCESS_200)
+    except Exception as e:
+        traceback.print_exception(type(e), e, e.__traceback__)
+        return edit_html_desc(ERROR_400, str(e))
+
+
+@app.route('/api/v1/get-stats-from-match', methods=['GET'])
+def get_stats_from_match():
+    try:
+        # match_id = ObjectId(match_id)
+        data = json.loads(request.data)
+        match_id = data['match_id'] if type(data['match_id']) is ObjectId else ObjectId(data['match_id'])
         db_match = db.matches.find_one({'_id': match_id})
         return append_data({'home_stats': db_match['home_stats'], 'away_stats': db_match['away_stats']}, SUCCESS_200)
     except Exception as e:
@@ -264,11 +325,224 @@ def get_roster(team_id):
                 ids.append(_id)
             else:
                 ids.append(ObjectId(_id['$oid']))
-        players = list(db.players.find({'_id': {'$in': ids}}))
+        players = sorted(list(db.players.find({'_id': {'$in': ids}})), key=lambda x: x['name'])
         return append_data(players, SUCCESS_200)
     except Exception as e:
         traceback.print_exception(type(e), e, e.__traceback__)
         return edit_html_desc(ERROR_400, str(e))
+
+
+def check_for_duplicate_player(name, dob, jersey_num):
+    db_players = list(db.players.find({'name': name}))
+    for player in db_players:
+        if player['dob'] == dob:
+            if player['jersey_num'] == jersey_num:
+                return True
+    return False
+
+
+@app.route('/api/v2/insert-doc/', methods=['POST'])
+def insert_doc():
+    try:
+        data = json.loads(request.data)
+        collection = data['collection']
+        if collection not in db.list_collection_names():
+            return edit_html_desc(ERROR_400, 'Specified collection/document type does not exist')
+        if collection == 'players':
+            name = data['names'].strip().title()
+            nationality = data['nationality']
+            dob = data['dob']
+            position = data['position']
+            jersey_num = data['jersey_num']
+            supporting_file = data['supporting_file']
+            reg_date = data['reg_date']
+            team_id = return_oid(data['team_id'])
+            db_team = db.teams.find_one({'_id': team_id})
+            new_player = Player(
+                name=name,
+                dob=dob,
+                nationality=nationality,
+                jersey_num=jersey_num,
+                supporting_file=supporting_file,
+                position=position
+            )
+            player_club = PlayerTeam(
+                team_id=db_team['_id'],
+                teg_date=reg_date,
+                on_team=True
+            )
+            new_player['teams'].append(player_club.to_mongo())
+            db_player = db.players.insert_one(new_player.to_mongo())
+            db.teams.update_one({'_id': db_team['_id']}, {'$addToSet': {'roster': db_player.inserted_id}})
+        elif collection == 'teams':
+            name = data['name'].strip().title()
+            comp_id = return_oid(data['competition_id'])
+            new_team = Team(name=name, roster=None, matches=None, comps=[comp_id])
+            db.teams.insert_one(new_team.to_mongo())
+        elif collection == 'competitions':
+            name = data['name'].strip().title()
+            new_comp = Competition(name=name, teams=[], body_id=None)
+            db.competitions.insert_one(new_comp.to_mongo())
+        return SUCCESS_201
+    except Exception as e:
+        return print_and_return_error(e)
+
+
+@app.route('/api/v2/update-doc/', methods=['POST'])
+def update_doc():
+    try:
+        data = json.loads(request.data)
+        collection = data['collection']
+        _id = return_oid(data['_id'])
+        db_doc = db[collection].find_one({'_id': _id})
+        if not db_doc:
+            return edit_html_desc(ERROR_404, 'ID not found in players collection. Check your OID and try again.')
+        new_vals = {}
+        for key in data:
+            if key == '_id' or key == 'collection':
+                continue
+            if not data[key] == db_doc[key]:
+                new_vals[key] = data[key]
+        db[collection].update_one({'_id': _id}, {'$set': new_vals})
+        return append_data(db[collection].find_one({'_id': _id}), SUCCESS_200)
+    except Exception as e:
+        return print_and_return_error(e)
+
+
+@app.route('/api/v2/create-team/', methods=['POST'])
+def create_team():
+    try:
+        data = json.loads(request.data)
+        comp_id = return_oid(data['competition_id'])
+        db.teams.insert_one(
+            Team(
+                name=data['name'].strip().title(),
+                roster=[],
+                matches=[],
+                comps=[comp_id]
+            ).to_mongo()
+        )
+        return SUCCESS_201
+    except Exception as e:
+        print_and_return_error(e)
+
+
+@app.route('/api/v2/update-team-name/', methods=['POST'])
+def update_team_name():
+    try:
+        data = json.loads(request.data)
+        team_id = return_oid(data['teamId'])
+        db.teams.update_one({'_id': team_id}, {'$set': {'name': data['name'].strip().title()}})
+        return edit_html_desc(SUCCESS_200, db.teams.find_one({'_id': team_id}))
+    except Exception as e:
+        print_and_return_error(e)
+
+
+@app.route('/api/v2/link-team-and-competition/', methods=['POST'])
+def link_team_and_competition():
+    try:
+        data = json.loads(request.data)
+        team_id = return_oid(data['teamId'])
+        comp_id = return_oid(data['competition_id'])
+        db.teams.update_one({'_id': team_id}, {'$addToSet': {'comps': comp_id}})
+        db.competitions.update_one({'_id': comp_id}, {'$addToSet': {'teams': team_id}})
+        return SUCCESS_201
+    except Exception as e:
+        print_and_return_error(e)
+
+
+@app.route('/api/v2/unlink-team-and-competition/', methods=['POST'])
+def unlink_team_and_competition():
+    try:
+        data = json.loads(request.data)
+        team_id = return_oid(data['teamId'])
+        comp_id = return_oid(data['competition_id'])
+        db.teams.update_one({'_id': team_id}, {'$pull': {'comps': comp_id}})
+        db.competitions.update_one({'_id': comp_id}, {'$pull': {'teams': team_id}})
+        return SUCCESS_200
+    except Exception as e:
+        print_and_return_error(e)
+
+
+@app.route('/api/v2/create-competition/', methods=['POST'])
+def create_competition():
+    try:
+        data = json.loads(request.data)
+        body_id = return_oid(data['bodyId'])
+        db.competitions.insert_one(
+            Competition(
+                name=data['competition_name'],
+                teams=[],
+                body_id=body_id
+            ).to_mongo()
+        )
+        return SUCCESS_201
+    except Exception as e:
+        print_and_return_error(e)
+
+
+@app.route('/api/v2/update-competition-name/', methods=['POST'])
+def update_competition_name():
+    try:
+        data = json.loads(request.data)
+        comp_id = return_oid(data['competitionId'])
+        db.competitions.update_one({'_id': comp_id}, {'$set': {'name': data['competition_name'].strip().title()}})
+        return SUCCESS_201
+    except Exception as e:
+        print_and_return_error(e)
+
+
+@app.route('/api/v2/link-competition-and-body/', methods=['POST'])
+def link_competition_and_body():
+    try:
+        data = json.loads(request.data)
+        comp_id = return_oid(data['competition_id'])
+        body_id = return_oid(data['bodyId'])
+        db.competitions.update_one({'_id': comp_id}, {'$set': {'body_id': body_id}})
+        db.body.update_one({'_id': body_id}, {'$addToSet': {'competitions': comp_id}})
+        return SUCCESS_201
+    except Exception as e:
+        print_and_return_error(e)
+
+
+@app.route('/api/v2/unlink-competition-and-body/', methods=['POST'])
+def unlink_competition_and_body():
+    try:
+        data = json.loads(request.data)
+        comp_id = return_oid(data['competition_id'])
+        body_id = return_oid(data['bodyId'])
+        db.competitions.update_one({'_id': comp_id}, {'$set': {'body_id': None}})
+        db.bodies.update_one({'_id': body_id}, {'$pull': {'competitions': comp_id}})
+        return SUCCESS_200
+    except Exception as e:
+        print_and_return_error(e)
+
+
+@app.route('/api/v2/get-doc/', methods=['GET'])
+def get_doc():
+    try:
+        data = json.loads(request.data)
+        collection = data['collection']
+        _id = return_oid(data['_id'])
+        db_doc = db[collection].find_one({'_id': _id})
+        return append_data(db_doc, SUCCESS_200)
+    except Exception as e:
+        return print_and_return_error(e)
+
+
+@app.route('/api/v2/delete-doc/', methods=['DELETE'])
+def delete_doc():
+    try:
+        data = json.loads(request.data)
+        db[data['collection']].delete_one({'_id': return_oid(data['_id'])})
+        return SUCCESS_200
+    except Exception as e:
+        return print_and_return_error(e)
+
+
+def print_and_return_error(e):
+    traceback.print_exception(type(e), e, e.__traceback__)
+    return edit_html_desc(ERROR_400, str(e))
 
 
 @app.route('/api/v1/insert-player/', methods=['POST'])
@@ -277,7 +551,7 @@ def insert_player():
         player_data = json.loads(request.data)
         # player_data = TEST_JSON_PLAYER
 
-        name = player_data['names'].strip()
+        name = player_data['names'].strip().title()
         nationality = player_data['nationality']
         dob = player_data['dob']
         position = player_data['position']
@@ -285,9 +559,19 @@ def insert_player():
         supporting_file = player_data['supporting_file']
         reg_date = player_data['reg_date']
 
+        if check_for_duplicate_player(name, dob, jersey_num):
+            return edit_html_desc(SUCCESS_200, 'This player already exists in the database. Please use move player instead')
+
         db_team = db.teams.find_one({'_id': ObjectId(player_data['team_id'])})
 
-        new_player = Player(name=name, dob=dob, nationality=nationality, jersey_num=jersey_num, supporting_file=supporting_file, position=position)
+        new_player = Player(
+            name=name,
+            dob=dob,
+            nationality=nationality,
+            jersey_num=jersey_num,
+            supporting_file=supporting_file,
+            position=position
+        )
         player_club = PlayerTeam(team_id=db_team['_id'], reg_date=reg_date, on_team=True)
 
         new_player['teams'].append(player_club.to_mongo())
@@ -305,6 +589,7 @@ def insert_player():
 @app.route('/api/v1/move-player', methods=['POST'])
 def move_player():
     try:
+
         # load json data into dict
         data = json.loads(request.data)
 
@@ -315,8 +600,15 @@ def move_player():
         if not db_player:
             return edit_html_desc(ERROR_404, 'ID not found in players collection. Check your OID and try again.')
 
-        # get the remaining id's from the html request in the same manner as before, and the registration date string
-        old_team_id = data['old_team_id'] if type(data['old_team_id']) is ObjectId else ObjectId(data['old_team_id'])
+        # check if player has a team they are being moved from. if yes, update the player's team list and update
+        # the team's roster. if not, do nothing and move on to adding the new team and updating its roster
+        if data['old_team_id'] == '':
+            pass
+        else:
+            old_team_id = data['old_team_id'] if type(data['old_team_id']) is ObjectId else ObjectId(data['old_team_id'])
+            db.players.update_one({'_id': player_id, 'teams.team_id': old_team_id}, {'$set': {'teams.$.on_team': False}})
+            db.teams.update_one({'_id': old_team_id}, {'$pull': {'roster': player_id}})
+
         new_team_id = data['new_team_id'] if type(data['new_team_id']) is ObjectId else ObjectId(data['new_team_id'])
         reg_date = data['reg_date']
 
@@ -328,12 +620,11 @@ def move_player():
         # 2. add the player's id to his new team's roster
         # 3. remove the player's id from his old team
         db.players.update_one({'_id': player_id}, {'$addToSet': {'teams': new_team.to_mongo()}})
-        db.players.update_one({'_id': player_id, 'teams.team_id': old_team_id}, {'$set': {'teams.$.on_team': False}})
         db.teams.update_one({'_id': new_team_id}, {'$addToSet': {'roster': player_id}})
-        db.teams.update_one({'_id': old_team_id}, {'$pull': {'roster': player_id}})
 
         # return the updated player document to front end
         return append_data(db.players.find_one({'_id': player_id}), SUCCESS_200)
+
     except Exception as e:
         traceback.print_exception(type(e), e, e.__traceback__)
         return edit_html_desc(ERROR_400, str(e))
@@ -343,18 +634,18 @@ def move_player():
 def update_document(collection):
     try:
         new_doc = json.loads(request.data)
-        _id = new_doc['_id']['$oid']
-        db_doc = db[collection].find_one({'_id': ObjectId(_id)})
+        _id = return_oid(new_doc['_id'])
+        db_doc = db[collection].find_one({'_id': _id})
         if not db_doc:
-            return edit_html_desc(ERROR_404, 'ID not found in players collection. Check your OID and try again.')
+            return edit_html_desc(ERROR_404, 'ID not found in given collection. Check your OID and try again.')
         new_values = {}
         for key in new_doc:
             if key == '_id':
                 continue
             if not new_doc[key] == db_doc[key]:
                 new_values[key] = new_doc[key]
-        # update_result = db[collection].update_one({'_id': ObjectId(_id)}, {'$set': new_values})
-        updated_doc = db[collection].find_one({'_id': ObjectId(_id)})
+        db[collection].update_one({'_id': _id}, {'$set': new_values})
+        updated_doc = db[collection].find_one({'_id': _id})
         return append_data(updated_doc, SUCCESS_200)
     except Exception as e:
         traceback.print_exception(type(e), e, e.__traceback__)
@@ -368,7 +659,7 @@ def get_teams_from_comp(comp_id):
         if not competition:
             return edit_html_desc(ERROR_404, 'ID not found in competitions collection. Check your OID and try again.')
         team_ids = competition['teams']
-        teams = db.teams.find({'_id': {'$in': team_ids}})
+        teams = sorted(db.teams.find({'_id': {'$in': team_ids}}), key=lambda x: x['name'])
         return append_data(teams, SUCCESS_200)
     except Exception as e:
         return edit_html_desc(ERROR_400, str(e))
@@ -404,28 +695,78 @@ def upload_fixture_data():
         traceback.print_exception(type(e), e, e.__traceback__)
         return edit_html_desc(ERROR_400, str(e))
 
-# USED TO UPDATE PLAYER DB TO ENSURE ALL HAVE 'supporting_file' KEY/VAL PAIR
-# NO LONGER NEEDED BUT LEAVING IN PLACE FOR NOW
-# def add_supporting_file_key():
-#     try:
-#         players = list(db.players.find({}))
-#         counter = 0
-#         for player in players:
-#             if 'supporting_file' in player:
-#                 continue
-#             db.players.update_one({'_id': player['_id']}, {'$set': {'supporting_file': ''}})
-#             print(counter + 1)
-#             counter += 1
-#     except Exception as e:
-#         traceback.print_exception(type(e), e, e.__traceback__)
+
+@app.route('/api/v2/upload-csv/fixtures', methods=['POST'])
+def upload_fixture_csv():
+    try:
+        # comp_id = return_oid(db.competitions.find_one({'name': data['competition_name'].strip().title()}))
+        data =json.loads(request.data)
+        db_comp = db.competitions.find_one({'name': data['competition_name'].strip().title()})
+        if not db_comp:
+            return edit_html_desc(ERROR_404, 'Specified competition not found, please check your entry and try again')
+        comp_id = return_oid(db_comp['_id'])
+        new_fixture = Fixture(competition=comp_id, comp_year=data['competition_year'], rounds=[])
+        for round in data['round_data']:
+            new_round = Round(matchups=[])
+            print('ROUND: ' + str(round['round']) + '\n\n')
+            for i in range(0, len(round['round_data'])):
+                print(round['round_data'][i])
+                home_id = return_oid(db.teams.find_one({'name': round['round_data'][i]['HomeTeam']})['_id'])
+                away_id = return_oid(db.teams.find_one({'name': round['round_data'][i]['AwayTeam']})['_id'])
+                new_match = Match(
+                    competition_id=comp_id,
+                    home_team=home_id,
+                    away_team=away_id,
+                    date=round['round_data'][i]['Date'],
+                    venue=round['round_data'][i]['Venue'],
+                    match_url=round['round_data'][i]['FullMatchURL']
+                )
+                match_id = db.matches.insert_one(new_match.to_mongo()).inserted_id
+                db.teams.update_many({'_id': {'$in': [home_id, away_id]}}, {'$addToSet': {'matches': match_id}})
+                new_round['matchups'].append(match_id)
+            new_fixture['rounds'].append(new_round.to_mongo())
+        db.fixtures.insert_one(new_fixture.to_mongo())
+        return SUCCESS_201
+    except Exception as e:
+        print_and_return_error(e)
+
+
+@app.route('/api/v2/upload-csv/players', methods=['POST'])
+def upload_players_csv():
+    try:
+        data = json.loads(request.data)
+        for team in data:
+            player_ids = []
+            db_team = db.teams.find_one({'name': team['team'].strip().title()})
+            if not db_team:
+                continue
+            team_id = return_oid(db_team['_id'])
+            for player in team['player_data']:
+                db_player = db.players.find_one({'name': player['Name'].strip().title()})
+                if db_player:
+                    if db_player['jersey_num'] == player['JerseyNo'] and db_player['dob'] == player['DateOfBirth']:
+                        continue
+                new_player = Player(
+                    name=player['Name'].strip().title(),
+                    dob=player['DateOfBirth'],
+                    nationality=player['Nationality'],
+                    jersey_num=player['JerseyNo'],
+                    supporting_file=None,
+                    position=None
+                )
+                player_team = PlayerTeam(
+                    team_id=team_id,
+                    reg_date=player['RegistrationDate'],
+                    on_team=True
+                )
+                new_player['teams'].append(player_team.to_mongo())
+                player_ids.append(db.players.insert_one(new_player.to_mongo()).inserted_id)
+            db.teams.update_one({'_id': team_id}, {'$addToSet': {'roster': player_ids}})
+        return SUCCESS_201
+    except Exception as e:
+        print_and_return_error(e)
 
 
 if __name__ == '__main__':
-    # insert_player()
-    # upload_match_data_v2()
-    # upload_fixture_data(TEST_JSON_FIXTURE)
-    # add_supporting_file_key()
-    # test_match = Match(competition_id=ObjectId('64d52c9f4cdabb9dfc3b4a53'), home_team=ObjectId('64d52c9f4cdabb9dfc3b4a6a'), away_team=ObjectId('64d52c9f4cdabb9dfc3b4a83'), date='testDate', venue='testVen', match_url='testURL')
-    # print(test_match.to_mongo().to_dict())
     app.debug = False
     app.run()
