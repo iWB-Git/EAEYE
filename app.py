@@ -768,5 +768,102 @@ def upload_players_csv():
 
 
 if __name__ == '__main__':
+    # duplicate teams
+    # **AFAD / AFAD / AFAD
+    # only has matches registered, no players/roster
+    # main document id: 6519358c11561809f3ea1963
+
+    # Geita Gold FC / Geita Gold Football Club
+    # FC has the matches, Football Club has the players/roster
+    # FC id: 64d52c9f4cdabb9dfc3b4a63
+    # Football Club id: 6519a0709521f4b4598b1464
+
+    # Fountain Gate Princess / **Fountain Gate Princess FC
+    # FC is main, contains the players/roster
+    # neither have any matches registered
+    # FC id: 6519a06f9521f4b4598b141f
+
+    # Gor Mahia / Gor Mahia FC
+    # neither have any players nor matches registered
+
+    # Police / Police / Police FC
+    # none have players/rosters, FC has the matches registered
+    # FC id: 6519367211561809f3ea197e
+
+    # Renaissance / Renaissance
+    # neither have any players or matches registered
+
+    # Singida BS / Singida Big Stars Football Club
+    # BS has the matches registered, Big Stars Football Club has the players/roster registered
+    # BS id: 64d52c9f4cdabb9dfc3b4a5c
+    # Big Stars Football Club id: 6519a0919521f4b4598b1f9c
+
+    # team_names = ['AFAD',
+    #               'Geita Gold FC',
+    #               'Geita Gold Football Club',
+    #               'Fountain Gate Princess',
+    #               'Fountain Gate Princess FC',
+    #               'Gor Mahia',
+    #               'Gor Mahia FC',
+    #               'Police',
+    #               'Police FC',
+    #               'Renaissance',
+    #               'Singida BS',
+    #               'Singida Big Stars Football Club'
+    #               ]
+
+    # db_teams = sorted(list(db.teams.find({'name': {'$in': team_names}})), key=lambda x: x['name'])
+    # if len(db_teams) == 0:
+    #     print('NO TEAM FOUND IN DATABASE')
+    # else:
+    #     for team in db_teams:
+    #         team_id = return_oid(team['_id'])
+    #
+    #         print('BEGINNING NEW TEAM SEARCH, _id: ' + str(team_id) + ', NAME: ' + str(team['name']) + '\n- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
+    #
+    #         print('\n\nROSTER:\n- - - - - - - - - -')
+    #         db_players = list(db.players.find({'teams.team_id': team_id}))
+    #         if len(db_players) == 0:
+    #             print('ROSTER IS EMPTY\n')
+    #         else:
+    #             for player in db_players:
+    #                 print(player)
+    #
+    #         print('\nMATCHES:\n- - - - - - - - - -')
+    #         db_matches = list(db.matches.find({'$or': [{'home_team': team_id}, {'away_team': team_id}]}))
+    #         if len(db_matches) == 0:
+    #             print('NO MATCHES REGISTERED IN DATABASE')
+    #         else:
+    #             for doc in db_matches:
+    #                 print(doc)
+    #
+    #         print('\n\nCOMPETITIONS:\n- - - - - - - - - -')
+    #         db_comps = list(db.competitions.find({'teams': team_id}))
+    #         if len(db_comps) == 0:
+    #             print('NOT REGISTERED TO ANY DATABASE COMPETITIONS')
+    #         else:
+    #             for doc in db_comps:
+    #                 print(doc)
+    #         print('\n\n\n')
+
+    # all_teams = db.teams.find({})
+    # all_teams = sorted(all_teams, key=lambda x: x['name'])
+    # for i in range(0, len(all_teams)):
+    #     print(all_teams[i]['name'])
+    #     if i == 0:
+    #         continue
+    #     if all_teams[i]['name'].strip().title() == all_teams[i - 1]['name'].strip().title():
+    #         print('- - - - - - - here! - - - - - - -')
+
+    # players = sorted(list(db.players.find({})), key=lambda x: x['name'])
+    # for i in range(0, len(players)):
+    #     # print(players[i]['name'])
+    #     if i == 0:
+    #         continue
+    #     cur = players[i]
+    #     prev = players[i - 1]
+    #     if cur['name'] == prev['name']:
+    #         if cur['dob'] == prev['dob']:
+    #             print('- - - - - - - - - - H E R E - - - - - - - - - -')
     app.debug = False
     app.run()
