@@ -1,3 +1,4 @@
+import asyncio
 import copy
 import traceback
 import urllib
@@ -263,18 +264,22 @@ def upload_match_data_v2():
 @app.route('/api/v1/get-collection/<collection>', methods=['GET'])
 async def get_collection(collection):
     try:
-        start = time.time()
-        docs = []
-        async for doc in db_0[collection].find({}):
-            docs.append(doc)
-        if collection in ['players', 'teams', 'competitions']:
-            print('time :: ' + str(time.time() - start))
-            return append_data(sorted(docs, key=lambda x: x['name']), SUCCESS_200)
-        else:
-            print('time :: ' + str(time.time() - start))
-            return append_data(docs, SUCCESS_200)
+        asyncio.run(get_coll_async(collection))
     except Exception as e:
         print_and_return_error(e)
+
+
+async def get_coll_async(collection):
+    start = time.time()
+    docs = []
+    async for doc in db_0[collection].find({}):
+        docs.append(doc)
+    if collection in ['players', 'teams', 'competitions']:
+        print('time :: ' + str(time.time() - start))
+        return append_data(sorted(docs, key=lambda x: x['name']), SUCCESS_200)
+    else:
+        print('time :: ' + str(time.time() - start))
+        return append_data(docs, SUCCESS_200)
 
 
 @app.route('/api/v1/get-document/<collection>/<_id>', methods=['GET'])
