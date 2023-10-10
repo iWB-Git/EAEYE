@@ -264,7 +264,11 @@ def upload_match_data_v2():
 @app.route('/api/v1/get-collection/<collection>', methods=['GET'])
 async def get_collection(collection):
     try:
-        return await get_coll_async(collection)
+        loop = asyncio.get_event_loop()
+        future = asyncio.ensure_future(get_coll_async(collection))
+        loop.run_until_complete(future)
+        loop.close()
+        # return await get_coll_async(collection)
     except Exception as e:
         print_and_return_error(e)
 
