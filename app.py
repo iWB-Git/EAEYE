@@ -15,6 +15,8 @@ from models.team import Team
 import os
 import mongoengine
 from bson.objectid import ObjectId
+import motor.motor_asyncio
+import time
 
 # rudimentary dev testing access codes
 DIRECT_USERNAME = os.environ['URL_DIRECT_USERNAME']
@@ -49,6 +51,8 @@ db_password = urllib.parse.quote_plus(os.environ['DB_PASSWORD'])
 db_uri = os.environ['DB_URI'] % (db_username, db_password)
 db = mongoengine.connect(alias='default', host=db_uri)
 db = db.ea_eye
+client = motor.motor_asyncio.AsyncIOMotorClient(db_uri)
+db_0 = client.ea_eye
 
 
 def append_data(data, html_response):
@@ -240,14 +244,37 @@ def upload_match_data_v2():
         return edit_html_desc(ERROR_400, str(e))
 
 
+# @app.route('/api/v1/get-collection/<collection>', methods=['GET'])
+# def get_collection(collection):
+#     start = time.time()
+#     if collection not in db.list_collection_names():
+#         return edit_html_desc(ERROR_404, 'Specified collection does not exist.')
+#     docs = db[collection].find({})
+#     if collection in ['players', 'teams', 'competitions']:
+#         docs = sorted(docs, key=lambda x: x['name'])
+#     print('time :: ' + str(time.time() - start))
+#     return append_data(docs, SUCCESS_200)
+
+
+# TODO: test this rigorously and find out if it's faster or not
+# TODO: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# TODO: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# TODO: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 @app.route('/api/v1/get-collection/<collection>', methods=['GET'])
-def get_collection(collection):
-    if collection not in db.list_collection_names():
-        return edit_html_desc(ERROR_404, 'Specified collection does not exist.')
-    docs = db[collection].find({})
-    if collection in ['players', 'teams', 'competitions']:
-        docs = sorted(docs, key=lambda x: x['name'])
-    return append_data(docs, SUCCESS_200)
+async def get_collection(collection):
+    try:
+        start = time.time()
+        docs = []
+        async for doc in db_0[collection].find({}):
+            docs.append(doc)
+        if collection in ['players', 'teams', 'competitions']:
+            print('time :: ' + str(time.time() - start))
+            return append_data(sorted(docs, key=lambda x: x['name']), SUCCESS_200)
+        else:
+            print('time :: ' + str(time.time() - start))
+            return append_data(docs, SUCCESS_200)
+    except Exception as e:
+        print_and_return_error(e)
 
 
 @app.route('/api/v1/get-document/<collection>/<_id>', methods=['GET'])
@@ -767,7 +794,52 @@ def upload_players_csv():
         print_and_return_error(e)
 
 
+async def async_test():
+    import time
+    all_players = db.players.find({})
+    test_list = []
+    index = 1
+    start = time.time()
+    for player in all_players:
+        doc = await db.players.find_one({'_id': return_oid(player['_id'])})
+        test_list.append(doc)
+        print(time.time() - start)
+        index += 1
+
+
+def test():
+    import time
+    all_players = db.players.find({})
+    test_list = []
+    index = 1
+    start = time.time()
+    for player in all_players:
+        test_list.append(player)
+        print(str(index) + ' :: ' + str(time.time() - start))
+        index += 1
+
+
+# async def testing():
+#     import time
+#     import motor.motor_asyncio
+#     client = motor.motor_asyncio.AsyncIOMotorClient(db_uri)
+#     db_0 = client.ea_eye
+#     test_list = []
+#     index = 1
+#     start = time.time()
+#     async for doc in db_0.players.find({}):
+#         test_list.append(doc)
+#         print(str(index) + ' :: ' + str(time.time() - start))
+#         index += 1
+
+
 if __name__ == '__main__':
+    # import asyncio
+    # test()
+    # print('\n\n\n- - - - - - - - - - - - - - - - - - - - - - - - -\n\n\n')
+    # asyncio.run(testing())
+
+
     # duplicate teams
     # **AFAD / AFAD / AFAD
     # only has matches registered, no players/roster
