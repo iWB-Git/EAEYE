@@ -21,6 +21,15 @@ DIRECT_USERNAME = os.environ['URL_DIRECT_USERNAME']
 DIRECT_PASSWORD = os.environ['URL_DIRECT_PASSWORD']
 TONY_USERNAME = os.environ['TONY_DIRECT_USERNAME']
 
+DB_COLLECTIONS = [
+    'players',
+    'teams',
+    'competitions',
+    'matches',
+    'fixtures',
+    'bodies'
+]
+
 # flask logging setup, may not end up being used
 dictConfig({
     'version': 1,
@@ -242,7 +251,7 @@ def upload_match_data_v2():
 
 @app.route('/api/v1/get-collection/<collection>', methods=['GET'])
 def get_collection(collection):
-    if collection not in db.list_collection_names():
+    if collection not in DB_COLLECTIONS:
         return edit_html_desc(ERROR_404, 'Specified collection does not exist.')
     docs = db[collection].find({})
     if collection in ['players', 'teams', 'competitions']:
