@@ -245,45 +245,103 @@ def upload_match_data_v2():
         return edit_html_desc(ERROR_400, str(e))
 
 
-# @app.route('/api/v1/get-collection/<collection>', methods=['GET'])
-# def get_collection(collection):
-#     start = time.time()
-#     if collection not in db.list_collection_names():
-#         return edit_html_desc(ERROR_404, 'Specified collection does not exist.')
-#     docs = db[collection].find({})
-#     if collection in ['players', 'teams', 'competitions']:
-#         docs = sorted(docs, key=lambda x: x['name'])
-#     print('time :: ' + str(time.time() - start))
-#     return append_data(docs, SUCCESS_200)
-
-
-# TODO: test this rigorously and find out if it's faster or not
-# TODO: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# TODO: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# TODO: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 @app.route('/api/v1/get-collection/<collection>', methods=['GET'])
-async def get_collection(collection):
+def get_collection(collection):
+    start = time.time()
+    if collection not in db.list_collection_names():
+        return edit_html_desc(ERROR_404, 'Specified collection does not exist.')
+    docs = db[collection].find({})
+    if collection in ['players', 'teams', 'competitions']:
+        docs = sorted(docs, key=lambda x: x['name'])
+    print('time :: ' + str(time.time() - start))
+    return append_data(docs, SUCCESS_200)
+
+
+# # TODO: test this rigorously and find out if it's faster or not
+# # TODO: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# # TODO: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# # TODO: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# @app.route('/api/v1/get-collection/<collection>', methods=['GET'])
+# async def get_collection(collection):
+#     try:
+#         loop = asyncio.get_event_loop()
+#         future = asyncio.ensure_future(get_coll_async(collection))
+#         loop.run_until_complete(future)
+#         loop.close()
+#         # return await get_coll_async(collection)
+#     except Exception as e:
+#         print_and_return_error(e)
+
+
+# async def get_coll_async(collection):
+#     start = time.time()
+#     docs = []
+#     async for doc in db_0[collection].find({}):
+#         docs.append(doc)
+#     if collection in ['players', 'teams', 'competitions']:
+#         print('time :: ' + str(time.time() - start))
+#         return append_data(sorted(docs, key=lambda x: x['name']), SUCCESS_200)
+#     else:
+#         print('time :: ' + str(time.time() - start))
+#         return append_data(docs, SUCCESS_200)
+
+
+def mark_or_restore_doc(doc_id, coll, to_delete):
+    # set the to be deleted document's id and collection, then query for the targeted document
+    tbd_id = ObjectId('64d67eb2aa60adcae5ef877d') if coll == 'players' else ObjectId('6526f76a8e4142135d3ffc70')
+    tbd_coll = 'teams' if coll == 'players' else 'competitions'
+    db_doc = db[coll].find_one({'_id': doc_id})
+
+    # check if the document exists and check if the given collection is supported
+    if not db_doc:
+        return edit_html_desc(
+            ERROR_400,
+            'Document not found in database, please check your ID string and try again'
+        )
+    elif coll not in ['players', 'teams']:
+        return edit_html_desc(
+            ERROR_400,
+            'Specified collection not supported yet; currently supported collections are \'players\' and \'teams\''
+        )
+
+    # if the target doc is to be deleted then add it to the TBD document, else remove it from the TBD doc
+    if to_delete:
+        db[tbd_coll].update_one({'_id': tbd_id}, {'$addToSet': {'documents': doc_id}})
+    else:
+        db[tbd_coll].update_one({'_id': tbd_id}, {'$pull': {'documents': doc_id}})
+
+    return SUCCESS_200
+
+
+# mark a document for deletion
+# does not alter the database in any way aside from adding the document to a list of others up for deletion
+# allows admins to review documents before deletion, or to restore a document without issue
+@app.route('/api/v2/mark-for-deletion', methods=['POST'])
+def mark_for_deletion():
     try:
-        loop = asyncio.get_event_loop()
-        future = asyncio.ensure_future(get_coll_async(collection))
-        loop.run_until_complete(future)
-        loop.close()
-        # return await get_coll_async(collection)
+        data = json.loads(request.data)
+        return mark_or_restore_doc(
+            doc_id=return_oid(data['_id']),
+            coll=data['collection'],
+            to_delete=True
+        )
     except Exception as e:
         print_and_return_error(e)
 
 
-async def get_coll_async(collection):
-    start = time.time()
-    docs = []
-    async for doc in db_0[collection].find({}):
-        docs.append(doc)
-    if collection in ['players', 'teams', 'competitions']:
-        print('time :: ' + str(time.time() - start))
-        return append_data(sorted(docs, key=lambda x: x['name']), SUCCESS_200)
-    else:
-        print('time :: ' + str(time.time() - start))
-        return append_data(docs, SUCCESS_200)
+# unmark a document for deletion
+# removes the document from the respective TO BE DELETED document's reference list
+@app.route('/api/v2/restore-document', methods=['POST'])
+def restore_document():
+    try:
+        data = json.loads(request.data)
+        return mark_or_restore_doc(
+            doc_id=return_oid(data['_id']),
+            coll=data['collection'],
+            to_delete=False
+        )
+    except Exception as e:
+        print_and_return_error(e)
 
 
 @app.route('/api/v1/get-document/<collection>/<_id>', methods=['GET'])
