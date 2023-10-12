@@ -69,6 +69,12 @@ def edit_html_desc(html_response, new_desc):
     return new_response
 
 
+def check_duplicates(doc_id, collection):
+    if collection == 'players':
+        db_doc = db[collection].find_one({'_id': return_oid(doc_id)})
+        dupes = list(db[collection].find)
+
+
 def return_oid(_id):
     return _id if type(_id) is ObjectId else ObjectId(_id)
 
@@ -128,7 +134,6 @@ def upload_match_data():
 
 
 def update_player_stats(team, match_id):
-
     # get match id and ensure it's the correct type, and set up the stats list to return at the end
     # match_id = match_id if type(match_id) is ObjectId else ObjectId(match_id)
     stats_list = []
@@ -342,6 +347,56 @@ def restore_document():
         )
     except Exception as e:
         print_and_return_error(e)
+
+
+@app.route('/api/v2/delete-player/<player_id>', methods=['POST'])
+def delete_player(player_id):
+
+    # check for the player's document in the database, return bad request code if so
+    db_player = db.players.find_one({'_id': player_id})
+    if not db_player:
+        return edit_html_desc(
+            ERROR_400,
+            'Player not found in database; please check your ID string and try again'
+        )
+
+    # check for duplicate entries in the database
+    # for a player check if they have the same name and dob, and a unique id from the given id
+    dupes = list(
+        db.players.find(
+            {
+                'name': db_player['name'],
+                'dob': db_player['dob'],
+                '_id': {'$ne': player_id}
+            })
+    )
+
+    # if any duplicates exist return a 400 error and append the duplicate documents in question for review
+    if dupes:
+        return append_data(
+            dupes,
+            edit_html_desc(
+                ERROR_400,
+                'Duplicate entries exist in database; please review these before continuing'
+            )
+        )
+
+    # check the teams collection for any teams whose roster contain the given player's id
+    id_pairs = list(db.teams.find({'roster': player_id}, {'_id': 1}))
+
+    # generate a list of strictly the ObjectId strings, as opposed to key-value pairs of {'_id': *id_string*}
+    team_ids = []
+    for pair in id_pairs:
+        team_ids.append(pair['_id'])
+
+    # remove the player's id from all the teams identified above
+    db.teams.update_many(
+        {'_id': {'$in': team_ids}},
+        {'$pull': {'roster': player_id}}
+    )
+
+    # delete the player document from the database
+    db.players.delete_one({'_id': player_id})
 
 
 @app.route('/api/v1/get-document/<collection>/<_id>', methods=['GET'])
@@ -654,7 +709,8 @@ def insert_player():
         reg_date = player_data['reg_date']
 
         if check_for_duplicate_player(name, dob, jersey_num):
-            return edit_html_desc(SUCCESS_200, 'This player already exists in the database. Please use move player instead')
+            return edit_html_desc(SUCCESS_200,
+                                  'This player already exists in the database. Please use move player instead')
 
         db_team = db.teams.find_one({'_id': ObjectId(player_data['team_id'])})
 
@@ -699,8 +755,10 @@ def move_player():
         if data['old_team_id'] == '':
             pass
         else:
-            old_team_id = data['old_team_id'] if type(data['old_team_id']) is ObjectId else ObjectId(data['old_team_id'])
-            db.players.update_one({'_id': player_id, 'teams.team_id': old_team_id}, {'$set': {'teams.$.on_team': False}})
+            old_team_id = data['old_team_id'] if type(data['old_team_id']) is ObjectId else ObjectId(
+                data['old_team_id'])
+            db.players.update_one({'_id': player_id, 'teams.team_id': old_team_id},
+                                  {'$set': {'teams.$.on_team': False}})
             db.teams.update_one({'_id': old_team_id}, {'$pull': {'roster': player_id}})
 
         new_team_id = data['new_team_id'] if type(data['new_team_id']) is ObjectId else ObjectId(data['new_team_id'])
@@ -779,7 +837,8 @@ def upload_fixture_data():
                 date = matchup['Date']
                 match_url = matchup['FullMatchURL']
                 venue = matchup['Venue']
-                new_match = Match(competition_id=comp_id, home_team=home_id, away_team=away_id, date=date, venue=venue, match_url=match_url)
+                new_match = Match(competition_id=comp_id, home_team=home_id, away_team=away_id, date=date, venue=venue,
+                                  match_url=match_url)
                 match_ids.append(db.matches.insert_one(new_match.to_mongo()).inserted_id)
             new_round = Round(matchups=match_ids)
             new_fixture['rounds'].append(new_round.to_mongo())
@@ -794,7 +853,7 @@ def upload_fixture_data():
 def upload_fixture_csv():
     try:
         # comp_id = return_oid(db.competitions.find_one({'name': data['competition_name'].strip().title()}))
-        data =json.loads(request.data)
+        data = json.loads(request.data)
         db_comp = db.competitions.find_one({'name': data['competition_name'].strip().title()})
         if not db_comp:
             return edit_html_desc(ERROR_404, 'Specified competition not found, please check your entry and try again')
@@ -906,7 +965,6 @@ if __name__ == '__main__':
     # print('\n\n\n- - - - - - - - - - - - - - - - - - - - - - - - -\n\n\n')
     # asyncio.run(testing())
 
-
     # duplicate teams
     # **AFAD / AFAD / AFAD
     # only has matches registered, no players/roster
@@ -1004,5 +1062,8 @@ if __name__ == '__main__':
     #     if cur['name'] == prev['name']:
     #         if cur['dob'] == prev['dob']:
     #             print('- - - - - - - - - - H E R E - - - - - - - - - -')
+    # players = list(db.players.find({'teams.1': {'$exists': True}}))
+    # print(players)
+    delete_player(ObjectId('6525734de500541bc3bee3c0'))
     app.debug = False
     app.run()
