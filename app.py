@@ -351,52 +351,55 @@ def restore_document():
 
 @app.route('/api/v2/delete-player/<player_id>', methods=['POST'])
 def delete_player(player_id):
-
-    # check for the player's document in the database, return bad request code if so
-    db_player = db.players.find_one({'_id': player_id})
-    if not db_player:
-        return edit_html_desc(
-            ERROR_400,
-            'Player not found in database; please check your ID string and try again'
-        )
-
-    # check for duplicate entries in the database
-    # for a player check if they have the same name and dob, and a unique id from the given id
-    dupes = list(
-        db.players.find(
-            {
-                'name': db_player['name'],
-                'dob': db_player['dob'],
-                '_id': {'$ne': player_id}
-            })
-    )
-
-    # if any duplicates exist return a 400 error and append the duplicate documents in question for review
-    if dupes:
-        return append_data(
-            dupes,
-            edit_html_desc(
+    try:
+        # check for the player's document in the database, return bad request code if so
+        db_player = db.players.find_one({'_id': player_id})
+        if not db_player:
+            return edit_html_desc(
                 ERROR_400,
-                'Duplicate entries exist in database; please review these before continuing'
+                'Player not found in database; please check your ID string and try again'
             )
+
+        # check for duplicate entries in the database
+        # for a player check if they have the same name and dob, and a unique id from the given id
+        dupes = list(
+            db.players.find(
+                {
+                    'name': db_player['name'],
+                    'dob': db_player['dob'],
+                    '_id': {'$ne': player_id}
+                })
         )
 
-    # check the teams collection for any teams whose roster contain the given player's id
-    id_pairs = list(db.teams.find({'roster': player_id}, {'_id': 1}))
+        # if any duplicates exist return a 400 error and append the duplicate documents in question for review
+        if dupes:
+            return append_data(
+                dupes,
+                edit_html_desc(
+                    ERROR_400,
+                    'Duplicate entries exist in database; please review these before continuing'
+                )
+            )
 
-    # generate a list of strictly the ObjectId strings, as opposed to key-value pairs of {'_id': *id_string*}
-    team_ids = []
-    for pair in id_pairs:
-        team_ids.append(pair['_id'])
+        # check the teams collection for any teams whose roster contain the given player's id
+        id_pairs = list(db.teams.find({'roster': player_id}, {'_id': 1}))
 
-    # remove the player's id from all the teams identified above
-    db.teams.update_many(
-        {'_id': {'$in': team_ids}},
-        {'$pull': {'roster': player_id}}
-    )
+        # generate a list of strictly the ObjectId strings, as opposed to key-value pairs of {'_id': *id_string*}
+        team_ids = []
+        for pair in id_pairs:
+            team_ids.append(pair['_id'])
 
-    # delete the player document from the database
-    db.players.delete_one({'_id': player_id})
+        # remove the player's id from all the teams identified above
+        db.teams.update_many(
+            {'_id': {'$in': team_ids}},
+            {'$pull': {'roster': player_id}}
+        )
+
+        # delete the player document from the database
+        db.players.delete_one({'_id': player_id})
+        return SUCCESS_200
+    except Exception as e:
+        print_and_return_error(e)
 
 
 @app.route('/api/v1/get-document/<collection>/<_id>', methods=['GET'])
@@ -1064,6 +1067,5 @@ if __name__ == '__main__':
     #             print('- - - - - - - - - - H E R E - - - - - - - - - -')
     # players = list(db.players.find({'teams.1': {'$exists': True}}))
     # print(players)
-    delete_player(ObjectId('6525734de500541bc3bee3c0'))
     app.debug = False
     app.run()
