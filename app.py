@@ -349,6 +349,35 @@ def restore_document():
         print_and_return_error(e)
 
 
+@app.route('/api/v2/unattach-document', methods=['POST'])
+def unattach_document():
+    try:
+        data = json.loads(request.data)
+        coll = data['collection']
+        doc_id = return_oid(data['_id'])
+        unattached_id = ObjectId('64de3499f3163e410d0e991a') if coll == 'players' else ObjectId('65285a798e4142135d3ffca8')
+        db_doc = db[coll].find_one({'_id': doc_id})
+        if not db_doc:
+            return edit_html_desc(
+                ERROR_400,
+                'Document not found in database; please check your ID string and try again'
+            )
+        if coll == 'players':
+            team_ids = []
+            for team in db_doc['teams']:
+                team_ids.append(return_oid(team['team_id']))
+                team['on_team'] = False
+            if team_ids:
+                db.teams.update_many({'_id': {'$in': team_ids}}, {'$pull': {'roster': doc_id}})
+            db.teams.update_one({'_id': unattached_id}, {'$addToSet': {'roster': doc_id}})
+            db[coll].update_one({'_id': doc_id}, {'$set': db_doc})
+            return SUCCESS_200
+        elif coll == 'teams':
+            pass
+    except Exception as e:
+        print_and_return_error(e)
+
+
 @app.route('/api/v2/delete-player/<player_id>', methods=['POST'])
 def delete_player(player_id):
     try:
@@ -1067,5 +1096,7 @@ if __name__ == '__main__':
     #             print('- - - - - - - - - - H E R E - - - - - - - - - -')
     # players = list(db.players.find({'teams.1': {'$exists': True}}))
     # print(players)
+
+    # unattach_document(ObjectId('6525837be3d6a18522bee3c2'), 'players')
     app.debug = False
     app.run()
