@@ -207,7 +207,6 @@ def get_collection(collection):
     docs = db[collection].find({})
     if collection in ['players', 'teams', 'competitions']:
         docs = sorted(docs, key=lambda x: x['name'])
-    print('time :: ' + str(time.time() - start))
     return append_data(docs, SUCCESS_200)
 
 
@@ -901,50 +900,6 @@ def upload_players_csv():
         print_and_return_error(e)
 
 
-async def async_test():
-    import time
-    all_players = db.players.find({})
-    test_list = []
-    index = 1
-    start = time.time()
-    for player in all_players:
-        doc = await db.players.find_one({'_id': return_oid(player['_id'])})
-        test_list.append(doc)
-        print(time.time() - start)
-        index += 1
-
-
-def test():
-    import time
-    all_players = db.players.find({})
-    test_list = []
-    index = 1
-    start = time.time()
-    for player in all_players:
-        test_list.append(player)
-        print(str(index) + ' :: ' + str(time.time() - start))
-        index += 1
-
-
-# async def testing():
-#     import time
-#     import motor.motor_asyncio
-#     client = motor.motor_asyncio.AsyncIOMotorClient(db_uri)
-#     db_0 = client.ea_eye
-#     test_list = []
-#     index = 1
-#     start = time.time()
-#     async for doc in db_0.players.find({}):
-#         test_list.append(doc)
-#         print(str(index) + ' :: ' + str(time.time() - start))
-#         index += 1
-
-
 if __name__ == '__main__':
-    # import asyncio
-    # test()
-    # print('\n\n\n- - - - - - - - - - - - - - - - - - - - - - - - -\n\n\n')
-    # asyncio.run(testing())
-
     app.debug = False
     app.run()
