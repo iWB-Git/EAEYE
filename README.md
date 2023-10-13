@@ -1,7 +1,7 @@
 
 # Lighthouse Sports Back End API
 
-API connecting the front end for Lighthouse's scouting platform with the MongoDB database as well as performing server side computations. The goal is to do as much work on the back end as possible to reduce the load on a user's device and network connection.
+API connecting the front end for Lighthouse's scouting platform with the MongoDB database, as well as performing server side computations. The goal is to do as much work on the back end as possible to reduce the load on a user's device and network connection.
 
 ## Installation and Usage
 
