@@ -2,7 +2,7 @@ import asyncio
 import copy
 import traceback
 import urllib
-from flask import Flask, request  # , jsonify, stream_with_context, render_template
+from flask import Flask, request
 from flask_cors import CORS
 import bson.json_util as json_util
 import json
@@ -17,12 +17,6 @@ import os
 import mongoengine
 from bson.objectid import ObjectId
 import motor.motor_asyncio
-import time
-
-# rudimentary dev testing access codes
-DIRECT_USERNAME = os.environ['URL_DIRECT_USERNAME']
-DIRECT_PASSWORD = os.environ['URL_DIRECT_PASSWORD']
-TONY_USERNAME = os.environ['TONY_DIRECT_USERNAME']
 
 DB_COLLECTIONS = [
     'players',
@@ -87,53 +81,6 @@ def return_oid(_id):
 def index():
     return '<h1>Lighthouse Sports API</h1>' \
            '<p>Please contact administrator for access</p>'
-
-
-# endpoint for devs to quickly clear a MongoDB collection
-# <collection>: collection to clear
-# <username>: dev's provided username
-# <password>: dev's provided password
-@app.route('/api/v1/clear-collection/<collection>/<username>/<password>/CONFIRM/YES', methods=['DELETE'])
-def clear_db_docs(collection, username, password):
-    # check if credentials match a developer's credentials
-    # if yes: clear <collection>
-    # else: return 404 PAGE NOT FOUND error to conceal endpoint
-    if (username == DIRECT_USERNAME or username == TONY_USERNAME) and password == DIRECT_PASSWORD:
-        db[collection].delete_many({})
-        return SUCCESS_200
-    else:
-        return ERROR_404
-
-
-@app.route('/api/v1/clear-team-stats/<team_id>/<username>/<password>', methods=['DELETE'])
-def clear_team_stats(team_id, username, password):
-    if (username == DIRECT_USERNAME or username == TONY_USERNAME) and password == DIRECT_PASSWORD:
-        db_team = db.teams.find_one({'_id': ObjectId(team_id)})
-        for player_id in db_team['roster']:
-            db.players.update_one({'_id': player_id}, {'$set': {'stats': Stats().to_mongo(), 'matches': []}})
-        db.teams.update_one({'_id': ObjectId(team_id)}, {'$set': {'matches': []}})
-        return SUCCESS_200
-    else:
-        return ERROR_404
-
-
-# endpoint to upload match data
-# verifies the data's formatting then parses and uploads to MongoDB
-# <data>: the data to be uploaded in JSON format
-@app.route('/api/v1/upload-match-data/', methods=['POST'])
-def upload_match_data():
-    # try to load in <data>
-    # if successful: parse data and upload to MongoDB
-    # else: return 400 BAD REQUEST error
-    return edit_html_desc(ERROR_404, 'Outdated endpoint. Please use \'/api/v2/upload-match-data\' to upload player '
-                                     'match data')
-    # try:
-    #     data = json.loads(request.data)
-    #     match_data_upload.split_match_data(data)
-    #     return SUCCESS_201
-    # except Exception as e:
-    #     print('ERROR LOADING MATCH DATA: ' + str(e))
-    #     return ERROR_400
 
 
 def update_player_stats(team, match_id):
