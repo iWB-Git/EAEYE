@@ -27,7 +27,7 @@ The standard branch naming conventions are to begin any new branch with author n
 
 So for example if I was working on an issue with the number 40 to add player profile pages, the branch name would be:
 
-`bryce/feature/40/optimize-upload-speed`
+`bryce/feature/40/player-profiles`
 
 The general categories will be:
 
