@@ -85,7 +85,7 @@ def return_oid(_id):
 # brief landing page if someone somehow ends up on the API's home page
 @app.route('/')
 def index():
-    return '<h1>EA Eye API</h1>' \
+    return '<h1>Lighthouse Sports API</h1>' \
            '<p>Please contact administrator for access</p>'
 
 
@@ -260,7 +260,6 @@ def get_collection(collection):
     docs = db[collection].find({})
     if collection in ['players', 'teams', 'competitions']:
         docs = sorted(docs, key=lambda x: x['name'])
-    print('time :: ' + str(time.time() - start))
     return append_data(docs, SUCCESS_200)
 
 
