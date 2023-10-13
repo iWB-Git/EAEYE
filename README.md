@@ -36,8 +36,7 @@ The general categories will be:
     ● bugfix  | for fixing reported bugs
     ● feature | adding, removing, or editing existing features
     ● test    | to test your code before submitting a pull request to main
-    ● dev     | development branches, can be general (i.e. bryce/dev) or
-                feature specific (i.e. bryce/dev/40/optimize-upload-speed)
+    ● dev     | development branches, more experimental branches to code freely as needed
 
 Feel free to use other categories if these don't accurately describe the intended branch's purpose, just be sure to keep the category short and descriptive and keep naming conventions consistent.
 
