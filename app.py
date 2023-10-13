@@ -6,7 +6,7 @@ from flask import Flask, request
 from flask_cors import CORS
 import bson.json_util as json_util
 import json
-from html_responses import *
+from htmlcodes import *
 from logging.config import dictConfig
 from models.competition import Competition
 from models.player import Player, PlayerTeam, Stats, Goal
