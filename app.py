@@ -207,6 +207,7 @@ def get_collection(collection):
     docs = db[collection].find({})
     if collection in ['players', 'teams', 'competitions']:
         docs = sorted(docs, key=lambda x: x['name'])
+    print('time :: ' + str(time.time() - start))
     return append_data(docs, SUCCESS_200)
 
 
