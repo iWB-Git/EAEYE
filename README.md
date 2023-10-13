@@ -19,7 +19,9 @@ If you are unsure of any of these, or need to request access, please reach out t
 
 ## Branching
 
-Branches will be used to ensure tracking of changes to the codebase. The main branch is at the top and will hold the code for the live deployment, followed by test, then development branches. This gives multiple levels of safety to freely work on development and testing without risking the deployed API. Moving up the chain will require pull requests that must be reviewed before any merge.
+Branches will be used to ensure tracking of changes to the codebase. The main branch is at the top and will hold the code for the live deployment, followed by test, then development branches. This gives multiple levels of safety to freely work on development and testing without risking the deployed API. Moving up the chain will require pull requests that must be reviewed by another developer before any merge.
+
+**NOTE: Please *do not* make any changes to the branch backup. This branch will be updated periodically by an admin to ensure a stable copy of the API is at the ready in case anything ever goes wrong.**
 
 #### Branch Naming
 
