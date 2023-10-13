@@ -1,3 +1,4 @@
+import asyncio
 import copy
 import traceback
 import urllib
@@ -15,6 +16,8 @@ from models.team import Team
 import os
 import mongoengine
 from bson.objectid import ObjectId
+import motor.motor_asyncio
+import time
 
 # rudimentary dev testing access codes
 DIRECT_USERNAME = os.environ['URL_DIRECT_USERNAME']
@@ -58,6 +61,8 @@ db_password = urllib.parse.quote_plus(os.environ['DB_PASSWORD'])
 db_uri = os.environ['DB_URI'] % (db_username, db_password)
 db = mongoengine.connect(alias='default', host=db_uri)
 db = db.ea_eye
+client = motor.motor_asyncio.AsyncIOMotorClient(db_uri)
+db_0 = client.ea_eye
 
 
 def append_data(data, html_response):
@@ -132,7 +137,6 @@ def upload_match_data():
 
 
 def update_player_stats(team, match_id):
-
     # get match id and ensure it's the correct type, and set up the stats list to return at the end
     # match_id = match_id if type(match_id) is ObjectId else ObjectId(match_id)
     stats_list = []
@@ -256,7 +260,177 @@ def get_collection(collection):
     docs = db[collection].find({})
     if collection in ['players', 'teams', 'competitions']:
         docs = sorted(docs, key=lambda x: x['name'])
+    print('time :: ' + str(time.time() - start))
     return append_data(docs, SUCCESS_200)
+
+
+# # TODO: test this rigorously and find out if it's faster or not
+# # TODO: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# # TODO: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# # TODO: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# @app.route('/api/v1/get-collection/<collection>', methods=['GET'])
+# async def get_collection(collection):
+#     try:
+#         loop = asyncio.get_event_loop()
+#         future = asyncio.ensure_future(get_coll_async(collection))
+#         loop.run_until_complete(future)
+#         loop.close()
+#         # return await get_coll_async(collection)
+#     except Exception as e:
+#         print_and_return_error(e)
+
+
+# async def get_coll_async(collection):
+#     start = time.time()
+#     docs = []
+#     async for doc in db_0[collection].find({}):
+#         docs.append(doc)
+#     if collection in ['players', 'teams', 'competitions']:
+#         print('time :: ' + str(time.time() - start))
+#         return append_data(sorted(docs, key=lambda x: x['name']), SUCCESS_200)
+#     else:
+#         print('time :: ' + str(time.time() - start))
+#         return append_data(docs, SUCCESS_200)
+
+
+def mark_or_restore_doc(doc_id, coll, to_delete):
+    # set the to be deleted document's id and collection, then query for the targeted document
+    tbd_id = ObjectId('64d67eb2aa60adcae5ef877d') if coll == 'players' else ObjectId('6526f76a8e4142135d3ffc70')
+    tbd_coll = 'teams' if coll == 'players' else 'competitions'
+    db_doc = db[coll].find_one({'_id': doc_id})
+
+    # check if the document exists and check if the given collection is supported
+    if not db_doc:
+        return edit_html_desc(
+            ERROR_400,
+            'Document not found in database, please check your ID string and try again'
+        )
+    elif coll not in ['players', 'teams']:
+        return edit_html_desc(
+            ERROR_400,
+            'Specified collection not supported yet; currently supported collections are \'players\' and \'teams\''
+        )
+
+    # if the target doc is to be deleted then add it to the TBD document, else remove it from the TBD doc
+    if to_delete:
+        db[tbd_coll].update_one({'_id': tbd_id}, {'$addToSet': {'documents': doc_id}})
+    else:
+        db[tbd_coll].update_one({'_id': tbd_id}, {'$pull': {'documents': doc_id}})
+
+    return SUCCESS_200
+
+
+# mark a document for deletion
+# does not alter the database in any way aside from adding the document to a list of others up for deletion
+# allows admins to review documents before deletion, or to restore a document without issue
+@app.route('/api/v2/mark-for-deletion', methods=['POST'])
+def mark_for_deletion():
+    try:
+        data = json.loads(request.data)
+        return mark_or_restore_doc(
+            doc_id=return_oid(data['_id']),
+            coll=data['collection'],
+            to_delete=True
+        )
+    except Exception as e:
+        print_and_return_error(e)
+
+
+# unmark a document for deletion
+# removes the document from the respective TO BE DELETED document's reference list
+@app.route('/api/v2/restore-document', methods=['POST'])
+def restore_document():
+    try:
+        data = json.loads(request.data)
+        return mark_or_restore_doc(
+            doc_id=return_oid(data['_id']),
+            coll=data['collection'],
+            to_delete=False
+        )
+    except Exception as e:
+        print_and_return_error(e)
+
+
+@app.route('/api/v2/unattach-document', methods=['POST'])
+def unattach_document():
+    try:
+        data = json.loads(request.data)
+        coll = data['collection']
+        doc_id = return_oid(data['_id'])
+        unattached_id = ObjectId('64de3499f3163e410d0e991a') if coll == 'players' else ObjectId('65285a798e4142135d3ffca8')
+        db_doc = db[coll].find_one({'_id': doc_id})
+        if not db_doc:
+            return edit_html_desc(
+                ERROR_400,
+                'Document not found in database; please check your ID string and try again'
+            )
+        if coll == 'players':
+            team_ids = []
+            for team in db_doc['teams']:
+                team_ids.append(return_oid(team['team_id']))
+                team['on_team'] = False
+            if team_ids:
+                db.teams.update_many({'_id': {'$in': team_ids}}, {'$pull': {'roster': doc_id}})
+            db.teams.update_one({'_id': unattached_id}, {'$addToSet': {'roster': doc_id}})
+            db[coll].update_one({'_id': doc_id}, {'$set': db_doc})
+            return SUCCESS_200
+        elif coll == 'teams':
+            pass
+    except Exception as e:
+        print_and_return_error(e)
+
+
+@app.route('/api/v2/delete-player/<player_id>', methods=['POST'])
+def delete_player(player_id):
+    try:
+        # check for the player's document in the database, return bad request code if so
+        db_player = db.players.find_one({'_id': player_id})
+        if not db_player:
+            return edit_html_desc(
+                ERROR_400,
+                'Player not found in database; please check your ID string and try again'
+            )
+
+        # check for duplicate entries in the database
+        # for a player check if they have the same name and dob, and a unique id from the given id
+        dupes = list(
+            db.players.find(
+                {
+                    'name': db_player['name'],
+                    'dob': db_player['dob'],
+                    '_id': {'$ne': player_id}
+                })
+        )
+
+        # if any duplicates exist return a 400 error and append the duplicate documents in question for review
+        if dupes:
+            return append_data(
+                dupes,
+                edit_html_desc(
+                    ERROR_400,
+                    'Duplicate entries exist in database; please review these before continuing'
+                )
+            )
+
+        # check the teams collection for any teams whose roster contain the given player's id
+        id_pairs = list(db.teams.find({'roster': player_id}, {'_id': 1}))
+
+        # generate a list of strictly the ObjectId strings, as opposed to key-value pairs of {'_id': *id_string*}
+        team_ids = []
+        for pair in id_pairs:
+            team_ids.append(pair['_id'])
+
+        # remove the player's id from all the teams identified above
+        db.teams.update_many(
+            {'_id': {'$in': team_ids}},
+            {'$pull': {'roster': player_id}}
+        )
+
+        # delete the player document from the database
+        db.players.delete_one({'_id': player_id})
+        return SUCCESS_200
+    except Exception as e:
+        print_and_return_error(e)
 
 
 @app.route('/api/v1/get-document/<collection>/<_id>', methods=['GET'])
@@ -569,7 +743,8 @@ def insert_player():
         reg_date = player_data['reg_date']
 
         if check_for_duplicate_player(name, dob, jersey_num):
-            return edit_html_desc(SUCCESS_200, 'This player already exists in the database. Please use move player instead')
+            return edit_html_desc(SUCCESS_200,
+                                  'This player already exists in the database. Please use move player instead')
 
         db_team = db.teams.find_one({'_id': ObjectId(player_data['team_id'])})
 
@@ -614,8 +789,10 @@ def move_player():
         if data['old_team_id'] == '':
             pass
         else:
-            old_team_id = data['old_team_id'] if type(data['old_team_id']) is ObjectId else ObjectId(data['old_team_id'])
-            db.players.update_one({'_id': player_id, 'teams.team_id': old_team_id}, {'$set': {'teams.$.on_team': False}})
+            old_team_id = data['old_team_id'] if type(data['old_team_id']) is ObjectId else ObjectId(
+                data['old_team_id'])
+            db.players.update_one({'_id': player_id, 'teams.team_id': old_team_id},
+                                  {'$set': {'teams.$.on_team': False}})
             db.teams.update_one({'_id': old_team_id}, {'$pull': {'roster': player_id}})
 
         new_team_id = data['new_team_id'] if type(data['new_team_id']) is ObjectId else ObjectId(data['new_team_id'])
@@ -694,7 +871,8 @@ def upload_fixture_data():
                 date = matchup['Date']
                 match_url = matchup['FullMatchURL']
                 venue = matchup['Venue']
-                new_match = Match(competition_id=comp_id, home_team=home_id, away_team=away_id, date=date, venue=venue, match_url=match_url)
+                new_match = Match(competition_id=comp_id, home_team=home_id, away_team=away_id, date=date, venue=venue,
+                                  match_url=match_url)
                 match_ids.append(db.matches.insert_one(new_match.to_mongo()).inserted_id)
             new_round = Round(matchups=match_ids)
             new_fixture['rounds'].append(new_round.to_mongo())
@@ -709,7 +887,7 @@ def upload_fixture_data():
 def upload_fixture_csv():
     try:
         # comp_id = return_oid(db.competitions.find_one({'name': data['competition_name'].strip().title()}))
-        data =json.loads(request.data)
+        data = json.loads(request.data)
         db_comp = db.competitions.find_one({'name': data['competition_name'].strip().title()})
         if not db_comp:
             return edit_html_desc(ERROR_404, 'Specified competition not found, please check your entry and try again')
@@ -776,6 +954,50 @@ def upload_players_csv():
         print_and_return_error(e)
 
 
+async def async_test():
+    import time
+    all_players = db.players.find({})
+    test_list = []
+    index = 1
+    start = time.time()
+    for player in all_players:
+        doc = await db.players.find_one({'_id': return_oid(player['_id'])})
+        test_list.append(doc)
+        print(time.time() - start)
+        index += 1
+
+
+def test():
+    import time
+    all_players = db.players.find({})
+    test_list = []
+    index = 1
+    start = time.time()
+    for player in all_players:
+        test_list.append(player)
+        print(str(index) + ' :: ' + str(time.time() - start))
+        index += 1
+
+
+# async def testing():
+#     import time
+#     import motor.motor_asyncio
+#     client = motor.motor_asyncio.AsyncIOMotorClient(db_uri)
+#     db_0 = client.ea_eye
+#     test_list = []
+#     index = 1
+#     start = time.time()
+#     async for doc in db_0.players.find({}):
+#         test_list.append(doc)
+#         print(str(index) + ' :: ' + str(time.time() - start))
+#         index += 1
+
+
 if __name__ == '__main__':
+    # import asyncio
+    # test()
+    # print('\n\n\n- - - - - - - - - - - - - - - - - - - - - - - - -\n\n\n')
+    # asyncio.run(testing())
+
     app.debug = False
     app.run()
