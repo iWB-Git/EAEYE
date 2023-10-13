@@ -32,12 +32,12 @@ So for example if I was working on an issue with the number 40 to add player pro
 The general categories will be:
 
     ● hotfix  | for critical issues that need to be solved ASAP, solutions
-                 may be temporary
+                may be temporary
     ● bugfix  | for fixing reported bugs
     ● feature | adding, removing, or editing existing features
     ● test    | to test your code before submitting a pull request to main
     ● dev     | development branches, can be general (i.e. bryce/dev) or
-                 feature specific (i.e. bryce/dev/40/optimize-upload-speed)
+                feature specific (i.e. bryce/dev/40/optimize-upload-speed)
 
 Feel free to use other categories if these don't accurately describe the intended branch's purpose, just be sure to keep the category short and descriptive and keep naming conventions consistent.
 
