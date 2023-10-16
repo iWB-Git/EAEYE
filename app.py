@@ -699,8 +699,9 @@ def move_player():
         try:
             player_id = data['player_id'] if type(data['player_id']) is ObjectId else ObjectId(data['player_id'])
             db_player = db.players.find_one({'_id': player_id})
-        except Exception as e:
-            return edit_html_desc(append_data(data, ERROR_400), 'Player was passed without an ID.\n Error: ' + str(e))
+        except KeyError as e:
+            print('data :: ' + str(data))
+            return edit_html_desc(append_data(data, ERROR_400), 'Player was passed without an ID.\nError: ' + str(e))
         if not db_player:
             return edit_html_desc(ERROR_404, 'ID not found in players collection. Check your OID and try again.')
 
@@ -740,7 +741,11 @@ def move_player():
 def update_document(collection):
     try:
         new_doc = json.loads(request.data)
-        _id = return_oid(new_doc['_id'])
+        try:
+            _id = return_oid(new_doc['_id'])
+        except KeyError as e:
+            print('data :: ' + str(new_doc))
+            return edit_html_desc(append_data(new_doc, ERROR_400), 'Request data has no _id key.\nError: ' + str(e))
         db_doc = db[collection].find_one({'_id': _id})
         if not db_doc:
             return edit_html_desc(ERROR_404, 'ID not found in given collection. Check your OID and try again.')
