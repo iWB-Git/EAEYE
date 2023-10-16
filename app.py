@@ -696,8 +696,11 @@ def move_player():
 
         # check type of player_id to ensure it's stored as an ObjectId, then query the db for that player
         # if no player exists return immediately indicating the missing player
-        player_id = data['player_id'] if type(data['player_id']) is ObjectId else ObjectId(data['player_id'])
-        db_player = db.players.find_one({'_id': player_id})
+        try:
+            player_id = data['player_id'] if type(data['player_id']) is ObjectId else ObjectId(data['player_id'])
+            db_player = db.players.find_one({'_id': player_id})
+        except Exception as e:
+            return edit_html_desc(append_data(data, ERROR_400), 'Player was passed without an ID.\n Error: ' + str(e))
         if not db_player:
             return edit_html_desc(ERROR_404, 'ID not found in players collection. Check your OID and try again.')
 
