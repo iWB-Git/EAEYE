@@ -17,9 +17,15 @@ The three variables that need to be set are:
 
 If you are unsure of any of these, or need to request access, please reach out to me (Bryce) either through WhatsApp (+16037819501) or at my email bryce@carlislecapital.com.
 
+## Issues
+
+Try to keep all tasks documented with the opening of issues, whether that be through the project board or just opening an issue on this repository. Give it a succinct but detailed title involving the method/endpoint if applicable, what the issue is, and assign yourself/whoever is relevant to the issue. This will help with our task management as well as lends itself to proper branching, as discussed below.
+
 ## Branching
 
-Branches will be used to ensure tracking of changes to the codebase. The main branch is at the top and will hold the code for the live deployment, followed by test, then development branches. This gives multiple levels of safety to freely work on development and testing without risking the deployed API. Moving up the chain will require pull requests that must be reviewed by another developer before any merge.
+Branches will be used to ensure tracking of changes to the codebase. The main branch is at the top and will hold the code for the live deployment, followed by test, then development branches. This gives multiple levels of safety to freely work on development and testing without risking the deployed API. Moving up the chain will require pull requests that must be reviewed by another developer before any merge. Branches can be merged from from any level to main, as long as the new code has been properly tested to ensure no issues will arise with main once deployed.
+
+A new branch can be formed from any existing branch, however if possible using main to create a new branch is best; this will reduce miscellaneous code that will need to be reviewed during pull requests, however if code from another existing branch is needed it's acceptable to use that.
 
 **NOTE: Please *do not* make any changes to the branch backup. This branch will be updated periodically by an admin to ensure a stable copy of the API is at the ready in case anything ever goes wrong.**
 
