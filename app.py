@@ -141,12 +141,8 @@ def update_player_stats(team, match_id):
                 # update the player's career stats
                 db.players.update_one({'_id': player_id},
                                       {
-                                          '$set': {
-                                              'stats': career_stats
-                                          },
-                                          '$addToSet': {
-                                              'matches': match_id
-                                          }
+                                          '$set': {'stats': career_stats},
+                                          '$addToSet': {'matches': match_id}
                                       })
 
                 # append the player's match stats to the list of all player's match stats
@@ -275,24 +271,34 @@ def unattach_document():
         coll = data['collection']
         doc_id = return_oid(data['_id'])
         unattached_id = ObjectId('64de3499f3163e410d0e991a') if coll == 'players' else ObjectId('65285a798e4142135d3ffca8')
+
         db_doc = db[coll].find_one({'_id': doc_id})
         if not db_doc:
             return edit_html_desc(
                 ERROR_400,
                 'Document not found in database; please check your ID string and try again'
             )
+
         if coll == 'players':
-            team_ids = []
-            for team in db_doc['teams']:
-                team_ids.append(return_oid(team['team_id']))
-                team['on_team'] = False
-            if team_ids:
+            if len(db_doc['teams']) > 0:
+                team_ids = []
+                for team in db_doc['teams']:
+                    team_ids.append(return_oid(team['team_id']))
+                    team['on_team'] = False
                 db.teams.update_many({'_id': {'$in': team_ids}}, {'$pull': {'roster': doc_id}})
             db.teams.update_one({'_id': unattached_id}, {'$addToSet': {'roster': doc_id}})
             db[coll].update_one({'_id': doc_id}, {'$set': db_doc})
-            return SUCCESS_200
+
         elif coll == 'teams':
-            pass
+            if len(db_doc['comps']) > 0:
+                comp_ids = []
+                for _id in db_doc['comps']:
+                    comp_ids.append(return_oid(_id))
+                db.competitions.update_many({'_id': {'$in': comp_ids}}, {'$pull': {'teams': doc_id}})
+            db[coll].update_one({'_id': doc_id}, {'$set': {'comps': [unattached_id]}})
+
+        return SUCCESS_200
+
     except Exception as e:
         print_and_return_error(e)
 
@@ -300,7 +306,8 @@ def unattach_document():
 @app.route('/api/v2/delete-player/<player_id>', methods=['POST'])
 def delete_player(player_id):
     try:
-        # check for the player's document in the database, return bad request code if so
+        # check for the player's document in the database, return bad request code if not found
+        player_id = return_oid(player_id)
         db_player = db.players.find_one({'_id': player_id})
         if not db_player:
             return edit_html_desc(
@@ -345,7 +352,50 @@ def delete_player(player_id):
 
         # delete the player document from the database
         db.players.delete_one({'_id': player_id})
+
         return SUCCESS_200
+
+    except Exception as e:
+        print_and_return_error(e)
+
+
+@app.route('/api/v2/delete-team/<team_id>', methods=['POST'])
+def delete_team(team_id):
+    try:
+        # query the database for the given team based on ID, return bad request code if not found
+        team_id = return_oid(team_id)
+        db_team = db.teams.find_one({'_id': team_id})
+        if not db_team:
+            return edit_html_desc(
+                ERROR_400,
+                'Team not found in database; please check your ID string and try again'
+            )
+
+        # check for duplicate teams in the database, if found return them to the front end for review
+        dupes = list(
+            db.teams.find(
+                {
+                    'name': {'$regex': db_team['name']},
+                    '_id': {'$ne': team_id}
+                })
+        )
+        if dupes:
+            return append_data(
+                dupes,
+                edit_html_desc(
+                    ERROR_400,
+                    'Duplicate entries exist in database; please review these before continuing'
+                )
+            )
+
+        # set the on_team status of any player with this team id in their teams array to false, and remove team_id
+        # from any competition contained in the team's comps list, then delete the team
+        db.players.update_many({'teams.team_id': team_id}, {'$set': {'teams.$.on_team': False}})
+        db.competitions.update_many({'_id': {'$in': db_team['comps']}}, {'$pull': {'teams': team_id}})
+        db.teams.delete_one({'_id': team_id})
+
+        return SUCCESS_200
+
     except Exception as e:
         print_and_return_error(e)
 
@@ -696,8 +746,13 @@ def move_player():
 
         # check type of player_id to ensure it's stored as an ObjectId, then query the db for that player
         # if no player exists return immediately indicating the missing player
-        player_id = data['player_id'] if type(data['player_id']) is ObjectId else ObjectId(data['player_id'])
-        db_player = db.players.find_one({'_id': player_id})
+        try:
+            player_id = data['player_id'] if type(data['player_id']) is ObjectId else ObjectId(data['player_id'])
+            db_player = db.players.find_one({'_id': player_id})
+        except KeyError as e:
+            print('request.data :: ' + str(request.data))
+            print('data :: ' + str(data))
+            return edit_html_desc(append_data(data, ERROR_400), 'Player was passed without an ID.\nError: ' + str(e))
         if not db_player:
             return edit_html_desc(ERROR_404, 'ID not found in players collection. Check your OID and try again.')
 
@@ -737,7 +792,12 @@ def move_player():
 def update_document(collection):
     try:
         new_doc = json.loads(request.data)
-        _id = return_oid(new_doc['_id'])
+        try:
+            _id = return_oid(new_doc['_id'])
+        except KeyError as e:
+            print('request.data :: ' + str(request.data))
+            print('data :: ' + str(new_doc))
+            return edit_html_desc(append_data(new_doc, ERROR_400), 'Request data has no _id key.\nError: ' + str(e))
         db_doc = db[collection].find_one({'_id': _id})
         if not db_doc:
             return edit_html_desc(ERROR_404, 'ID not found in given collection. Check your OID and try again.')
