@@ -1,0 +1,15 @@
+added 2 new functions
+getTeamsFromCompetition- line 202
+	this function gets a list of competition IDs and returns all teamIDs associated with those competitions.
+	it does this by first finding all the relevant competitions on the mongoDB. once found we loop through each competetion and get the list of Teams in the competition which we then extend this list to all_teams list
+	the function then returns this list
+
+get_collectionSpecific - line 212 
+	this function is called by api endpoint /api/v3/players
+	it recieves a "list" of competition IDs, converts them to ObjectIDs then sends this list to getTeamsFromCollection
+	it then calls for getTeamsFromCompetition to get a list of all the teams the competition
+	once it has gotten the teams it then finds players from mongoDB where team_id in teams array can be found in list of team_ids
+	it then returns this document as well as success_200 similar to get_collections return etc
+
+//notes for future
+//since front end also requests for competitons could we merge (get competitons to return and get list of teams from same competitons limiting the get collection to one call???

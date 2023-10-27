@@ -199,6 +199,26 @@ def upload_match_data_v2():
         traceback.print_exception(type(e), e, e.__traceback__)
         return edit_html_desc(ERROR_400, str(e))
 
+def getTeamsFromCompetition(collection_ids):
+    collection_ids_as_objectids = [ObjectId(id.strip()) for id in collection_ids]
+    collections=db['competitions'].find({"_id":{"$in":collection_ids_as_objectids}})
+    all_teams=[]
+    for competition in collections:
+        teams=competition.get("teams")
+        if teams:
+            all_teams.extend(teams)
+    return all_teams
+@app.route('/api/v3/players', methods=['GET'])
+def get_collectionSpecific():
+    collection_ids_str = request.args.get('ids')
+    collection_ids = collection_ids_str.split(',')
+    team_ids_as_objectids=getTeamsFromCompetition(collection_ids)
+    collection = "players"
+    print(team_ids_as_objectids)
+    docs = db[collection].find({"teams.team_id": {"$in": team_ids_as_objectids}})
+    if collection in ['players', 'teams', 'competitions']:
+        docs = sorted(docs, key=lambda x: x['name'])
+    return append_data(docs, SUCCESS_200)
 
 @app.route('/api/v1/get-collection/<collection>', methods=['GET'])
 def get_collection(collection):
