@@ -11,5 +11,7 @@ get_collectionSpecific - line 212
 	once it has gotten the teams it then finds players from mongoDB where team_id in teams array can be found in list of team_ids
 	it then returns this document as well as success_200 similar to get_collections return etc
 
+example of api request to new endpoint = "http://localhost:5000/api/v3/players?ids=64d52c9f4cdabb9dfc3b4a56,6516f3e735a72338eb1e496c"
+
 //notes for future
 //since front end also requests for competitons could we merge (get competitons to return and get list of teams from same competitons limiting the get collection to one call???
