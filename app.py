@@ -1,5 +1,6 @@
 import asyncio
 import copy
+import itertools
 import traceback
 import urllib
 from flask import Flask, request
@@ -880,6 +881,849 @@ def upload_players_csv():
         return SUCCESS_201
     except Exception as e:
         print_and_return_error(e)
+
+
+test_json = {
+    "HomeTeam": {
+        "teamID": "651d259b663fef12e100ab6d",
+        "Name": "SC Villa",
+        "Starters": [
+            {
+                "PlayerID": "651fff799d53b645c0d20a37",
+                "Name": "Idris Kalembo ",
+                "SubOut": "NO",
+                "SubMinute": "-",
+                "Goal": 0,
+                "Assist": 0,
+                "GoalMinute": "-",
+                "JerseyNumber": 426,
+                "checkId": "leftStarterCheck0",
+                "competitionYear": "2023/24",
+                "competitionName": "StarTimes-Uganda Premier League",
+                "competitionRound": 1,
+                "homeTeam": "Mbarara City",
+                "awayTeam": "NEC FC",
+                "matchDaySquad": "YES",
+                "starter": "YES",
+                "substitute": "NO",
+                "RedCard": 1,
+                "RedCardMinute": 48,
+                "redCardEvent": {
+                    "red_card": "YES",
+                    "red_card_minute": 48,
+                    "matchId": "651fe9d29d53b645c0d1e14c"
+                }
+            },
+            {
+                "PlayerID": "651fff799d53b645c0d20a39",
+                "Name": "Isaac Kwizera ",
+                "SubOut": "NO",
+                "SubMinute": "-",
+                "Goal": 0,
+                "Assist": 0,
+                "GoalMinute": "-",
+                "JerseyNumber": 427,
+                "checkId": "leftStarterCheck1",
+                "competitionYear": "2023/24",
+                "competitionName": "StarTimes-Uganda Premier League",
+                "competitionRound": 1,
+                "homeTeam": "Mbarara City",
+                "awayTeam": "NEC FC",
+                "matchDaySquad": "YES",
+                "starter": "YES",
+                "substitute": "NO"
+            },
+            {
+                "PlayerID": "651fff799d53b645c0d20a3b",
+                "Name": "Hakim Nsamba ",
+                "SubOut": "NO",
+                "SubMinute": "-",
+                "Goal": 0,
+                "Assist": 1,
+                "GoalMinute": "-",
+                "JerseyNumber": 428,
+                "checkId": "leftStarterCheck2",
+                "competitionYear": "2023/24",
+                "competitionName": "StarTimes-Uganda Premier League",
+                "competitionRound": 1,
+                "homeTeam": "Mbarara City",
+                "awayTeam": "NEC FC",
+                "matchDaySquad": "YES",
+                "starter": "YES",
+                "substitute": "NO",
+                "assistEvent": [
+                    {
+                        "assist": 1,
+                        "minute": "56",
+                        "assisted": "YES",
+                        "scorerId": "651fff799d53b645c0d20a4b",
+                        "matchId": "651fe9d29d53b645c0d1e14c"
+                    }
+                ]
+            },
+            {
+                "PlayerID": "651fff799d53b645c0d20a3d",
+                "Name": "Shaban Wasswa ",
+                "SubOut": "YES",
+                "Goal": 0,
+                "Assist": 0,
+                "GoalMinute": "-",
+                "JerseyNumber": 429,
+                "checkId": "leftStarterCheck3",
+                "competitionYear": "2023/24",
+                "competitionName": "StarTimes-Uganda Premier League",
+                "competitionRound": 1,
+                "homeTeam": "Mbarara City",
+                "awayTeam": "NEC FC",
+                "matchDaySquad": "YES",
+                "starter": "YES",
+                "substitute": "NO",
+                "subEvent": [
+                    {
+                        "playerSubbedOut": "YES",
+                        "minute": 44,
+                        "matchId": "651fe9d29d53b645c0d1e14c"
+                    }
+                ]
+            },
+            {
+                "PlayerID": "651fff799d53b645c0d20a3f",
+                "Name": "Isaac Kizza ",
+                "SubOut": "NO",
+                "SubMinute": "-",
+                "Goal": 0,
+                "Assist": 0,
+                "GoalMinute": "-",
+                "JerseyNumber": 430,
+                "checkId": "leftStarterCheck4",
+                "competitionYear": "2023/24",
+                "competitionName": "StarTimes-Uganda Premier League",
+                "competitionRound": 1,
+                "homeTeam": "Mbarara City",
+                "awayTeam": "NEC FC",
+                "matchDaySquad": "YES",
+                "starter": "YES",
+                "substitute": "NO",
+                "OwnGoal": 1,
+                "OwnGoalMinute": "12",
+                "ownGoalEvent": [
+                    {
+                        "playerId": "651fff799d53b645c0d20a3f",
+                        "own_goal_minute": "12",
+                        "matchId": "651fe9d29d53b645c0d1e14c"
+                    }
+                ]
+            },
+            {
+                "PlayerID": "651fff799d53b645c0d20a41",
+                "Name": "Brian Mugisha ",
+                "SubOut": "NO",
+                "SubMinute": "-",
+                "Goal": 0,
+                "Assist": 0,
+                "GoalMinute": "-",
+                "JerseyNumber": 431,
+                "checkId": "leftStarterCheck5",
+                "competitionYear": "2023/24",
+                "competitionName": "StarTimes-Uganda Premier League",
+                "competitionRound": 1,
+                "homeTeam": "Mbarara City",
+                "awayTeam": "NEC FC",
+                "matchDaySquad": "YES",
+                "starter": "YES",
+                "substitute": "NO"
+            },
+            {
+                "PlayerID": "651fff799d53b645c0d20a43",
+                "Name": "Bakali Magunda ",
+                "SubOut": "NO",
+                "SubMinute": "-",
+                "Goal": 0,
+                "Assist": 0,
+                "GoalMinute": "-",
+                "JerseyNumber": 432,
+                "checkId": "leftStarterCheck6",
+                "competitionYear": "2023/24",
+                "competitionName": "StarTimes-Uganda Premier League",
+                "competitionRound": 1,
+                "homeTeam": "Mbarara City",
+                "awayTeam": "NEC FC",
+                "matchDaySquad": "YES",
+                "starter": "YES",
+                "substitute": "NO"
+            },
+            {
+                "PlayerID": "651fff799d53b645c0d20a45",
+                "Name": "Innocent Wafula Esimu ",
+                "SubOut": "NO",
+                "SubMinute": "-",
+                "Goal": 0,
+                "Assist": 0,
+                "GoalMinute": "-",
+                "JerseyNumber": 433,
+                "checkId": "leftStarterCheck7",
+                "competitionYear": "2023/24",
+                "competitionName": "StarTimes-Uganda Premier League",
+                "competitionRound": 1,
+                "homeTeam": "Mbarara City",
+                "awayTeam": "NEC FC",
+                "matchDaySquad": "YES",
+                "starter": "YES",
+                "substitute": "NO"
+            },
+            {
+                "PlayerID": "651fff799d53b645c0d20a47",
+                "Name": "Henry Kayondo ",
+                "SubOut": "NO",
+                "SubMinute": "-",
+                "Goal": 0,
+                "Assist": 0,
+                "GoalMinute": "-",
+                "JerseyNumber": 434,
+                "checkId": "leftStarterCheck8",
+                "competitionYear": "2023/24",
+                "competitionName": "StarTimes-Uganda Premier League",
+                "competitionRound": 1,
+                "homeTeam": "Mbarara City",
+                "awayTeam": "NEC FC",
+                "matchDaySquad": "YES",
+                "starter": "YES",
+                "substitute": "NO"
+            },
+            {
+                "PlayerID": "651fff799d53b645c0d20a49",
+                "Name": "Puis Kaggwa ",
+                "SubOut": "NO",
+                "SubMinute": "-",
+                "Goal": 0,
+                "Assist": 0,
+                "GoalMinute": "-",
+                "JerseyNumber": 435,
+                "checkId": "leftStarterCheck9",
+                "competitionYear": "2023/24",
+                "competitionName": "StarTimes-Uganda Premier League",
+                "competitionRound": 1,
+                "homeTeam": "Mbarara City",
+                "awayTeam": "NEC FC",
+                "matchDaySquad": "YES",
+                "starter": "YES",
+                "substitute": "NO"
+            },
+            {
+                "PlayerID": "651fff799d53b645c0d20a4b",
+                "Name": "Yunusu Sibira ",
+                "SubOut": "NO",
+                "SubMinute": "-",
+                "Goal": 1,
+                "Assist": 0,
+                "GoalMinute": "56",
+                "JerseyNumber": 436,
+                "checkId": "leftStarterCheck10",
+                "competitionYear": "2023/24",
+                "competitionName": "StarTimes-Uganda Premier League",
+                "competitionRound": 1,
+                "homeTeam": "Mbarara City",
+                "awayTeam": "NEC FC",
+                "matchDaySquad": "YES",
+                "starter": "YES",
+                "substitute": "NO",
+                "goalEvent": [
+                    {
+                        "goal": 1,
+                        "minute": "56",
+                        "assisted": "YES",
+                        "assisterId": "651fff799d53b645c0d20a3b",
+                        "matchId": "651fe9d29d53b645c0d1e14c"
+                    }
+                ]
+            }
+        ],
+        "Subs": [
+            {
+                "PlayerID": "651fff799d53b645c0d20a4d",
+                "Name": "Joseph Akandwanaho ",
+                "SubIn": "NO",
+                "SubMinute": "-",
+                "Goal": 0,
+                "Assist": 0,
+                "GoalMinute": "-",
+                "JerseyNumber": 437,
+                "checkId": "leftSubCheck11",
+                "competitionYear": "2023/24",
+                "competitionName": "StarTimes-Uganda Premier League",
+                "competitionRound": 1,
+                "homeTeam": "Mbarara City",
+                "awayTeam": "NEC FC",
+                "matchDaySquad": "YES",
+                "starter": "NO",
+                "substitute": "YES"
+            },
+            {
+                "PlayerID": "651fff799d53b645c0d20a4f",
+                "Name": "Jungu Methodius ",
+                "SubIn": "YES",
+                "SubMinute": 44,
+                "Goal": 0,
+                "Assist": 0,
+                "GoalMinute": "-",
+                "JerseyNumber": 438,
+                "checkId": "leftSubCheck12",
+                "competitionYear": "2023/24",
+                "competitionName": "StarTimes-Uganda Premier League",
+                "competitionRound": 1,
+                "homeTeam": "Mbarara City",
+                "awayTeam": "NEC FC",
+                "matchDaySquad": "YES",
+                "starter": "NO",
+                "substitute": "YES",
+                "subEvent": [
+                    {
+                        "PlayerSubbedIn": "YES",
+                        "minute": 44,
+                        "matchId": "651fe9d29d53b645c0d1e14c"
+                    }
+                ]
+            },
+            {
+                "PlayerID": "651fff799d53b645c0d20a51",
+                "Name": "Henry Kitegenyi ",
+                "SubIn": "NO",
+                "SubMinute": "-",
+                "Goal": 0,
+                "Assist": 0,
+                "GoalMinute": "-",
+                "JerseyNumber": 439,
+                "checkId": "leftSubCheck13",
+                "competitionYear": "2023/24",
+                "competitionName": "StarTimes-Uganda Premier League",
+                "competitionRound": 1,
+                "homeTeam": "Mbarara City",
+                "awayTeam": "NEC FC",
+                "matchDaySquad": "YES",
+                "starter": "NO",
+                "substitute": "YES"
+            }
+        ]
+    },
+    "AwayTeam": {
+        "teamID": "651d259e663fef12e100ad79",
+        "Name": "Kitara FC",
+        "Starters": [
+            {
+                "PlayerID": "651fff7a9d53b645c0d20a63",
+                "Name": "Michael Lutaaya ",
+                "SubOut": "NO",
+                "SubMinute": "-",
+                "Goal": 0,
+                "Assist": 0,
+                "GoalMinute": "-",
+                "JerseyNumber": 446,
+                "checkId": "rightStarterCheck0",
+                "competitionYear": "2023/24",
+                "competitionName": "StarTimes-Uganda Premier League",
+                "competitionRound": 1,
+                "homeTeam": "Arua Hill",
+                "awayTeam": "Busoga United FC",
+                "matchDaySquad": "YES",
+                "starter": "YES",
+                "substitute": "NO"
+            },
+            {
+                "PlayerID": "651fff7a9d53b645c0d20a65",
+                "Name": "Julius Debbo ",
+                "SubOut": "NO",
+                "SubMinute": "-",
+                "Goal": 0,
+                "Assist": 1,
+                "GoalMinute": "-",
+                "JerseyNumber": 447,
+                "checkId": "rightStarterCheck1",
+                "competitionYear": "2023/24",
+                "competitionName": "StarTimes-Uganda Premier League",
+                "competitionRound": 1,
+                "homeTeam": "Arua Hill",
+                "awayTeam": "Busoga United FC",
+                "matchDaySquad": "YES",
+                "starter": "YES",
+                "substitute": "NO",
+                "assistEvent": [
+                    {
+                        "assist": 1,
+                        "minute": "33",
+                        "assisted": "YES",
+                        "scorerId": "651fff7a9d53b645c0d20a6b",
+                        "matchId": "651fe9d29d53b645c0d1e14c"
+                    }
+                ]
+            },
+            {
+                "PlayerID": "651fff7a9d53b645c0d20a67",
+                "Name": "Bashamu Mugwa ",
+                "SubOut": "YES",
+                "Goal": 0,
+                "Assist": 0,
+                "GoalMinute": "-",
+                "JerseyNumber": 448,
+                "checkId": "rightStarterCheck2",
+                "competitionYear": "2023/24",
+                "competitionName": "StarTimes-Uganda Premier League",
+                "competitionRound": 1,
+                "homeTeam": "Arua Hill",
+                "awayTeam": "Busoga United FC",
+                "matchDaySquad": "YES",
+                "starter": "YES",
+                "substitute": "NO",
+                "subEvent": [
+                    {
+                        "playerSubbedOut": "YES",
+                        "minute": 55,
+                        "matchId": "651fe9d29d53b645c0d1e14c"
+                    }
+                ]
+            },
+            {
+                "PlayerID": "651fff7a9d53b645c0d20a69",
+                "Name": "Sunday Mulanda ",
+                "SubOut": "NO",
+                "SubMinute": "-",
+                "Goal": 0,
+                "Assist": 0,
+                "GoalMinute": "-",
+                "JerseyNumber": 449,
+                "checkId": "rightStarterCheck3",
+                "competitionYear": "2023/24",
+                "competitionName": "StarTimes-Uganda Premier League",
+                "competitionRound": 1,
+                "homeTeam": "Arua Hill",
+                "awayTeam": "Busoga United FC",
+                "matchDaySquad": "YES",
+                "starter": "YES",
+                "substitute": "NO",
+                "YellowCard": 1,
+                "YellowCardMinute": 35,
+                "yellowCardEvent": [
+                    {
+                        "yellow_card": "YES",
+                        "double_yellow": "NO",
+                        "yellow_card_minute": 35,
+                        "matchId": "651fe9d29d53b645c0d1e14c"
+                    }
+                ]
+            },
+            {
+                "PlayerID": "651fff7a9d53b645c0d20a6b",
+                "Name": "Isaac Mweru ",
+                "SubOut": "NO",
+                "SubMinute": "-",
+                "Goal": 1,
+                "Assist": 0,
+                "GoalMinute": "33",
+                "JerseyNumber": 450,
+                "checkId": "rightStarterCheck4",
+                "competitionYear": "2023/24",
+                "competitionName": "StarTimes-Uganda Premier League",
+                "competitionRound": 1,
+                "homeTeam": "Arua Hill",
+                "awayTeam": "Busoga United FC",
+                "matchDaySquad": "YES",
+                "starter": "YES",
+                "substitute": "NO",
+                "goalEvent": [
+                    {
+                        "goal": 1,
+                        "minute": "33",
+                        "assisted": "YES",
+                        "assisterId": "651fff7a9d53b645c0d20a65",
+                        "matchId": "651fe9d29d53b645c0d1e14c"
+                    }
+                ]
+            },
+            {
+                "PlayerID": "651fff7a9d53b645c0d20a6d",
+                "Name": "Fredrick Ngalo ",
+                "SubOut": "NO",
+                "SubMinute": "-",
+                "Goal": 0,
+                "Assist": 0,
+                "GoalMinute": "-",
+                "JerseyNumber": 451,
+                "checkId": "rightStarterCheck5",
+                "competitionYear": "2023/24",
+                "competitionName": "StarTimes-Uganda Premier League",
+                "competitionRound": 1,
+                "homeTeam": "Arua Hill",
+                "awayTeam": "Busoga United FC",
+                "matchDaySquad": "YES",
+                "starter": "YES",
+                "substitute": "NO"
+            },
+            {
+                "PlayerID": "651fff7a9d53b645c0d20a6f",
+                "Name": "Stephen Odongo ",
+                "SubOut": "NO",
+                "SubMinute": "-",
+                "Goal": 0,
+                "Assist": 0,
+                "GoalMinute": "-",
+                "JerseyNumber": 452,
+                "checkId": "rightStarterCheck6",
+                "competitionYear": "2023/24",
+                "competitionName": "StarTimes-Uganda Premier League",
+                "competitionRound": 1,
+                "homeTeam": "Arua Hill",
+                "awayTeam": "Busoga United FC",
+                "matchDaySquad": "YES",
+                "starter": "YES",
+                "substitute": "NO"
+            },
+            {
+                "PlayerID": "651fff7a9d53b645c0d20a71",
+                "Name": "Joshua Ssentambul Fce ",
+                "SubOut": "NO",
+                "SubMinute": "-",
+                "Goal": 0,
+                "Assist": 0,
+                "GoalMinute": "-",
+                "JerseyNumber": 453,
+                "checkId": "rightStarterCheck7",
+                "competitionYear": "2023/24",
+                "competitionName": "StarTimes-Uganda Premier League",
+                "competitionRound": 1,
+                "homeTeam": "Arua Hill",
+                "awayTeam": "Busoga United FC",
+                "matchDaySquad": "YES",
+                "starter": "YES",
+                "substitute": "NO"
+            },
+            {
+                "PlayerID": "651fff7a9d53b645c0d20a73",
+                "Name": "Moses Logono ",
+                "SubOut": "NO",
+                "SubMinute": "-",
+                "Goal": 0,
+                "Assist": 0,
+                "GoalMinute": "-",
+                "JerseyNumber": 454,
+                "checkId": "rightStarterCheck8",
+                "competitionYear": "2023/24",
+                "competitionName": "StarTimes-Uganda Premier League",
+                "competitionRound": 1,
+                "homeTeam": "Arua Hill",
+                "awayTeam": "Busoga United FC",
+                "matchDaySquad": "YES",
+                "starter": "YES",
+                "substitute": "NO"
+            },
+            {
+                "PlayerID": "651fff7a9d53b645c0d20a75",
+                "Name": "Jeremy Matata ",
+                "SubOut": "NO",
+                "SubMinute": "-",
+                "Goal": 0,
+                "Assist": 0,
+                "GoalMinute": "-",
+                "JerseyNumber": 455,
+                "checkId": "rightStarterCheck9",
+                "competitionYear": "2023/24",
+                "competitionName": "StarTimes-Uganda Premier League",
+                "competitionRound": 1,
+                "homeTeam": "Arua Hill",
+                "awayTeam": "Busoga United FC",
+                "matchDaySquad": "YES",
+                "starter": "YES",
+                "substitute": "NO"
+            },
+            {
+                "PlayerID": "651fff7a9d53b645c0d20a77",
+                "Name": "Hussein Ssajjabbi ",
+                "SubOut": "NO",
+                "SubMinute": "-",
+                "Goal": 0,
+                "Assist": 0,
+                "GoalMinute": "-",
+                "JerseyNumber": 456,
+                "checkId": "rightStarterCheck10",
+                "competitionYear": "2023/24",
+                "competitionName": "StarTimes-Uganda Premier League",
+                "competitionRound": 1,
+                "homeTeam": "Arua Hill",
+                "awayTeam": "Busoga United FC",
+                "matchDaySquad": "YES",
+                "starter": "YES",
+                "substitute": "NO"
+            }
+        ],
+        "Subs": [
+            {
+                "PlayerID": "651fff7a9d53b645c0d20a79",
+                "Name": "Elvis Kenneth Kibbale ",
+                "SubIn": "NO",
+                "SubMinute": "-",
+                "Goal": 0,
+                "Assist": 0,
+                "GoalMinute": "-",
+                "JerseyNumber": 457,
+                "checkId": "rightSubCheck11",
+                "competitionYear": "2023/24",
+                "competitionName": "StarTimes-Uganda Premier League",
+                "competitionRound": 1,
+                "homeTeam": "Arua Hill",
+                "awayTeam": "Busoga United FC",
+                "matchDaySquad": "YES",
+                "starter": "NO",
+                "substitute": "YES"
+            },
+            {
+                "PlayerID": "651fff7a9d53b645c0d20a7b",
+                "Name": "Odongo Stephen ",
+                "SubIn": "NO",
+                "SubMinute": "-",
+                "Goal": 0,
+                "Assist": 0,
+                "GoalMinute": "-",
+                "JerseyNumber": 458,
+                "checkId": "rightSubCheck12",
+                "competitionYear": "2023/24",
+                "competitionName": "StarTimes-Uganda Premier League",
+                "competitionRound": 1,
+                "homeTeam": "Arua Hill",
+                "awayTeam": "Busoga United FC",
+                "matchDaySquad": "YES",
+                "starter": "NO",
+                "substitute": "YES"
+            },
+            {
+                "PlayerID": "651fff7a9d53b645c0d20a7d",
+                "Name": "Isaac Ephrem ",
+                "SubIn": "YES",
+                "SubMinute": 55,
+                "Goal": 0,
+                "Assist": 0,
+                "GoalMinute": "-",
+                "JerseyNumber": 459,
+                "checkId": "rightSubCheck13",
+                "competitionYear": "2023/24",
+                "competitionName": "StarTimes-Uganda Premier League",
+                "competitionRound": 1,
+                "homeTeam": "Arua Hill",
+                "awayTeam": "Busoga United FC",
+                "matchDaySquad": "YES",
+                "starter": "NO",
+                "substitute": "YES",
+                "subEvent": [
+                    {
+                        "PlayerSubbedIn": "YES",
+                        "minute": 55,
+                        "matchId": "651fe9d29d53b645c0d1e14c"
+                    }
+                ]
+            }
+        ]
+    },
+    "Competition": {
+        "Name": "StarTimes-Uganda Premier League",
+        "Year": "2023/24",
+        "Round": 1,
+        "MatchID": "651fe9d29d53b645c0d1e14c",
+        "FixtureID": "651fea469d53b645c0d1e6ea",
+        "CompetitionID": "651da785514af5046fac9a0c"
+    }
+}
+
+
+@app.route('/api/v3/match-data/upload')
+def match_data_upload():
+    try:
+        # home_data = test_json['HomeTeam']
+        # away_data = test_json['AwayTeam']
+        # comp_data = test_json['Competition']
+
+        match_data = json.loads(request.data)
+        home_data = match_data['HomeTeam']
+        away_data = match_data['AwayTeam']
+        comp_data = match_data['Competition']
+
+        home_id = return_oid(home_data['teamID'])
+        away_id = return_oid(away_data['teamID'])
+        comp_id = return_oid(comp_data['CompetitionID'])
+        match_id = return_oid(comp_data['MatchID'])
+
+        home_players = home_data['Starters'] + home_data['Subs']
+        away_players = away_data['Starters'] + away_data['Subs']
+
+        # TODO: CHECKLIST - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        # increment career stats
+        # create match stats for home and away teams
+        # add match to players' match lists
+        # add match to teams' match lists
+        # flip data entered flag for match
+        # TODO: CHECKLIST - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        # TODO: PLAYER KEYS - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        # PlayerID: string
+        # Name: string
+
+        # SubOut: YES/NO
+        # SubMinute: int
+        # subEvent: list(dict)
+        # # PlayerSubbedIn: YES/NO
+        # # minute: int
+        # # matchId: string
+
+        # Goal: int
+        # GoalMinute: string
+        # goalEvent: list(dict)
+        # # goal: int
+        # # minute: string
+        # # assisted: YES/NO
+        # # assisterId: string
+        # # matchId: string
+
+        # Assist: int
+        # assistEvent: list(dict)
+        # # assist: int
+        # # minute: int
+        # # assisted: YES/NO (this 100% is an error and doesn't need to be here)
+        # # scorerId: string
+        # # matchId: string
+
+        # JerseyNumber: int
+        # checkId: not needed
+        # competitionYear: string
+        # competitionName: string
+        # competitionRound: int
+        # homeTeam: string
+        # awayTeam: string
+        # matchDaySquad: YES/NO
+        # starter: YES/NO
+        # substitute: YES/NO
+
+        # YellowCard: int
+        # YellowCardMinute: int
+        # yellowCardEvent: list(dict)
+        # # yellow_card: YES/NO
+        # # double_yellow: YES/NO
+        # # yellow_card_minute: int
+        # # matchId: string
+
+        # RedCard: int
+        # RedCardMinute: int
+        # redCardEvent: list(dict)
+        # # red_card: YES/NO
+        # # red_card_minute: int
+        # # matchId: string
+
+        # OwnGoal: int
+        # OwnGoalMinute: string
+        # ownGoalEvent: list(dict)
+        # # playerId: string
+        # # own_goal_minute: string
+        # # matchId: string
+        # TODO: PLAYER KEYS - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        # check to ensure every player exists in the database
+        # this is likely unnecessary, as the front end should only have players that have been read from the database
+        # # however it will be left in at the start to ensure functionality while testing
+        for player in home_players + away_players:
+            if not db.players.find_one(return_oid(player['PlayerID'])):
+                return append_data(player, edit_html_desc(
+                    ERROR_404,
+                    'Player ID not found in database, no match data recorded'
+                    )
+                )
+
+        home_stats = parse_player_stats(home_players, match_id)
+        away_stats = parse_player_stats(away_players, match_id)
+
+        db.teams.update_many(
+            {'_id': {'$in': [home_id, away_id]}},
+            {'$addToSet': {'matches': match_id}}
+        )
+
+        db.matches.update_one(
+            {'_id': match_id},
+            {'$set': {
+                'home_stats': home_stats,
+                'away_stats': away_stats,
+                'data_entered': True
+            }
+            }
+        )
+
+        return SUCCESS_201
+    except Exception as e:
+        print_and_return_error(e)
+
+
+def parse_player_stats(team_data, match_id):
+    team_stats = []
+    for player in team_data:
+        player_id = return_oid(player['PlayerID'])
+        db_player = db.players.find_one(player_id)
+
+        career_stats = db_player['stats']
+        match_stats = MatchStats(match_id=match_id, player_id=player_id)
+
+        career_stats['match_day_squad'] += 1
+
+        min_played = 0
+
+        if player['starter'] == 'YES':
+            career_stats['starter'] += 1
+            match_stats['starter'] = True
+            if player['SubOut'] == 'NO':
+                min_played = 90
+            else:
+                last_minute_played = 0
+                min_played = 0
+                for event in player['subEvent']:
+                    if event['playerSubbedOut'] == 'YES':
+                        min_played += event['minute'] - last_minute_played
+                        last_minute_played = event['minute']
+                    else:
+                        min_played += 90 - event['minute']
+            career_stats['starter_minutes'] += min_played
+        else:
+            if player['SubIn'] == 'YES':
+                for event in player['subEvent']:
+                    if event['playerSubbedIn'] == 'YES':
+                        min_played += 90 - event['minute']
+            career_stats['sub_minutes'] += min_played
+
+        career_stats['min_played'] += min_played
+        match_stats['min_played'] = min_played
+
+        if player['Goal']:
+            for goal in player['goalEvent']:
+                new_goal = Goal(minute=int(goal['minute']), match_id=match_id).to_mongo()
+                career_stats['goals'].append(new_goal)
+                match_stats['goals'].append(new_goal)
+
+        if player['Assist']:
+            career_stats['assists'] += player['Assist']
+            match_stats['assists'] += player['Assist']
+
+        if 'YellowCard' in player.keys():
+            if len(player['yellowCardEvent']) > 1:
+                career_stats['yellow_cards'] += 2
+                match_stats['yellow_cards'] += 2
+            else:
+                career_stats['yellow_cards'] += 1
+                match_stats['yellow_cards'] += 1
+
+        if 'RedCard' in player.keys():
+            career_stats['red_cards'] += 1
+            match_stats['red_cards'] += 1
+
+        db.players.update_one(
+            {'_id': player_id},
+            {'$set': {'stats': career_stats}},
+            {'$addToSet': {'matches': match_id}}
+        )
+
+        team_stats.append(match_stats.to_mongo())
+
+    return team_stats
 
 
 if __name__ == '__main__':
