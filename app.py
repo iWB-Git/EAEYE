@@ -1717,8 +1717,10 @@ def parse_player_stats(team_data, match_id):
 
         db.players.update_one(
             {'_id': player_id},
-            {'$set': {'stats': career_stats}},
-            {'$addToSet': {'matches': match_id}}
+            {
+                '$set': {'stats': career_stats},
+                '$addToSet': {'matches': match_id}
+            }
         )
 
         team_stats.append(match_stats.to_mongo())
