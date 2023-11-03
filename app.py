@@ -1533,121 +1533,126 @@ test_json = {
 
 @app.route('/api/v3/match-data/upload')
 def match_data_upload():
-    # home_data = test_json['HomeTeam']
-    # away_data = test_json['AwayTeam']
-    # comp_data = test_json['Competition']
+    try:
+        # home_data = test_json['HomeTeam']
+        # away_data = test_json['AwayTeam']
+        # comp_data = test_json['Competition']
 
-    match_data = json.loads(request.data)
-    home_data = match_data['HomeTeam']
-    away_data = match_data['AwayTeam']
-    comp_data = match_data['Competition']
+        match_data = json.loads(request.data)
+        home_data = match_data['HomeTeam']
+        away_data = match_data['AwayTeam']
+        comp_data = match_data['Competition']
 
-    home_id = return_oid(home_data['teamID'])
-    away_id = return_oid(away_data['teamID'])
-    comp_id = return_oid(comp_data['CompetitionID'])
-    match_id = return_oid(comp_data['MatchID'])
+        home_id = return_oid(home_data['teamID'])
+        away_id = return_oid(away_data['teamID'])
+        comp_id = return_oid(comp_data['CompetitionID'])
+        match_id = return_oid(comp_data['MatchID'])
 
-    home_players = home_data['Starters'] + home_data['Subs']
-    away_players = away_data['Starters'] + away_data['Subs']
+        home_players = home_data['Starters'] + home_data['Subs']
+        away_players = away_data['Starters'] + away_data['Subs']
 
-    # TODO: CHECKLIST - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    # increment career stats
-    # create match stats for home and away teams
-    # add match to players' match lists
-    # add match to teams' match lists
-    # flip data entered flag for match
-    # TODO: CHECKLIST - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        # TODO: CHECKLIST - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        # increment career stats
+        # create match stats for home and away teams
+        # add match to players' match lists
+        # add match to teams' match lists
+        # flip data entered flag for match
+        # TODO: CHECKLIST - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    # TODO: PLAYER KEYS - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    # PlayerID: string
-    # Name: string
+        # TODO: PLAYER KEYS - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        # PlayerID: string
+        # Name: string
 
-    # SubOut: YES/NO
-    # SubMinute: int
-    # subEvent: list(dict)
-    # # PlayerSubbedIn: YES/NO
-    # # minute: int
-    # # matchId: string
+        # SubOut: YES/NO
+        # SubMinute: int
+        # subEvent: list(dict)
+        # # PlayerSubbedIn: YES/NO
+        # # minute: int
+        # # matchId: string
 
-    # Goal: int
-    # GoalMinute: string
-    # goalEvent: list(dict)
-    # # goal: int
-    # # minute: string
-    # # assisted: YES/NO
-    # # assisterId: string
-    # # matchId: string
+        # Goal: int
+        # GoalMinute: string
+        # goalEvent: list(dict)
+        # # goal: int
+        # # minute: string
+        # # assisted: YES/NO
+        # # assisterId: string
+        # # matchId: string
 
-    # Assist: int
-    # assistEvent: list(dict)
-    # # assist: int
-    # # minute: int
-    # # assisted: YES/NO (this 100% is an error and doesn't need to be here)
-    # # scorerId: string
-    # # matchId: string
+        # Assist: int
+        # assistEvent: list(dict)
+        # # assist: int
+        # # minute: int
+        # # assisted: YES/NO (this 100% is an error and doesn't need to be here)
+        # # scorerId: string
+        # # matchId: string
 
-    # JerseyNumber: int
-    # checkId: not needed
-    # competitionYear: string
-    # competitionName: string
-    # competitionRound: int
-    # homeTeam: string
-    # awayTeam: string
-    # matchDaySquad: YES/NO
-    # starter: YES/NO
-    # substitute: YES/NO
+        # JerseyNumber: int
+        # checkId: not needed
+        # competitionYear: string
+        # competitionName: string
+        # competitionRound: int
+        # homeTeam: string
+        # awayTeam: string
+        # matchDaySquad: YES/NO
+        # starter: YES/NO
+        # substitute: YES/NO
 
-    # YellowCard: int
-    # YellowCardMinute: int
-    # yellowCardEvent: list(dict)
-    # # yellow_card: YES/NO
-    # # double_yellow: YES/NO
-    # # yellow_card_minute: int
-    # # matchId: string
+        # YellowCard: int
+        # YellowCardMinute: int
+        # yellowCardEvent: list(dict)
+        # # yellow_card: YES/NO
+        # # double_yellow: YES/NO
+        # # yellow_card_minute: int
+        # # matchId: string
 
-    # RedCard: int
-    # RedCardMinute: int
-    # redCardEvent: list(dict)
-    # # red_card: YES/NO
-    # # red_card_minute: int
-    # # matchId: string
+        # RedCard: int
+        # RedCardMinute: int
+        # redCardEvent: list(dict)
+        # # red_card: YES/NO
+        # # red_card_minute: int
+        # # matchId: string
 
-    # OwnGoal: int
-    # OwnGoalMinute: string
-    # ownGoalEvent: list(dict)
-    # # playerId: string
-    # # own_goal_minute: string
-    # # matchId: string
-    # TODO: PLAYER KEYS - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        # OwnGoal: int
+        # OwnGoalMinute: string
+        # ownGoalEvent: list(dict)
+        # # playerId: string
+        # # own_goal_minute: string
+        # # matchId: string
+        # TODO: PLAYER KEYS - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    # check to ensure every player exists in the database
-    # this is likely unnecessary, as the front end should only have players that have been read from the database
-    # # however it will be left in at the start to ensure functionality while testing
-    for player in home_players + away_players:
-        if not db.players.find_one(return_oid(player['PlayerID'])):
-            return append_data(player, edit_html_desc(
-                ERROR_404,
-                'Player ID not found in database, no match data recorded'
+        # check to ensure every player exists in the database
+        # this is likely unnecessary, as the front end should only have players that have been read from the database
+        # # however it will be left in at the start to ensure functionality while testing
+        for player in home_players + away_players:
+            if not db.players.find_one(return_oid(player['PlayerID'])):
+                return append_data(player, edit_html_desc(
+                    ERROR_404,
+                    'Player ID not found in database, no match data recorded'
+                    )
                 )
-            )
 
-    home_stats = parse_player_stats(home_players, match_id)
-    away_stats = parse_player_stats(away_players, match_id)
+        home_stats = parse_player_stats(home_players, match_id)
+        away_stats = parse_player_stats(away_players, match_id)
 
-    db.teams.update_many(
-        {'_id': {'$in': [home_id, away_id]}},
-        {'$addToSet': {'matches': match_id}}
-    )
+        db.teams.update_many(
+            {'_id': {'$in': [home_id, away_id]}},
+            {'$addToSet': {'matches': match_id}}
+        )
 
-    db.matches.update_one(
-        {'_id': match_id},
-        {'$set': {
-            'home_stats': home_stats,
-            'away_stats': away_stats,
-            'data_entered': True
-        }
-        }
-    )
+        db.matches.update_one(
+            {'_id': match_id},
+            {'$set': {
+                'home_stats': home_stats,
+                'away_stats': away_stats,
+                'data_entered': True
+            }
+            }
+        )
+
+        return SUCCESS_201
+    except Exception as e:
+        print_and_return_error(e)
 
 
 def parse_player_stats(team_data, match_id):
