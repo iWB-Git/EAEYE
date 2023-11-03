@@ -1531,7 +1531,7 @@ test_json = {
 }
 
 
-@app.route('/api/v3/match-data/upload')
+@app.route('/api/v3/match-data/upload', methods=['POST'])
 def match_data_upload():
     try:
         # home_data = test_json['HomeTeam']
