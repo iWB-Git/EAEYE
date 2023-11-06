@@ -1646,6 +1646,10 @@ def parse_player_stats(team_data, match_id):
 
         career_stats['match_day_squad'] += 1
 
+        # min_played formulae
+        # sub in: min_played += 90 - minute_subbed_in
+        # sub out (if min_played == 0): min_played = minute_subbed_out
+        # sub out (if min_played > 0): min_played = abs(minute_subbed_out - (90 - min_played))
         min_played = 0
         if player['starter'] == 'YES':
             career_stats['starter'] += 1
