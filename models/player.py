@@ -34,6 +34,7 @@ class Stats(EmbeddedDocument):
     yellow_cards = IntField(default=0)
     red_cards = IntField(default=0)
     clean_sheets = IntField(default=0)
+    own_goals = IntField(default=0)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
