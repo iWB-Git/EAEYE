@@ -909,6 +909,8 @@ def match_data_upload():
 
         home_match_stats, home_career_stats, home_events = parse_player_stats(home_players, match_id)
         away_match_stats, away_career_stats, away_events = parse_player_stats(away_players, match_id)
+        print(f'RETURNED DATA\nhome_match_stats: {home_match_stats}\nhome_career_stats: {home_career_stats}\nhome_events: {home_events}\n')
+        print(f'RETURNED DATA\naway_match_stats: {away_match_stats}\naway_career_stats: {away_career_stats}\naway_events: {away_events}\n')
         match_events = sorted(home_events + away_events, key=lambda x: int(x['minute']))
 
         for player in home_career_stats + away_career_stats:
@@ -941,6 +943,8 @@ def match_data_upload():
 
 
 def parse_player_stats(team_data, match_id):
+    print('BEGINNING MATCH DATA PARSE')
+    print(f'CURRENT TEAM DATA: \n{team_data}\nMATCH ID: {match_id}\n\n')
     # new_career_stats for player documents stats update
     # team_stats for match document stats update
     # match_events for holding all events contained in match data
