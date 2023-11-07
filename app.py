@@ -275,7 +275,8 @@ def unattach_document():
         data = json.loads(request.data)
         coll = data['collection']
         doc_id = return_oid(data['_id'])
-        unattached_id = ObjectId('64de3499f3163e410d0e991a') if coll == 'players' else ObjectId('65285a798e4142135d3ffca8')
+        unattached_id = ObjectId('64de3499f3163e410d0e991a') if coll == 'players' else ObjectId(
+            '65285a798e4142135d3ffca8')
         db_doc = db[coll].find_one({'_id': doc_id})
         if not db_doc:
             return edit_html_desc(
@@ -940,51 +941,54 @@ def match_data_upload():
 
 
 def parse_player_stats(team_data, match_id):
+    # new_career_stats for player documents stats update
+    # team_stats for match document stats update
+    # match_events for holding all events contained in match data
     new_career_stats = []
     team_stats = []
     match_events = []
+
+    # loop over every player in the given team
     for player in team_data:
         player_id = return_oid(player['PlayerID'])
         db_player = db.players.find_one(player_id)
+
         career_stats = db_player['stats']
         match_stats = MatchStats(match_id=match_id, player_id=player_id)
 
         career_stats['match_day_squad'] += 1
+        min_played = 0
 
         # min_played formulae
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         # sub in: min_played += 90 - minute_subbed_in
         # sub out (if min_played == 0): min_played = minute_subbed_out
         # sub out (if min_played > 0): min_played = abs(minute_subbed_out - (90 - min_played))
-        min_played = 0
+
+        # check for key existence then query its value
+        # prevents KeyErrors as the logic is evaluated left to right, and exits if the first key check fails
+        # if the check passes loop through all subEvents for that player, total minutes played, and append to event list
+        if ('SubOut' in player.keys() and player['SubOut'] == 'YES') \
+                or ('SubIn' in player.keys() and player['SubIn'] == 'YES'):
+            for event in player['subEvent']:
+                if 'playerSubbedOut' in event.keys():
+                    min_played = abs(event['minute'] - (90 - min_played)) if min_played else event['minute']
+                elif 'PlayerSubbedIn' in event.keys():
+                    min_played += 90 - event['minute']
+                match_events.append(event)
+
+        # increment starter specific stats
         if player['starter'] == 'YES':
+            # min_played is equal to a full match if no minutes have been calculated, else use the value generated above
+            min_played = 90 if not min_played else min_played
             career_stats['starter'] += 1
+            career_stats['starter_minutes'] += min_played
             match_stats['starter'] = True
 
-            if player['SubOut'] == 'NO':
-                min_played += 90
-
-            else:
-                for event in player['subEvent']:
-                    if 'playerSubbedOut' in event.keys():
-                        # if player has recorded minutes thus far then the updating formula is
-                        # # |minute_subbed_out - (90 - minutes_played)| (abs value might be unnecessary, but it's safer)
-                        # this formula accounts for players subbing in and out of the same match more than once
-                        min_played = abs(event['minute'] - (90 - min_played)) if min_played else event['minute']
-                    elif 'PlayerSubbedIn' in event.keys():
-                        min_played += 90 - event['minute']
-                    match_events.append(event)
-            career_stats['starter_minutes'] += min_played
-        elif player['starter'] == 'NO':
-            if player['SubIn'] == 'YES':
-                for event in player['subEvent']:
-                    if 'PlayerSubbedIn' in event.keys():
-                        min_played += 90 - event['minute']
-                    elif 'playerSubbedOut' in event.keys():
-                        min_played = abs(event['minute'] - (90 - min_played)) if min_played else event['minute']
-                    match_events.append(event)
         career_stats['min_played'] += min_played
         match_stats['min_played'] += min_played
 
+        # check for all possible event indicators and parse events if they exist, adding them to the event list
         if player['Goal']:
             for goal in player['goalEvent']:
                 new_goal = Goal(minute=int(goal['minute']), match_id=match_id).to_mongo()
@@ -992,22 +996,22 @@ def parse_player_stats(team_data, match_id):
                 match_stats['goals'].append(new_goal)
                 match_events.append(goal)
 
-        if 'OwnGoal' in player.keys() and player['OwnGoal']:
-            career_stats['own_goals'] += 1
-            match_stats['own_goals'] += 1
-            for own_goal in player['ownGoalEvent']:
-                match_events.append(own_goal)
-
         if player['Assist']:
             career_stats['assists'] += player['Assist']
             match_stats['assists'] += player['Assist']
             for assist in player['assistEvent']:
                 match_events.append(assist)
 
+        if 'OwnGoal' in player.keys() and player['OwnGoal']:
+            career_stats['own_goals'] += 1
+            match_stats['own_goals'] += 1
+            for own_goal in player['ownGoalEvent']:
+                match_events.append(own_goal)
+
         if 'YellowCard' in player.keys():
             if len(player['yellowCardEvent']) > 1:
-                career_stats['yellow_cards'] += 2
-                match_stats['yellow_cards'] += 2
+                career_stats['red_cards'] += 1
+                match_stats['red_cards'] += 1
             else:
                 career_stats['yellow_cards'] += 1
                 match_stats['yellow_cards'] += 1
@@ -1019,14 +1023,16 @@ def parse_player_stats(team_data, match_id):
             match_stats['red_cards'] += 1
             match_events.append(player['redCardEvent'])
 
+        # if the player has not had this match recorded add the updated db entry to a list for upload after full parse
         if match_id not in db_player['matches']:
             db_player['stats'] = career_stats
             new_career_stats.append(db_player)
+
         team_stats.append(match_stats.to_mongo())
+
     return team_stats, new_career_stats, match_events
 
 
 if __name__ == '__main__':
-    match_data_upload()
     app.debug = False
     app.run()
