@@ -12,6 +12,7 @@ class MatchStats(EmbeddedDocument):
     assists = IntField(default=0)
     yellow_cards = IntField(default=0)
     red_cards = IntField(default=0)
+    own_goals = IntField(default=0)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -29,6 +30,7 @@ class Match(DynamicDocument):
     home_stats = EmbeddedDocumentListField(MatchStats, dbref=False, default=[])
     away_stats = EmbeddedDocumentListField(MatchStats, dbref=False, default=[])
     data_entered = BooleanField(default=False)
+    match_events = ListField(default=[])
 
     def __init__(self, *args, **values):
         super().__init__(*args, **values)
