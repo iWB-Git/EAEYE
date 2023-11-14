@@ -1075,7 +1075,7 @@ def get_match(match_id):
 
 
 @app.route('/api/v1/get-fixture/<fixture_id>', methods=['GET'])
-def get_match(match_id):
+def get_fixture(match_id):
     try:
         match = db.fixtures.find_one({'_id': ObjectId(match_id)})
         if not match:
