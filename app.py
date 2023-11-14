@@ -200,26 +200,30 @@ def upload_match_data_v2():
         traceback.print_exception(type(e), e, e.__traceback__)
         return edit_html_desc(ERROR_400, str(e))
 
+
 def getTeamsFromCompetition(collection_ids):
     collection_ids_as_objectids = [ObjectId(id.strip()) for id in collection_ids]
-    collections=db['competitions'].find({"_id":{"$in":collection_ids_as_objectids}})
-    all_teams=[]
+    collections = db['competitions'].find({"_id": {"$in": collection_ids_as_objectids}})
+    all_teams = []
     for competition in collections:
-        teams=competition.get("teams")
+        teams = competition.get("teams")
         if teams:
             all_teams.extend(teams)
     return all_teams
+
+
 @app.route('/api/v3/players', methods=['GET'])
 def get_collectionSpecific():
     collection_ids_str = request.args.get('ids')
     collection_ids = collection_ids_str.split(',')
-    team_ids_as_objectids=getTeamsFromCompetition(collection_ids)
+    team_ids_as_objectids = getTeamsFromCompetition(collection_ids)
     collection = "players"
     print(team_ids_as_objectids)
     docs = db[collection].find({"teams.team_id": {"$in": team_ids_as_objectids}})
     if collection in ['players', 'teams', 'competitions']:
         docs = sorted(docs, key=lambda x: x['name'])
     return append_data(docs, SUCCESS_200)
+
 
 @app.route('/api/v1/get-collection/<collection>', methods=['GET'])
 def get_collection(collection):
@@ -924,13 +928,15 @@ def match_data_upload():
                 return append_data(player, edit_html_desc(
                     ERROR_404,
                     'Player ID not found in database, no match data recorded'
-                    )
                 )
+                                   )
 
         home_match_stats, home_career_stats, home_events = parse_player_stats(home_players, match_id)
         away_match_stats, away_career_stats, away_events = parse_player_stats(away_players, match_id)
-        print(f'RETURNED DATA\nhome_match_stats: {home_match_stats}\nhome_career_stats: {home_career_stats}\nhome_events: {home_events}\n')
-        print(f'RETURNED DATA\naway_match_stats: {away_match_stats}\naway_career_stats: {away_career_stats}\naway_events: {away_events}\n')
+        print(
+            f'RETURNED DATA\nhome_match_stats: {home_match_stats}\nhome_career_stats: {home_career_stats}\nhome_events: {home_events}\n')
+        print(
+            f'RETURNED DATA\naway_match_stats: {away_match_stats}\naway_career_stats: {away_career_stats}\naway_events: {away_events}\n')
         match_events = sorted(home_events + away_events, key=lambda x: int(x['minute']))
 
         for player in home_career_stats + away_career_stats:
@@ -1055,6 +1061,28 @@ def parse_player_stats(team_data, match_id):
         team_stats.append(match_stats.to_mongo())
 
     return team_stats, new_career_stats, match_events
+
+
+@app.route('/api/v1/get-match/<match_id>', methods=['GET'])
+def get_match(match_id):
+    try:
+        match = db.matches.find_one({'_id': ObjectId(match_id)})
+        if not match:
+            return edit_html_desc(ERROR_404, 'ID not found in matches collection. Check your OID and try again.')
+        return append_data(match, SUCCESS_200)
+    except Exception as e:
+        return edit_html_desc(ERROR_400, str(e))
+
+
+@app.route('/api/v1/get-fixture/<fixture_id>', methods=['GET'])
+def get_match(match_id):
+    try:
+        match = db.fixtures.find_one({'_id': ObjectId(match_id)})
+        if not match:
+            return edit_html_desc(ERROR_404, 'ID not found in fixtures collection. Check your OID and try again.')
+        return append_data(match, SUCCESS_200)
+    except Exception as e:
+        return edit_html_desc(ERROR_400, str(e))
 
 
 if __name__ == '__main__':
