@@ -3,10 +3,13 @@ import copy
 import itertools
 import traceback
 import urllib
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 import bson.json_util as json_util
 import json
+
+from mongoengine import DoesNotExist
+
 from htmlcodes import *
 from logging.config import dictConfig
 from models.competition import Competition
@@ -18,6 +21,7 @@ import os
 import mongoengine
 from bson.objectid import ObjectId
 import motor.motor_asyncio
+from models.short_report import short_report
 
 DB_COLLECTIONS = [
     'players',
@@ -1033,10 +1037,13 @@ def parse_player_stats(team_data, match_id):
                 match_events.append(assist)
 
         if 'OwnGoal' in player.keys() and player['OwnGoal']:
-            career_stats['own_goals'] += 1
-            match_stats['own_goals'] += 1
-            for own_goal in player['ownGoalEvent']:
-                match_events.append(own_goal)
+            if 'own_goals'in career_stats:
+                career_stats['own_goals'] += 1
+                match_stats['own_goals'] += 1
+                for own_goal in player['ownGoalEvent']:
+                    match_events.append(own_goal)
+            else:
+                career_stats['own_goals']=1
 
         if 'YellowCard' in player.keys():
             if len(player['yellowCardEvent']) > 1:
@@ -1083,6 +1090,86 @@ def get_fixture(match_id):
         return append_data(match, SUCCESS_200)
     except Exception as e:
         return edit_html_desc(ERROR_400, str(e))
+
+
+def fetch_player_details(player_id):
+    try:
+        # Try to find player with the given ID
+        player = db.players.find_one({'_id', return_oid(player_id)})
+
+        # Extract relevant details from the player object
+        player_details = {
+            'player_name': player['name'],
+            'date_of_birth': player['dob'],
+            'shirt_number': player['jersey_num'],
+        }
+
+        # Return the extracted details
+        return player_details
+
+    except DoesNotExist:
+        # If player not found, return an error message
+        return {'error': 'Player not found'}
+
+
+# fetching match details
+def fetch_match_details(match_id, player_team_id):
+    try:
+        # Try to find a match with the given ID
+        match = Match.objects.get(id=return_oid(match_id))
+
+        # Determine the opposition club based on the home and away teams
+        opposition_club = match.away_team.name if match.home_team.id == return_oid(
+            player_team_id) else match.home_team.name
+
+        # Calculate total minutes played in the match
+        mins_played = 0  # initialize to 0
+        mins_played = sum(stats.min_played for stats in match.home_stats + match.away_stats)
+
+        game_date = match.date()
+
+        # Return the extracted details
+        return {
+            'opposition_club': opposition_club,
+            'mins_played': mins_played,
+            'game_date': game_date
+        }
+
+    except DoesNotExist:
+        # If match not found, return an error message
+        return {'error': 'Match not found'}
+
+
+@app.route('/api/v7/test/', methods=['POST'])
+def testy():
+    # get JSON data from the request
+    data = request.get_json()
+
+    # Extract player_id and match_id from the request
+    player_id = data.get('player_id')
+    match_id = data.get('match_id')
+
+    # Fetch player and match details
+    player_details = fetch_player_details(player_id)
+    match_details = fetch_match_details(match_id)
+
+    if 'error' in player_details:
+        return jsonify({'error': player_details['error']}), 404
+    if 'error' in match_details:
+        return jsonify({'error': match_details['error']}), 404
+    short_report_data = short_report(
+        conclusion=data['playerConclusion']
+    )
+    strength = [value for key, value in data.items() if key.startswith('strength')]
+    weakness = [value for key, value in data.items() if key.startswith('weakness')]
+    print(strength)
+    for e in strength:
+        short_report_data['strength'].append(e)
+    for e in weakness:
+        short_report_data['weakness'].append(e)
+
+    pp = append_data(short_report_data.to_mongo(), SUCCESS_200)
+    return pp
 
 
 if __name__ == '__main__':
