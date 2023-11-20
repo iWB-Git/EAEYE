@@ -84,8 +84,9 @@ def fetch_match_details(match_id, player_team_id, player_id):
         match = db.matches.find_one({'_id': match_id})
 
         # Determine the opposition club based on the home and away teams
-        opposition_club = match['away_team']['name'] if match['home_team']['id'] == return_oid(player_team_id) else \
-        match['home_team']['name']
+        opposition_club = match['away_team']['name'] if match['home_team']['id'] == player_team_id else \
+            match['home_team']['name']
+
         # Calculate total minutes played in the match
         mins_played = 0  # initialize to 0
         for stats in (match['away_stats'] + match['home_stats']):
@@ -115,10 +116,11 @@ def upload_short_report():
         # Extract player_id and match_id from the request
         player_id = return_oid(data.get('player_id'))
         match_id = return_oid(data.get('match_id'))
+        player_team_id = return_oid(data.get('player_team_id'))
 
         # Fetch player and match details
         player_details = fetch_player_details(player_id)
-        match_details = fetch_match_details(match_id)
+        match_details = fetch_match_details(match_id, player_team_id, player_id)
 
         if 'error' in player_details:
             return jsonify({'error': player_details['error']}), 404
@@ -139,13 +141,13 @@ def upload_short_report():
             conclusion=data['playerConclusion'],
             grade=data['grade'],
             action=data['nextAction'],
-            time_ready=data['readyTimes']
+            time_ready=data['readyTimes'],
+            strength={key: value for key, value in data.items() if key.startswith('strength')},
+            weakness={key: value for key, value in data.items() if key.startswith('weakness')}
         )
 
-        strength = {key: value for key, value in data.items() if key.startswith('strength')}
-        weakness = {key: value for key, value in data.items() if key.startswith('weakness')}
-        short_report_data['strengths'].append(strength.to_mongo())
-        short_report_data['weaknesses'].append(weakness.to_mongo())
+        short_report_data['strengths'].append(['strength'].to_mongo())
+        short_report_data['weaknesses'].append(['weakness'].to_mongo())
 
         # Save the scouting report to the database
         inserted_id = short_report.insert_one(short_report_data.to_mongo()).inserted_id
@@ -154,8 +156,3 @@ def upload_short_report():
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
-
-
-
-
