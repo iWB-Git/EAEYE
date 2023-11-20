@@ -2,6 +2,7 @@ from flask import request
 import urllib
 import os
 import copy
+import json
 from flask import jsonify
 from htmlcodes import SUCCESS_200, SUCCESS_201, ERROR_400, ERROR_404, ERROR_405
 import mongoengine
@@ -21,7 +22,7 @@ db = mongoengine.connect(alias='default', host=db_uri)
 # reference to ea_eye database
 db = db.ea_eye
 # reference to short_report collection in the ea_eye database
-short_report_collection = db.short_report
+player_collection = db.players
 
 client = motor.motor_asyncio.AsyncIOMotorClient(db_uri)
 db_0 = client.ea_eye
@@ -45,6 +46,21 @@ def append_data(data, html_response):
     # returns modified html_response
     return response
 
-def get_details():
+def get_reg_date(player_id):
+    # get JSON data from the request
+    data = json.loads(request.data)
+
+    # Extract player_id and player_team_id from the request
+    player_id = return_oid(data.get('player_id'))
+
+    # Try to find player with the given ID
+    player = db.players.find_one({'_id': player_id})
+
+    player_reg_date = {
+        'reg_date': player['reg_date']
+    }
+
+    # Return the extracted details
+    return player_reg_date
 
     return SUCCESS_201
