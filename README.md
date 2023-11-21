@@ -27,11 +27,11 @@ Branches will be used to ensure tracking of changes to the codebase. The main br
 
 A new branch can be formed from any existing branch, however if possible using main to create a new branch is best; this will reduce miscellaneous code that will need to be reviewed during pull requests, however if code from another existing branch is needed it's acceptable to use that.
 
-**NOTE: Please *do not* make any changes to the branch backup. This branch will be updated periodically by an admin to ensure a stable copy of the API is at the ready in case anything ever goes wrong.**
+**NOTE: Please do not make any changes to the branch 'backup'. This branch will be updated periodically by an admin to ensure a stable copy of the API is at the ready in case anything ever goes wrong.**
 
 #### Branch Naming
 
-The standard branch naming conventions are to begin any new branch with author name, a category, an ID number if the branch is created to work on a specific issue, and a *short* description of the task/branch. Each category needs to be delimited: use slashes (/) for the categorization words and dashes (-) for words inside of a category.
+The standard branch naming conventions are to begin any new branch with author name, a category, an ID number if the branch is created to work on a specific issue, and a <u>short</u> description of the task/branch. Each category needs to be delimited: use slashes (/) for the categorization words and dashes (-) for words inside of a category.
 
 So for example if I was working on an issue with the number 40 to add player profile pages, the branch name would be:
 
