@@ -20,8 +20,8 @@ from match_controller import fetch_match_details
 # MongoDB setup and initialization
 db_username = urllib.parse.quote_plus(os.environ['DB_USERNAME'])
 db_password = urllib.parse.quote_plus(os.environ['DB_PASSWORD'])
-# db_uri = os.environ['DB_URI'] % (db_username, db_password)
-db_uri = os.environ['DB_URI'].format(username=db_username, password=db_password)
+db_uri = os.environ['DB_URI'] % (db_username, db_password)
+# db_uri = os.environ['DB_URI'].format(username=db_username, password=db_password)
 db = mongoengine.connect(alias='default', host=db_uri)
 
 # reference to ea_eye database

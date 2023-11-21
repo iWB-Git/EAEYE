@@ -21,6 +21,7 @@ import os
 import mongoengine
 from bson.objectid import ObjectId
 import motor.motor_asyncio
+from models.short_report import short_report
 
 from models.short_report import short_report
 from shortreport_controller import upload_short_report
@@ -33,8 +34,7 @@ DB_COLLECTIONS = [
     'competitions',
     'matches',
     'fixtures',
-    'bodies',
-    'short_reports'
+    'bodies'
 ]
 
 # flask logging setup, may not end up being used
@@ -62,12 +62,11 @@ cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 # MongoDB setup and initialization
 db_username = urllib.parse.quote_plus(os.environ['DB_USERNAME'])
 db_password = urllib.parse.quote_plus(os.environ['DB_PASSWORD'])
-db_uri = os.environ['DB_URI']%(db_username, db_password)
+db_uri = os.environ['DB_URI'] % (db_username, db_password)
 db = mongoengine.connect(alias='default', host=db_uri)
 db = db.ea_eye
 client = motor.motor_asyncio.AsyncIOMotorClient(db_uri)
 db_0 = client.ea_eye
-
 
 def append_data(data, html_response):
     to_bytes = json_util.dumps(data)
