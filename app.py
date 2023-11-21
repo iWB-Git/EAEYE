@@ -70,6 +70,7 @@ def append_data(data, html_response):
     response[0]['data'] = dataJson
     return json.loads(json_util.dumps(response))
 
+
 def edit_html_desc(html_response, new_desc):
     new_response = copy.deepcopy(html_response)
     new_response[0]['Description'] = json.loads(json_util.dumps(new_desc))
@@ -912,6 +913,15 @@ def upload_players_csv():
         print_and_return_error(e)
 
 
+@app.route('/api/v3/match-data/upload/test', methods=['POST'])
+def match_data_upload_test():
+    data = json.loads(request.data)
+    home_events = data['home_events']
+    away_events = data['away_events']
+    match_events = sorted(home_events + away_events, key=lambda x: int(x['minute']))
+    return(append_data(match_events,SUCCESS_200))
+
+
 @app.route('/api/v3/match-data/upload', methods=['POST'])
 def match_data_upload():
     try:
@@ -1037,13 +1047,13 @@ def parse_player_stats(team_data, match_id):
                 match_events.append(assist)
 
         if 'OwnGoal' in player.keys() and player['OwnGoal']:
-            if 'own_goals'in career_stats:
+            if 'own_goals' in career_stats:
                 career_stats['own_goals'] += 1
                 match_stats['own_goals'] += 1
                 for own_goal in player['ownGoalEvent']:
                     match_events.append(own_goal)
             else:
-                career_stats['own_goals']=1
+                career_stats['own_goals'] = 1
 
         if 'YellowCard' in player.keys():
             if len(player['yellowCardEvent']) > 1:
