@@ -1111,26 +1111,6 @@ def get_player_details(player_id):
 def get_match_details(match_id):
     return append_data(fetch_match_details(return_oid(match_id)), SUCCESS_200)
 
-def fetch_player_details(player_id):
-    try:
-        # Try to find player with the given ID
-        player = db.players.find_one({'_id', return_oid(player_id)})
-
-        # Extract relevant details from the player object
-        player_details = {
-            'player_name': player['name'],
-            'date_of_birth': player['dob'],
-            'shirt_number': player['jersey_num'],
-        }
-
-        # Return the extracted details
-        return player_details
-
-    except DoesNotExist:
-        # If player not found, return an error message
-        return {'error': 'Player not found'}
-
-
 
 
 if __name__ == '__main__':
