@@ -4,7 +4,7 @@ import urllib
 import os
 import copy
 from flask import jsonify
-from htmlcodes import SUCCESS_200, SUCCESS_201, ERROR_400, ERROR_404, ERROR_405
+from htmlcodes import *
 import mongoengine
 from models import short_report
 from models.player import Player, PlayerTeam
@@ -14,6 +14,8 @@ import bson.json_util as json_util
 import motor.motor_asyncio
 from mongoengine.errors import DoesNotExist
 from models.short_report import short_report
+from player_controller import fetch_player_details
+from match_controller import fetch_match_details
 
 # MongoDB setup and initialization
 db_username = urllib.parse.quote_plus(os.environ['DB_USERNAME'])
@@ -44,67 +46,10 @@ def append_data(data, html_response):
     to_bytes = json_util.dumps(data)
     # create deep copy of html_response using copy.deepcopy(html_response)
     response = copy.deepcopy(html_response)
-    # update'data' field of copied html_response with JSON-formatted string (to_bytes).
+    # update 'data' field of copied html_response with JSON-formatted string (to_bytes).
     response[0]['data'] = to_bytes
     # returns modified html_response
     return response
-
-
-# test
-def hello():
-    return SUCCESS_201
-
-
-# fetching player details
-def fetch_player_details(player_id):
-    try:
-        # Try to find player with the given ID
-        player = db.players.find_one({'_id': player_id})
-
-        # Extract relevant details from the player object
-        player_details = {
-            'player_name': player['name'],
-            'date_of_birth': player['dob'],
-            'shirt_number': player['jersey_num'],
-            'position_played': player['position']
-        }
-
-        # Return the extracted details
-        return player_details
-
-    except DoesNotExist:
-        # If player not found, return an error message
-        return {'error': 'Player not found'}
-
-
-# fetching match details
-def fetch_match_details(match_id, player_team_id, player_id):
-    try:
-        # Try to find a match with the given ID
-        match = db.matches.find_one({'_id': match_id})
-
-        # Determine the opposition club based on the home and away teams
-        opposition_club = match['away_team']['name'] if match['home_team']['id'] == player_team_id else \
-            match['home_team']['name']
-
-        # Calculate total minutes played in the match
-        mins_played = 0  # initialize to 0
-        for stats in (match['away_stats'] + match['home_stats']):
-            if stats['player_id'] == player_team_id:
-                mins_played = stats['min_played']
-
-        game_date = match.date()
-
-        # Return the extracted details
-        return {
-            'opposition_club': match['opposition_club'],
-            'mins_played': match['mins_played'],
-            'game_date': match['game_date']
-        }
-
-    except DoesNotExist:
-        # If match not found, return an error message
-        return {'error': 'Match not found'}
 
 
 # creating shortreport POST method
@@ -114,13 +59,40 @@ def upload_short_report():
         data = request.get_json()
 
         # Extract player_id and match_id from the request
-        player_id = return_oid(data.get('player_id'))
-        match_id = return_oid(data.get('match_id'))
-        player_team_id = return_oid(data.get('player_team_id'))
+        player_id = return_oid(data['player_id'])
+        match_id = return_oid(data['match_id'])
+        player_team_id = return_oid(data['player_team_id'])
 
         # Fetch player and match details
-        player_details = fetch_player_details(player_id)
-        match_details = fetch_match_details(match_id, player_team_id, player_id)
+        player = fetch_player_details(player_id)
+        player_details = {
+            'player_name': player['name'],
+            'date_of_birth': player['dob'],
+            'shirt_number': player['jersey_num'],
+            'position_played': player['position'],
+
+        }
+        return player_details
+
+        match = fetch_match_details(match_id, player_team_id, player_id)
+
+        # Determine the opposition club based on the home and away teams
+        opposition_club = match['away_team'] if match['home_team'] == player_team_id else \
+            match['home_team']
+        # Calculate total minutes played in the match
+        mins_played = 0  # initialize to 0
+        for stats in (match['away_stats'] + match['home_stats']):
+            if stats['player_id'] == player_team_id:
+                mins_played = stats['min_played']
+
+        game_date = match['date']
+
+        # Return the extracted details
+        return {
+            'opposition_club': opposition_club,
+            'mins_played': mins_played,
+            'game_date': game_date,
+        }
 
         if 'error' in player_details:
             return jsonify({'error': player_details['error']}), 404
@@ -130,7 +102,7 @@ def upload_short_report():
         # Combine all details with received scouting report data
         short_report_data = short_report(
             formation=data['formation'],
-            position_played=data['positionPlayer'],
+            position_played=data['positionPlayed'],
             report_date=data['reportDate'],
             scout_name=data['scoutName'],
             player_profile=data['playerProfile'],

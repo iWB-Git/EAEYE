@@ -18,7 +18,6 @@ import os
 import mongoengine
 from bson.objectid import ObjectId
 import motor.motor_asyncio
-from profile_page_controller import get_reg_date
 from shortreport_controller import upload_short_report
 
 DB_COLLECTIONS = [
@@ -1087,15 +1086,10 @@ def get_fixture(match_id):
     except Exception as e:
         return edit_html_desc(ERROR_400, str(e))
 
-@app.route('/api/v3/reg_date/<player_id>', methods=['GET'])
-def get_date_joined():
-    return get_reg_date()
-
 
 @app.route('/api/v3/upload-short-report', methods=['POST'])
 def short_report():
     return upload_short_report()
-
 
 
 if __name__ == '__main__':

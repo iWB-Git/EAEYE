@@ -41,26 +41,21 @@ def append_data(data, html_response):
     to_bytes = json_util.dumps(data)
     # create deep copy of html_response using copy.deepcopy(html_response)
     response = copy.deepcopy(html_response)
-    # update'data' field of copied html_response with JSON-formatted string (to_bytes).
+    # update 'data' field of copied html_response with JSON-formatted string (to_bytes).
     response[0]['data'] = to_bytes
     # returns modified html_response
     return response
 
-def get_reg_date(player_id):
-    # get JSON data from the request
-    data = json.loads(request.data)
 
-    # Extract player_id and player_team_id from the request
-    player_id = return_oid(data.get('player_id'))
+# fetching player details
+def fetch_player_details(player_id):
+    try:
+        # Try to find player with the given ID
+        player = db.players.find_one({'_id': player_id})
 
-    # Try to find player with the given ID
-    player = db.players.find_one({'_id': player_id})
+        # Return the extracted details
+        return player
 
-    player_reg_date = {
-        'reg_date': player['reg_date']
-    }
-
-    # Return the extracted details
-    return player_reg_date
-
-    return SUCCESS_201
+    except DoesNotExist:
+        # If player not found, return an error message
+        return {'error': 'Player not found'}
