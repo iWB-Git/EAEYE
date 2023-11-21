@@ -1,31 +1,7 @@
-from flask import request
-import urllib
-import os
 import copy
-import json
-from flask import jsonify
-from htmlcodes import SUCCESS_200, SUCCESS_201, ERROR_400, ERROR_404, ERROR_405
-import mongoengine
-from models.player import Player, PlayerTeam
 from bson.objectid import ObjectId
 import bson.json_util as json_util
-import motor.motor_asyncio
 from mongoengine.errors import DoesNotExist
-
-# MongoDB setup and initialization
-db_username = urllib.parse.quote_plus(os.environ['DB_USERNAME'])
-db_password = urllib.parse.quote_plus(os.environ['DB_PASSWORD'])
-# db_uri = os.environ['DB_URI'] % (db_username, db_password)
-db_uri = os.environ['DB_URI'].format(username=db_username, password=db_password)
-db = mongoengine.connect(alias='default', host=db_uri)
-
-# reference to ea_eye database
-db = db.ea_eye
-# reference to short_report collection in the ea_eye database
-player_collection = db.players
-
-client = motor.motor_asyncio.AsyncIOMotorClient(db_uri)
-db_0 = client.ea_eye
 
 
 # function takes an _id as input
@@ -48,7 +24,7 @@ def append_data(data, html_response):
 
 
 # fetching player details
-def fetch_player_details(player_id):
+def fetch_player_details(player_id,db):
     try:
         # Try to find player with the given ID
         player = db.players.find_one({'_id': player_id})

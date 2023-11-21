@@ -21,6 +21,7 @@ import os
 import mongoengine
 from bson.objectid import ObjectId
 import motor.motor_asyncio
+from models.short_report import short_report
 
 from models.short_report import short_report
 from shortreport_controller import upload_short_report
@@ -33,8 +34,7 @@ DB_COLLECTIONS = [
     'competitions',
     'matches',
     'fixtures',
-    'bodies',
-    'short_reports'
+    'bodies'
 ]
 
 # flask logging setup, may not end up being used
@@ -62,24 +62,23 @@ cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 # MongoDB setup and initialization
 db_username = urllib.parse.quote_plus(os.environ['DB_USERNAME'])
 db_password = urllib.parse.quote_plus(os.environ['DB_PASSWORD'])
-db_uri = os.environ['DB_URI']%(db_username, db_password)
+db_uri = os.environ['DB_URI'] % (db_username, db_password)
 db = mongoengine.connect(alias='default', host=db_uri)
 db = db.ea_eye
 client = motor.motor_asyncio.AsyncIOMotorClient(db_uri)
 db_0 = client.ea_eye
 
-
 def append_data(data, html_response):
-    to_bytes = json_util.dumps(data)
+    dataJson = json.loads(json_util.dumps(data))
     response = copy.deepcopy(html_response)
-    response[0]['data'] = to_bytes
-    return response
+    response[0]['data'] = dataJson
+    return json.loads(json_util.dumps(response))
 
 
 def edit_html_desc(html_response, new_desc):
     new_response = copy.deepcopy(html_response)
-    new_response[0]['Description'] = new_desc
-    return new_response
+    new_response[0]['Description'] = json.loads(json_util.dumps(new_desc))
+    return json.loads(json_util.dumps(new_response))
 
 
 def return_oid(_id):
@@ -151,12 +150,8 @@ def update_player_stats(team, match_id):
                 # update the player's career stats
                 db.players.update_one({'_id': player_id},
                                       {
-                                          '$set': {
-                                              'stats': career_stats
-                                          },
-                                          '$addToSet': {
-                                              'matches': match_id
-                                          }
+                                          '$set': {'stats': career_stats},
+                                          '$addToSet': {'matches': match_id}
                                       })
 
                 # append the player's match stats to the list of all player's match stats
@@ -231,6 +226,7 @@ def get_collectionSpecific():
     docs = db[collection].find({"teams.team_id": {"$in": team_ids_as_objectids}})
     if collection in ['players', 'teams', 'competitions']:
         docs = sorted(docs, key=lambda x: x['name'])
+    print(type(append_data(docs, SUCCESS_200)))
     return append_data(docs, SUCCESS_200)
 
 
@@ -309,24 +305,34 @@ def unattach_document():
         coll = data['collection']
         doc_id = return_oid(data['_id'])
         unattached_id = ObjectId('64de3499f3163e410d0e991a') if coll == 'players' else ObjectId('65285a798e4142135d3ffca8')
+
         db_doc = db[coll].find_one({'_id': doc_id})
         if not db_doc:
             return edit_html_desc(
                 ERROR_400,
                 'Document not found in database; please check your ID string and try again'
             )
+
         if coll == 'players':
-            team_ids = []
-            for team in db_doc['teams']:
-                team_ids.append(return_oid(team['team_id']))
-                team['on_team'] = False
-            if team_ids:
+            if len(db_doc['teams']) > 0:
+                team_ids = []
+                for team in db_doc['teams']:
+                    team_ids.append(return_oid(team['team_id']))
+                    team['on_team'] = False
                 db.teams.update_many({'_id': {'$in': team_ids}}, {'$pull': {'roster': doc_id}})
             db.teams.update_one({'_id': unattached_id}, {'$addToSet': {'roster': doc_id}})
             db[coll].update_one({'_id': doc_id}, {'$set': db_doc})
-            return SUCCESS_200
+
         elif coll == 'teams':
-            pass
+            if len(db_doc['comps']) > 0:
+                comp_ids = []
+                for _id in db_doc['comps']:
+                    comp_ids.append(return_oid(_id))
+                db.competitions.update_many({'_id': {'$in': comp_ids}}, {'$pull': {'teams': doc_id}})
+            db[coll].update_one({'_id': doc_id}, {'$set': {'comps': [unattached_id]}})
+
+        return SUCCESS_200
+
     except Exception as e:
         print_and_return_error(e)
 
@@ -334,7 +340,8 @@ def unattach_document():
 @app.route('/api/v2/delete-player/<player_id>', methods=['POST'])
 def delete_player(player_id):
     try:
-        # check for the player's document in the database, return bad request code if so
+        # check for the player's document in the database, return bad request code if not found
+        player_id = return_oid(player_id)
         db_player = db.players.find_one({'_id': player_id})
         if not db_player:
             return edit_html_desc(
@@ -379,7 +386,50 @@ def delete_player(player_id):
 
         # delete the player document from the database
         db.players.delete_one({'_id': player_id})
+
         return SUCCESS_200
+
+    except Exception as e:
+        print_and_return_error(e)
+
+
+@app.route('/api/v2/delete-team/<team_id>', methods=['POST'])
+def delete_team(team_id):
+    try:
+        # query the database for the given team based on ID, return bad request code if not found
+        team_id = return_oid(team_id)
+        db_team = db.teams.find_one({'_id': team_id})
+        if not db_team:
+            return edit_html_desc(
+                ERROR_400,
+                'Team not found in database; please check your ID string and try again'
+            )
+
+        # check for duplicate teams in the database, if found return them to the front end for review
+        dupes = list(
+            db.teams.find(
+                {
+                    'name': {'$regex': db_team['name']},
+                    '_id': {'$ne': team_id}
+                })
+        )
+        if dupes:
+            return append_data(
+                dupes,
+                edit_html_desc(
+                    ERROR_400,
+                    'Duplicate entries exist in database; please review these before continuing'
+                )
+            )
+
+        # set the on_team status of any player with this team id in their teams array to false, and remove team_id
+        # from any competition contained in the team's comps list, then delete the team
+        db.players.update_many({'teams.team_id': team_id}, {'$set': {'teams.$.on_team': False}})
+        db.competitions.update_many({'_id': {'$in': db_team['comps']}}, {'$pull': {'teams': team_id}})
+        db.teams.delete_one({'_id': team_id})
+
+        return SUCCESS_200
+
     except Exception as e:
         print_and_return_error(e)
 
@@ -916,6 +966,15 @@ def upload_players_csv():
         print_and_return_error(e)
 
 
+@app.route('/api/v3/match-data/upload/test', methods=['POST'])
+def match_data_upload_test():
+    data = json.loads(request.data)
+    home_events = data['home_events']
+    away_events = data['away_events']
+    match_events = sorted(home_events + away_events, key=lambda x: int(x['minute']))
+    return(append_data(match_events,SUCCESS_200))
+
+
 @app.route('/api/v3/match-data/upload', methods=['POST'])
 def match_data_upload():
     try:
@@ -1041,13 +1100,13 @@ def parse_player_stats(team_data, match_id):
                 match_events.append(assist)
 
         if 'OwnGoal' in player.keys() and player['OwnGoal']:
-            if 'own_goals'in career_stats:
+            if 'own_goals' in career_stats:
                 career_stats['own_goals'] += 1
                 match_stats['own_goals'] += 1
                 for own_goal in player['ownGoalEvent']:
                     match_events.append(own_goal)
             else:
-                career_stats['own_goals']=1
+                career_stats['own_goals'] = 1
 
         if 'YellowCard' in player.keys():
             if len(player['yellowCardEvent']) > 1:
@@ -1103,12 +1162,12 @@ def short_report():
 
 @app.route('/api/v3/player-details/<player_id>', methods=['GET'])
 def get_player_details(player_id):
-    return append_data(fetch_player_details(return_oid(player_id)),SUCCESS_200)
+    return append_data(fetch_player_details(return_oid(player_id),db=db),SUCCESS_200)
 
 
 @app.route('/api/v3/match-details/<match_id>', methods=['GET'])
 def get_match_details(match_id):
-    return append_data(fetch_match_details(return_oid(match_id)), SUCCESS_200)
+    return append_data(fetch_match_details(return_oid(match_id),db=db), SUCCESS_200)
 
 
 if __name__ == '__main__':
