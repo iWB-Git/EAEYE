@@ -57,7 +57,7 @@ cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 # MongoDB setup and initialization
 db_username = urllib.parse.quote_plus(os.environ['DB_USERNAME'])
 db_password = urllib.parse.quote_plus(os.environ['DB_PASSWORD'])
-db_uri = os.environ['DB_URI'].format(db_username, db_password)
+db_uri = os.environ['DB_URI'] % (db_username, db_password)
 db = mongoengine.connect(alias='default', host=db_uri)
 db = db.ea_eye
 client = motor.motor_asyncio.AsyncIOMotorClient(db_uri)
