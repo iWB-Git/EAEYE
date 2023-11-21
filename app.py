@@ -3,10 +3,13 @@ import copy
 import itertools
 import traceback
 import urllib
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 import bson.json_util as json_util
 import json
+
+from mongoengine import DoesNotExist
+
 from htmlcodes import *
 from logging.config import dictConfig
 from models.competition import Competition
@@ -18,6 +21,8 @@ import os
 import mongoengine
 from bson.objectid import ObjectId
 import motor.motor_asyncio
+
+from models.short_report import short_report
 from shortreport_controller import upload_short_report
 from player_controller import fetch_player_details
 from match_controller import fetch_match_details
@@ -1037,10 +1042,13 @@ def parse_player_stats(team_data, match_id):
                 match_events.append(assist)
 
         if 'OwnGoal' in player.keys() and player['OwnGoal']:
-            career_stats['own_goals'] += 1
-            match_stats['own_goals'] += 1
-            for own_goal in player['ownGoalEvent']:
-                match_events.append(own_goal)
+            if 'own_goals'in career_stats:
+                career_stats['own_goals'] += 1
+                match_stats['own_goals'] += 1
+                for own_goal in player['ownGoalEvent']:
+                    match_events.append(own_goal)
+            else:
+                career_stats['own_goals']=1
 
         if 'YellowCard' in player.keys():
             if len(player['yellowCardEvent']) > 1:
@@ -1102,6 +1110,27 @@ def get_player_details(player_id):
 @app.route('/api/v3/match-details/<match_id>', methods=['POST'])
 def get_match_details(match_id):
     return append_data(fetch_match_details(return_oid(match_id)), SUCCESS_200)
+
+def fetch_player_details(player_id):
+    try:
+        # Try to find player with the given ID
+        player = db.players.find_one({'_id', return_oid(player_id)})
+
+        # Extract relevant details from the player object
+        player_details = {
+            'player_name': player['name'],
+            'date_of_birth': player['dob'],
+            'shirt_number': player['jersey_num'],
+        }
+
+        # Return the extracted details
+        return player_details
+
+    except DoesNotExist:
+        # If player not found, return an error message
+        return {'error': 'Player not found'}
+
+
 
 
 if __name__ == '__main__':

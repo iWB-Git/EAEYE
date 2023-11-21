@@ -1,3 +1,4 @@
+
 from mongoengine import *
 # player document
 from models.player import Player
@@ -39,3 +40,4 @@ class short_report(DynamicDocument):
         self.position = values['position']
         self.summary = values['summary']
         self.grade = values['grade']
+
