@@ -52,8 +52,8 @@ def fetch_player_details(player_id):
     try:
         # Try to find player with the given ID
         player = db.players.find_one({'_id': player_id})
-
         # Return the extracted details
+        print(player)
         return player
 
     except DoesNotExist:

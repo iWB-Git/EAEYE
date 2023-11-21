@@ -87,12 +87,13 @@ def upload_short_report():
 
         game_date = match['date']
 
-        # Return the extracted details
-        return {
+        match_details = {
             'opposition_club': opposition_club,
             'mins_played': mins_played,
             'game_date': game_date,
         }
+        # Return the extracted details
+        return match_details
 
         if 'error' in player_details:
             return jsonify({'error': player_details['error']}), 404

@@ -19,6 +19,8 @@ import mongoengine
 from bson.objectid import ObjectId
 import motor.motor_asyncio
 from shortreport_controller import upload_short_report
+from player_controller import fetch_player_details
+from match_controller import fetch_match_details
 
 DB_COLLECTIONS = [
     'players',
@@ -1090,6 +1092,16 @@ def get_fixture(match_id):
 @app.route('/api/v3/upload-short-report', methods=['POST'])
 def short_report():
     return upload_short_report()
+
+
+@app.route('/api/v3/player-details/<player_id>', methods=['POST'])
+def get_player_details(player_id):
+    return append_data(fetch_player_details(return_oid(player_id)),SUCCESS_200)
+
+
+@app.route('/api/v3/match-details/<match_id>', methods=['POST'])
+def get_match_details(match_id):
+    return append_data(fetch_match_details(return_oid(match_id)), SUCCESS_200)
 
 
 if __name__ == '__main__':
