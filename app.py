@@ -62,7 +62,7 @@ cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 # MongoDB setup and initialization
 db_username = urllib.parse.quote_plus(os.environ['DB_USERNAME'])
 db_password = urllib.parse.quote_plus(os.environ['DB_PASSWORD'])
-db_uri = os.environ['DB_URI'] % (db_username, db_password)
+db_uri = os.environ['DB_URI']%(db_username, db_password)
 db = mongoengine.connect(alias='default', host=db_uri)
 db = db.ea_eye
 client = motor.motor_asyncio.AsyncIOMotorClient(db_uri)
@@ -1102,15 +1102,14 @@ def short_report():
     return upload_short_report()
 
 
-@app.route('/api/v3/player-details/<player_id>', methods=['POST'])
+@app.route('/api/v3/player-details/<player_id>', methods=['GET'])
 def get_player_details(player_id):
     return append_data(fetch_player_details(return_oid(player_id)),SUCCESS_200)
 
 
-@app.route('/api/v3/match-details/<match_id>', methods=['POST'])
+@app.route('/api/v3/match-details/<match_id>', methods=['GET'])
 def get_match_details(match_id):
     return append_data(fetch_match_details(return_oid(match_id)), SUCCESS_200)
-
 
 
 if __name__ == '__main__':
