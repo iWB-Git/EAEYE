@@ -20,8 +20,8 @@ from match_controller import fetch_match_details
 # MongoDB setup and initialization
 db_username = urllib.parse.quote_plus(os.environ['DB_USERNAME'])
 db_password = urllib.parse.quote_plus(os.environ['DB_PASSWORD'])
-db_uri = os.environ['DB_URI'] % (db_username, db_password)
-# db_uri = os.environ['DB_URI'].format(username=db_username, password=db_password)
+# db_uri = os.environ['DB_URI'] % (db_username, db_password)
+db_uri = os.environ['DB_URI'].format(username=db_username, password=db_password)
 db = mongoengine.connect(alias='default', host=db_uri)
 
 # reference to ea_eye database
@@ -72,7 +72,7 @@ def upload_short_report():
             'position_played': player['position'],
 
         }
-        return player_details
+
 
         match = fetch_match_details(match_id, player_team_id, player_id)
 
@@ -93,7 +93,7 @@ def upload_short_report():
             'game_date': game_date,
         }
         # Return the extracted details
-        return match_details
+        
 
         if 'error' in player_details:
             return jsonify({'error': player_details['error']}), 404
