@@ -308,8 +308,7 @@ def unattach_document():
         data = json.loads(request.data)
         coll = data['collection']
         doc_id = return_oid(data['_id'])
-        unattached_id = ObjectId('64de3499f3163e410d0e991a') if coll == 'players' else ObjectId(
-            '65285a798e4142135d3ffca8')
+        unattached_id = ObjectId('64de3499f3163e410d0e991a') if coll == 'players' else ObjectId('65285a798e4142135d3ffca8')
         db_doc = db[coll].find_one({'_id': doc_id})
         if not db_doc:
             return edit_html_desc(
