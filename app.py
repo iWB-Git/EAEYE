@@ -69,16 +69,16 @@ client = motor.motor_asyncio.AsyncIOMotorClient(db_uri)
 db_0 = client.ea_eye
 
 def append_data(data, html_response):
-    dataJson = json.loads(json_util.dumps(data))
+    to_bytes = json_util.dumps(data)
     response = copy.deepcopy(html_response)
-    response[0]['data'] = dataJson
-    return json.loads(json_util.dumps(response))
+    response[0]['data'] = to_bytes
+    return response
 
 
 def edit_html_desc(html_response, new_desc):
     new_response = copy.deepcopy(html_response)
-    new_response[0]['Description'] = json.loads(json_util.dumps(new_desc))
-    return json.loads(json_util.dumps(new_response))
+    new_response[0]['Description'] = new_desc
+    return new_response
 
 
 def return_oid(_id):
