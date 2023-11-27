@@ -10,6 +10,7 @@ from player_controller import fetch_player_details
 from match_controller import fetch_match_details
 
 
+
 # function takes an _id as input
 def return_oid(_id):
     # checks if  _id is already ObjectId If it is, it returns _id as is.
@@ -41,7 +42,7 @@ def upload_short_report():
         player_team_id = return_oid(data['player_team_id'])
 
         # Fetch player and match details
-        player = fetch_player_details(player_id)
+        player = fetch_player_details(player_id,db=db)
         player_details = {
             'player_name': player['name'],
             'date_of_birth': player['dob'],
@@ -51,7 +52,7 @@ def upload_short_report():
         }
         return player_details
 
-        match = fetch_match_details(match_id, player_team_id, player_id)
+        match = fetch_match_details(match_id, player_team_id, player_id, db=db)
 
         # Determine the opposition club based on the home and away teams
         opposition_club = match['away_team'] if match['home_team'] == player_team_id else \
