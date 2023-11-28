@@ -8,7 +8,7 @@ import bson.json_util as json_util
 from models.short_report import short_report
 from player_controller import fetch_player_details
 from match_controller import fetch_match_details
-
+from models.short_report import attribute_list
 
 
 # function takes an _id as input
@@ -31,7 +31,7 @@ def append_data(data, html_response):
 
 
 # creating shortreport POST method
-def upload_short_report():
+def upload_short_report(db):
     try:
         # get JSON data from the request
         data = request.get_json()
@@ -42,7 +42,7 @@ def upload_short_report():
         player_team_id = return_oid(data['player_team_id'])
 
         # Fetch player and match details
-        player = fetch_player_details(player_id,db=db)
+        player = fetch_player_details(player_id, db=db)
         player_details = {
             'player_name': player['name'],
             'date_of_birth': player['dob'],
@@ -50,9 +50,8 @@ def upload_short_report():
             'position_played': player['position'],
 
         }
-        return player_details
 
-        match = fetch_match_details(match_id, player_team_id, player_id, db=db)
+        match = fetch_match_details(match_id, db=db)
 
         # Determine the opposition club based on the home and away teams
         opposition_club = match['away_team'] if match['home_team'] == player_team_id else \
@@ -71,7 +70,6 @@ def upload_short_report():
             'game_date': game_date,
         }
         # Return the extracted details
-        return match_details
 
         if 'error' in player_details:
             return jsonify({'error': player_details['error']}), 404
@@ -79,6 +77,14 @@ def upload_short_report():
             return jsonify({'error': match_details['error']}), 404
 
         # Combine all details with received scouting report data
+        strengths_data = {key: value for key, value in data.items() if key.startswith('strength')}
+        weaknesses_data = {key: value for key, value in data.items() if key.startswith('weakness')}
+
+        strengths = [attribute_list(attribute=value) for value in strengths_data.values()]
+        weaknesses = [attribute_list(attribute=value) for value in weaknesses_data.values()]
+
+        print(type(weaknesses))
+
         short_report_data = short_report(
             formation=data['formation'],
             position_played=data['positionPlayed'],
@@ -86,24 +92,22 @@ def upload_short_report():
             scout_name=data['scoutName'],
             player_profile=data['playerProfile'],
             game_context=data['gameContext'],
-            position=data['position_played'],
+            position=data['position'],
             physical_profile=data['physicalProfile'],
             summary=data['gameSummary'],
             conclusion=data['playerConclusion'],
             grade=data['grade'],
             action=data['nextAction'],
             time_ready=data['readyTimes'],
-            strength={key: value for key, value in data.items() if key.startswith('strength')},
-            weakness={key: value for key, value in data.items() if key.startswith('weakness')}
+            strengths=strength,
+            weaknesses=weakness
         )
 
-        short_report_data['strengths'].append(['strength'].to_mongo())
-        short_report_data['weaknesses'].append(['weakness'].to_mongo())
 
         # Save the scouting report to the database
-        inserted_id = short_report.insert_one(short_report_data.to_mongo()).inserted_id
+        inserted_id = db.short_reports.insert_one(short_report_data.to_mongo())
 
-        return append_data(inserted_id, SUCCESS_201)
+        return SUCCESS_201
 
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': str(e)})

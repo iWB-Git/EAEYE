@@ -21,6 +21,7 @@ class short_report(DynamicDocument):
     scout_name = StringField()
     formation = StringField()
     position = StringField()
+    position_played = StringField()
     physical_profile = StringField()
     summary = StringField()
     grade = StringField()
