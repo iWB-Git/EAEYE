@@ -16,6 +16,7 @@ from models.match import Match, MatchStats
 from models.fixture import Fixture, Round
 from models.team import Team
 import os
+from functions import *
 import mongoengine
 from bson.objectid import ObjectId
 import motor.motor_asyncio
@@ -65,21 +66,7 @@ PC = player_controller.PlayerController(db)
 MC = match_controller.MatchController(db)
 SRC = shortreport_controller.ShortReportController(db)
 
-def append_data(data, html_response):
-    dataJson = json.loads(json_util.dumps(data))
-    response = copy.deepcopy(html_response)
-    response[0]['data'] = dataJson
-    return json.loads(json_util.dumps(response))
 
-
-def edit_html_desc(html_response, new_desc):
-    new_response = copy.deepcopy(html_response)
-    new_response[0]['Description'] = json.loads(json_util.dumps(new_desc))
-    return json.loads(json_util.dumps(new_response))
-
-
-def return_oid(_id):
-    return _id if type(_id) is ObjectId else ObjectId(_id)
 
 
 # brief landing page if someone somehow ends up on the API's home page
