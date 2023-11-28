@@ -3,13 +3,11 @@ import copy
 import itertools
 import traceback
 import urllib
-from flask import Flask, request, jsonify
+import urllib.parse
+from flask import Flask, request
 from flask_cors import CORS
 import bson.json_util as json_util
 import json
-
-from mongoengine import DoesNotExist
-
 from htmlcodes import *
 from logging.config import dictConfig
 from models.competition import Competition
@@ -21,12 +19,7 @@ import os
 import mongoengine
 from bson.objectid import ObjectId
 import motor.motor_asyncio
-from models.short_report import short_report
-
-from models.short_report import short_report
-from shortreport_controller import upload_short_report
-from player_controller import fetch_player_details
-from match_controller import fetch_match_details
+from Controllers import player_controller, match_controller,shortreport_controller
 
 DB_COLLECTIONS = [
     'players',
@@ -67,6 +60,10 @@ db = mongoengine.connect(alias='default', host=db_uri)
 db = db.ea_eye
 client = motor.motor_asyncio.AsyncIOMotorClient(db_uri)
 db_0 = client.ea_eye
+
+PC = player_controller.PlayerController(db)
+MC = match_controller.MatchController(db)
+SRC = shortreport_controller.ShortReportController(db)
 
 def append_data(data, html_response):
     dataJson = json.loads(json_util.dumps(data))
@@ -304,7 +301,8 @@ def unattach_document():
         data = json.loads(request.data)
         coll = data['collection']
         doc_id = return_oid(data['_id'])
-        unattached_id = ObjectId('64de3499f3163e410d0e991a') if coll == 'players' else ObjectId('65285a798e4142135d3ffca8')
+        unattached_id = ObjectId('64de3499f3163e410d0e991a') if coll == 'players' else ObjectId(
+            '65285a798e4142135d3ffca8')
 
         db_doc = db[coll].find_one({'_id': doc_id})
         if not db_doc:
@@ -972,7 +970,7 @@ def match_data_upload_test():
     home_events = data['home_events']
     away_events = data['away_events']
     match_events = sorted(home_events + away_events, key=lambda x: int(x['minute']))
-    return(append_data(match_events,SUCCESS_200))
+    return (append_data(match_events, SUCCESS_200))
 
 
 @app.route('/api/v3/match-data/upload', methods=['POST'])
@@ -1157,17 +1155,43 @@ def get_fixture(match_id):
 
 @app.route('/api/v3/upload-short-report', methods=['POST'])
 def short_report():
-    return upload_short_report(db=db)
+    return SRC.upload_short_report()
 
 
 @app.route('/api/v3/player-details/<player_id>', methods=['GET'])
 def get_player_details(player_id):
-    return append_data(fetch_player_details(return_oid(player_id),db=db),SUCCESS_200)
+    return append_data(PC.fetch_player_details(return_oid(player_id), db=db), SUCCESS_200)
 
 
 @app.route('/api/v3/match-details/<match_id>', methods=['GET'])
 def get_match_details(match_id):
-    return append_data(fetch_match_details(return_oid(match_id),db=db), SUCCESS_200)
+    return append_data(MC.fetch_match_details(return_oid(match_id), db=db), SUCCESS_200)
+
+
+@app.route('/api/v3/player/match-details/<player_id>', methods=['GET'])
+def get_player_match_details(player_id):
+    home_matches_cursor = db.matches.find({"home_stats.player_id": return_oid(player_id)})
+    away_matches_cursor = db.matches.find({"away_stats.player_id": return_oid(player_id)})
+
+    short_reports_cursor = db.short_reports.find(
+        {"player_id": return_oid(player_id)},
+        {"match_id": 1})
+    sr_matches = list(short_reports_cursor)
+    home_matches = list(home_matches_cursor)
+    away_matches = list(away_matches_cursor)
+
+    all_matches = home_matches + away_matches
+    reports= db.short_reports.find(
+        {"player_id": return_oid(player_id)},
+        {"short_reports": 1, "_id": 0})
+
+    print(all_matches)
+    for matches in all_matches:
+        for sr in sr_matches:
+            if matches['_id'] == sr['match_id']:
+                matches['reported'] = sr['_id']
+
+    return append_data(all_matches, SUCCESS_200)
 
 
 if __name__ == '__main__':

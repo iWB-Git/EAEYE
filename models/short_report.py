@@ -1,4 +1,3 @@
-
 from mongoengine import *
 # player document
 from models.player import Player
@@ -42,3 +41,6 @@ class short_report(DynamicDocument):
         self.summary = values['summary']
         self.grade = values['grade']
 
+
+class shortReport(EmbeddedDocument):
+    report_id = ReferenceField(short_report)
