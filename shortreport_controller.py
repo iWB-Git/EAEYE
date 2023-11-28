@@ -32,7 +32,7 @@ def append_data(data, html_response):
 
 # creating shortreport POST method
 def upload_short_report(db):
-    try:
+    # try:
         # get JSON data from the request
         data = request.get_json()
 
@@ -47,7 +47,7 @@ def upload_short_report(db):
             'player_name': player['name'],
             'date_of_birth': player['dob'],
             'shirt_number': player['jersey_num'],
-            'position_played': player['position'],
+            # 'position_played': player['position'],
 
         }
 
@@ -99,8 +99,8 @@ def upload_short_report(db):
             grade=data['grade'],
             action=data['nextAction'],
             time_ready=data['readyTimes'],
-            strengths=strength,
-            weaknesses=weakness
+            strengths=strengths,
+            weaknesses=weaknesses
         )
 
 
@@ -108,6 +108,7 @@ def upload_short_report(db):
         inserted_id = db.short_reports.insert_one(short_report_data.to_mongo())
 
         return SUCCESS_201
-
-    except Exception as e:
-        return jsonify({'error': str(e)})
+    #
+    # except Exception as e:
+    #
+    #     return jsonify({'error': str(e)})
