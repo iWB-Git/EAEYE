@@ -1147,12 +1147,12 @@ def short_report():
 
 @app.route('/api/v3/player-details/<player_id>', methods=['GET'])
 def get_player_details(player_id):
-    return append_data(PC.fetch_player_details(return_oid(player_id), db=db), SUCCESS_200)
+    return append_data(PC.fetch_player_details(return_oid(player_id)), SUCCESS_200)
 
 
 @app.route('/api/v3/match-details/<match_id>', methods=['GET'])
 def get_match_details(match_id):
-    return append_data(MC.fetch_match_details(return_oid(match_id), db=db), SUCCESS_200)
+    return append_data(MC.fetch_match_details(return_oid(match_id)), SUCCESS_200)
 
 
 @app.route('/api/v3/player/match-details/<player_id>', methods=['GET'])
