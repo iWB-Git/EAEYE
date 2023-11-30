@@ -964,6 +964,7 @@ def match_data_upload_test():
 def match_data_upload():
     try:
         data = json.loads(request.data)
+
         home_data = data['HomeTeam']
         away_data = data['AwayTeam']
         comp_data = data['Competition']
@@ -1020,6 +1021,19 @@ def match_data_upload():
         print_and_return_error(e)
 
 
+# @app.route('/api/v3/parse_player_stats/test', methods=['POST'])
+# def test_parse_players():
+#     return append_data(parse_player_stats(json.loads(request.data), '652e7cbe68555927161a6f13'), SUCCESS_200)
+
+
+def check_and_fill(stats, attrb, add):
+    if attrb in stats:
+        stats[attrb] += add
+    else:
+        stats[attrb] = add
+    return stats
+
+
 def parse_player_stats(team_data, match_id):
     print('BEGINNING MATCH DATA PARSE')
     print(f'CURRENT TEAM DATA: \n{team_data}\nMATCH ID: {match_id}\n\n')
@@ -1032,13 +1046,14 @@ def parse_player_stats(team_data, match_id):
 
     # loop over every player in the given team
     for player in team_data:
+        print("playerid", player['PlayerID'])
         player_id = return_oid(player['PlayerID'])
         db_player = db.players.find_one(player_id)
 
         career_stats = db_player['stats']
         match_stats = MatchStats(match_id=match_id, player_id=player_id)
 
-        career_stats['match_day_squad'] += 1
+        career_stats = check_and_fill(career_stats, 'match_day_squad', 1)
         min_played = 0
 
         # min_played formulae
@@ -1063,11 +1078,11 @@ def parse_player_stats(team_data, match_id):
         if player['starter'] == 'YES':
             # min_played is equal to a full match if no minutes have been calculated, else use the value generated above
             min_played = 90 if not min_played else min_played
-            career_stats['starter'] += 1
-            career_stats['starter_minutes'] += min_played
+            career_stats = check_and_fill(career_stats, 'starter', 1)
+            career_stats = check_and_fill(career_stats, 'starter_minutes', min_played)
             match_stats['starter'] = True
 
-        career_stats['min_played'] += min_played
+        career_stats = check_and_fill(career_stats, 'starter_minutes', min_played)
         match_stats['min_played'] += min_played
 
         # check for all possible event indicators and parse events if they exist, adding them to the event list
@@ -1079,7 +1094,8 @@ def parse_player_stats(team_data, match_id):
                 match_events.append(goal)
 
         if player['Assist']:
-            career_stats['assists'] += player['Assist']
+            career_stats = check_and_fill(career_stats, 'assists', player['Assist'])
+            # career_stats['assists'] += player['Assist']
             match_stats['assists'] += player['Assist']
             for assist in player['assistEvent']:
                 match_events.append(assist)
@@ -1095,16 +1111,19 @@ def parse_player_stats(team_data, match_id):
 
         if 'YellowCard' in player.keys():
             if len(player['yellowCardEvent']) > 1:
-                career_stats['red_cards'] += 1
+                career_stats = check_and_fill(career_stats, 'red_cards', 1)
+                # career_stats['red_cards'] += 1
                 match_stats['red_cards'] += 1
             else:
-                career_stats['yellow_cards'] += 1
+                career_stats = check_and_fill(career_stats, 'yellow_cards', 1)
+                # career_stats['yellow_cards'] += 1
                 match_stats['yellow_cards'] += 1
             for yellow_card in player['yellowCardEvent']:
                 match_events.append(yellow_card)
 
         if 'RedCard' in player.keys():
-            career_stats['red_cards'] += 1
+            career_stats = check_and_fill(career_stats, 'red_cards', 1)
+            # career_stats['red_cards'] += 1
             match_stats['red_cards'] += 1
             match_events.append(player['redCardEvent'])
 
