@@ -19,9 +19,8 @@ import os
 from functions import *
 import mongoengine
 from bson.objectid import ObjectId
-import motor.motor_asyncio
 from Controllers import player_controller, match_controller,shortreport_controller
-# added this line so i can force a build
+
 DB_COLLECTIONS = [
     'players',
     'teams',
@@ -63,6 +62,8 @@ client = motor.motor_asyncio.AsyncIOMotorClient(db_uri)
 db_0 = client.ea_eye
 
 PC = player_controller.PlayerController(db)
+TC = team_controller.TeamController(db)
+
 MC = match_controller.MatchController(db)
 SRC = shortreport_controller.ShortReportController(db)
 
@@ -290,7 +291,6 @@ def unattach_document():
         doc_id = return_oid(data['_id'])
         unattached_id = ObjectId('64de3499f3163e410d0e991a') if coll == 'players' else ObjectId(
             '65285a798e4142135d3ffca8')
-
         db_doc = db[coll].find_one({'_id': doc_id})
         if not db_doc:
             return edit_html_desc(
@@ -324,58 +324,7 @@ def unattach_document():
 
 @app.route('/api/v2/delete-player/<player_id>', methods=['POST'])
 def delete_player(player_id):
-    try:
-        # check for the player's document in the database, return bad request code if not found
-        player_id = return_oid(player_id)
-        db_player = db.players.find_one({'_id': player_id})
-        if not db_player:
-            return edit_html_desc(
-                ERROR_400,
-                'Player not found in database; please check your ID string and try again'
-            )
-
-        # check for duplicate entries in the database
-        # for a player check if they have the same name and dob, and a unique id from the given id
-        dupes = list(
-            db.players.find(
-                {
-                    'name': db_player['name'],
-                    'dob': db_player['dob'],
-                    '_id': {'$ne': player_id}
-                })
-        )
-
-        # if any duplicates exist return a 400 error and append the duplicate documents in question for review
-        if dupes:
-            return append_data(
-                dupes,
-                edit_html_desc(
-                    ERROR_400,
-                    'Duplicate entries exist in database; please review these before continuing'
-                )
-            )
-
-        # check the teams collection for any teams whose roster contain the given player's id
-        id_pairs = list(db.teams.find({'roster': player_id}, {'_id': 1}))
-
-        # generate a list of strictly the ObjectId strings, as opposed to key-value pairs of {'_id': *id_string*}
-        team_ids = []
-        for pair in id_pairs:
-            team_ids.append(pair['_id'])
-
-        # remove the player's id from all the teams identified above
-        db.teams.update_many(
-            {'_id': {'$in': team_ids}},
-            {'$pull': {'roster': player_id}}
-        )
-
-        # delete the player document from the database
-        db.players.delete_one({'_id': player_id})
-
-        return SUCCESS_200
-
-    except Exception as e:
-        print_and_return_error(e)
+    return PC.delete_player(player_id=player_id)
 
 
 @app.route('/api/v2/delete-team/<team_id>', methods=['POST'])
@@ -417,6 +366,7 @@ def delete_team(team_id):
 
     except Exception as e:
         print_and_return_error(e)
+
 
 
 @app.route('/api/v1/get-document/<collection>/<_id>', methods=['GET'])
@@ -580,31 +530,12 @@ def update_doc():
 
 @app.route('/api/v2/create-team/', methods=['POST'])
 def create_team():
-    try:
-        data = json.loads(request.data)
-        comp_id = return_oid(data['competition_id'])
-        db.teams.insert_one(
-            Team(
-                name=data['name'].strip().title(),
-                roster=[],
-                matches=[],
-                comps=[comp_id]
-            ).to_mongo()
-        )
-        return SUCCESS_201
-    except Exception as e:
-        print_and_return_error(e)
+    return TC.create_team(request_data=request.data)
 
 
 @app.route('/api/v2/update-team-name/', methods=['POST'])
 def update_team_name():
-    try:
-        data = json.loads(request.data)
-        team_id = return_oid(data['teamId'])
-        db.teams.update_one({'_id': team_id}, {'$set': {'name': data['name'].strip().title()}})
-        return edit_html_desc(SUCCESS_200, db.teams.find_one({'_id': team_id}))
-    except Exception as e:
-        print_and_return_error(e)
+    return TC.update_team_name(request_data=request.data)
 
 
 @app.route('/api/v2/link-team-and-competition/', methods=['POST'])
@@ -716,95 +647,18 @@ def print_and_return_error(e):
 
 @app.route('/api/v1/insert-player/', methods=['POST'])
 def insert_player():
-    try:
-        player_data = json.loads(request.data)
-        # player_data = TEST_JSON_PLAYER
+    return PC.insert_player(request_data=request.data)
 
-        name = player_data['names'].strip().title()
-        nationality = player_data['nationality']
-        dob = player_data['dob']
-        position = player_data['position']
-        jersey_num = player_data['jersey_num']
-        supporting_file = player_data['supporting_file']
-        reg_date = player_data['reg_date']
 
-        if check_for_duplicate_player(name, dob, jersey_num):
-            return edit_html_desc(SUCCESS_200,
-                                  'This player already exists in the database. Please use move player instead')
-
-        db_team = db.teams.find_one({'_id': ObjectId(player_data['team_id'])})
-
-        new_player = Player(
-            name=name,
-            dob=dob,
-            nationality=nationality,
-            jersey_num=jersey_num,
-            supporting_file=supporting_file,
-            position=position
-        )
-        player_club = PlayerTeam(team_id=db_team['_id'], reg_date=reg_date, on_team=True)
-
-        new_player['teams'].append(player_club.to_mongo())
-        # new_player['supporting_file'] = supporting_file
-
-        db_player = db.players.insert_one(new_player.to_mongo())
-        db.teams.update_one({'_id': db_team['_id']}, {'$addToSet': {'roster': db_player.inserted_id}})
-
-        return SUCCESS_201
-    except Exception as e:
-        traceback.print_exception(type(e), e, e.__traceback__)
-        return edit_html_desc(ERROR_400, str(e))
+@app.route('/api/v1/find-player/<player_id>', methods=['GET'])
+def find_player(player_id):
+    data = db.players.find_one({'_id': return_oid(player_id)})
+    return edit_html_desc(append_data(data, SUCCESS_200), "yes")
 
 
 @app.route('/api/v1/move-player', methods=['POST'])
 def move_player():
-    try:
-
-        # load json data into dict
-        data = json.loads(request.data)
-
-        # check type of player_id to ensure it's stored as an ObjectId, then query the db for that player
-        # if no player exists return immediately indicating the missing player
-        player_id = data['player_id'] if type(data['player_id']) is ObjectId else ObjectId(data['player_id'])
-        db_player = db.players.find_one({'_id': player_id})
-        if not db_player:
-            return edit_html_desc(ERROR_404, 'ID not found in players collection. Check your OID and try again.')
-
-        # check if player has a team they are being moved from. if yes, update the player's team list and update
-        # the team's roster. if not, do nothing and move on to adding the new team and updating its roster
-        if data['old_team_id'] == '':
-            pass
-        else:
-            old_team_id = data['old_team_id'] if type(data['old_team_id']) is ObjectId else ObjectId(
-                data['old_team_id'])
-            db.players.update_one({'_id': player_id, 'teams.team_id': old_team_id},
-                                  {'$set': {'teams.$.on_team': False}})
-            db.teams.update_one({'_id': old_team_id}, {'$pull': {'roster': player_id}})
-
-        new_team_id = data['new_team_id'] if type(data['new_team_id']) is ObjectId else ObjectId(data['new_team_id'])
-        reg_date = data['reg_date']
-
-        # create new PlayerTeam embedded doc
-        new_team = PlayerTeam(team_id=new_team_id, reg_date=reg_date, on_team=True)
-
-        # update the db as follows:
-        # 1. update player's team list to have the new team, and flip the old team's 'on_team' flag to false
-        # 2. add the player's id to his new team's roster
-        # 3. remove the player's id from his old team
-        db.players.update_one({'_id': player_id}, {'$addToSet': {'teams': new_team.to_mongo()}})
-        db.teams.update_one({'_id': new_team_id}, {'$addToSet': {'roster': player_id}})
-
-        # return the updated player document to front end
-        return append_data(db.players.find_one({'_id': player_id}), SUCCESS_200)
-
-    except KeyError as e:
-        print('request.data :: ' + str(request.data))
-        print('data :: ' + str(data))
-        return edit_html_desc(append_data(data, ERROR_400), 'Missing ID in HTML request.\nError: ' + str(e))
-
-    except Exception as e:
-        traceback.print_exception(type(e), e, e.__traceback__)
-        return edit_html_desc(ERROR_400, str(e))
+    return PC.move_player(request_data=request.data)
 
 
 @app.route('/api/v1/update-one/<collection>', methods=['POST'])
