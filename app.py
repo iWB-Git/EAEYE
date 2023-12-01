@@ -19,7 +19,8 @@ import os
 from functions import *
 import mongoengine
 from bson.objectid import ObjectId
-from Controllers import player_controller, match_controller,shortreport_controller
+import motor.motor_asyncio
+from Controllers import player_controller, match_controller, shortreport_controller, team_controller
 
 DB_COLLECTIONS = [
     'players',
