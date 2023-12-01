@@ -16,10 +16,10 @@ from models.match import Match, MatchStats
 from models.fixture import Fixture, Round
 from models.team import Team
 import os
+from functions import *
 import mongoengine
 from bson.objectid import ObjectId
-import motor.motor_asyncio
-from Controllers import player_controller, team_controller
+from Controllers import player_controller, match_controller,shortreport_controller
 
 DB_COLLECTIONS = [
     'players',
@@ -64,22 +64,10 @@ db_0 = client.ea_eye
 PC = player_controller.PlayerController(db)
 TC = team_controller.TeamController(db)
 
-
-def append_data(data, html_response):
-    to_bytes = json_util.dumps(data)
-    response = copy.deepcopy(html_response)
-    response[0]['data'] = to_bytes
-    return response
+MC = match_controller.MatchController(db)
+SRC = shortreport_controller.ShortReportController(db)
 
 
-def edit_html_desc(html_response, new_desc):
-    new_response = copy.deepcopy(html_response)
-    new_response[0]['Description'] = new_desc
-    return new_response
-
-
-def return_oid(_id):
-    return _id if type(_id) is ObjectId else ObjectId(_id)
 
 
 # brief landing page if someone somehow ends up on the API's home page
@@ -147,12 +135,8 @@ def update_player_stats(team, match_id):
                 # update the player's career stats
                 db.players.update_one({'_id': player_id},
                                       {
-                                          '$set': {
-                                              'stats': career_stats
-                                          },
-                                          '$addToSet': {
-                                              'matches': match_id
-                                          }
+                                          '$set': {'stats': career_stats},
+                                          '$addToSet': {'matches': match_id}
                                       })
 
                 # append the player's match stats to the list of all player's match stats
@@ -204,6 +188,31 @@ def upload_match_data_v2():
     except Exception as e:
         traceback.print_exception(type(e), e, e.__traceback__)
         return edit_html_desc(ERROR_400, str(e))
+
+
+def getTeamsFromCompetition(collection_ids):
+    collection_ids_as_objectids = [ObjectId(id.strip()) for id in collection_ids]
+    collections = db['competitions'].find({"_id": {"$in": collection_ids_as_objectids}})
+    all_teams = []
+    for competition in collections:
+        teams = competition.get("teams")
+        if teams:
+            all_teams.extend(teams)
+    return all_teams
+
+
+@app.route('/api/v3/players', methods=['GET'])
+def get_collectionSpecific():
+    collection_ids_str = request.args.get('ids')
+    collection_ids = collection_ids_str.split(',')
+    team_ids_as_objectids = getTeamsFromCompetition(collection_ids)
+    collection = "players"
+    print(team_ids_as_objectids)
+    docs = db[collection].find({"teams.team_id": {"$in": team_ids_as_objectids}})
+    if collection in ['players', 'teams', 'competitions']:
+        docs = sorted(docs, key=lambda x: x['name'])
+    print(type(append_data(docs, SUCCESS_200)))
+    return append_data(docs, SUCCESS_200)
 
 
 @app.route('/api/v1/get-collection/<collection>', methods=['GET'])
@@ -288,18 +297,27 @@ def unattach_document():
                 ERROR_400,
                 'Document not found in database; please check your ID string and try again'
             )
+
         if coll == 'players':
-            team_ids = []
-            for team in db_doc['teams']:
-                team_ids.append(return_oid(team['team_id']))
-                team['on_team'] = False
-            if team_ids:
+            if len(db_doc['teams']) > 0:
+                team_ids = []
+                for team in db_doc['teams']:
+                    team_ids.append(return_oid(team['team_id']))
+                    team['on_team'] = False
                 db.teams.update_many({'_id': {'$in': team_ids}}, {'$pull': {'roster': doc_id}})
             db.teams.update_one({'_id': unattached_id}, {'$addToSet': {'roster': doc_id}})
             db[coll].update_one({'_id': doc_id}, {'$set': db_doc})
-            return SUCCESS_200
+
         elif coll == 'teams':
-            pass
+            if len(db_doc['comps']) > 0:
+                comp_ids = []
+                for _id in db_doc['comps']:
+                    comp_ids.append(return_oid(_id))
+                db.competitions.update_many({'_id': {'$in': comp_ids}}, {'$pull': {'teams': doc_id}})
+            db[coll].update_one({'_id': doc_id}, {'$set': {'comps': [unattached_id]}})
+
+        return SUCCESS_200
+
     except Exception as e:
         print_and_return_error(e)
 
@@ -307,6 +325,48 @@ def unattach_document():
 @app.route('/api/v2/delete-player/<player_id>', methods=['POST'])
 def delete_player(player_id):
     return PC.delete_player(player_id=player_id)
+
+
+@app.route('/api/v2/delete-team/<team_id>', methods=['POST'])
+def delete_team(team_id):
+    try:
+        # query the database for the given team based on ID, return bad request code if not found
+        team_id = return_oid(team_id)
+        db_team = db.teams.find_one({'_id': team_id})
+        if not db_team:
+            return edit_html_desc(
+                ERROR_400,
+                'Team not found in database; please check your ID string and try again'
+            )
+
+        # check for duplicate teams in the database, if found return them to the front end for review
+        dupes = list(
+            db.teams.find(
+                {
+                    'name': {'$regex': db_team['name']},
+                    '_id': {'$ne': team_id}
+                })
+        )
+        if dupes:
+            return append_data(
+                dupes,
+                edit_html_desc(
+                    ERROR_400,
+                    'Duplicate entries exist in database; please review these before continuing'
+                )
+            )
+
+        # set the on_team status of any player with this team id in their teams array to false, and remove team_id
+        # from any competition contained in the team's comps list, then delete the team
+        db.players.update_many({'teams.team_id': team_id}, {'$set': {'teams.$.on_team': False}})
+        db.competitions.update_many({'_id': {'$in': db_team['comps']}}, {'$pull': {'teams': team_id}})
+        db.teams.delete_one({'_id': team_id})
+
+        return SUCCESS_200
+
+    except Exception as e:
+        print_and_return_error(e)
+
 
 
 @app.route('/api/v1/get-document/<collection>/<_id>', methods=['GET'])
@@ -745,10 +805,20 @@ def upload_players_csv():
         print_and_return_error(e)
 
 
+@app.route('/api/v3/match-data/upload/test', methods=['POST'])
+def match_data_upload_test():
+    data = json.loads(request.data)
+    home_events = data['home_events']
+    away_events = data['away_events']
+    match_events = sorted(home_events + away_events, key=lambda x: int(x['minute']))
+    return (append_data(match_events, SUCCESS_200))
+
+
 @app.route('/api/v3/match-data/upload', methods=['POST'])
 def match_data_upload():
     try:
         data = json.loads(request.data)
+
         home_data = data['HomeTeam']
         away_data = data['AwayTeam']
         comp_data = data['Competition']
@@ -770,6 +840,10 @@ def match_data_upload():
 
         home_match_stats, home_career_stats, home_events = parse_player_stats(home_players, match_id)
         away_match_stats, away_career_stats, away_events = parse_player_stats(away_players, match_id)
+        print(
+            f'RETURNED DATA\nhome_match_stats: {home_match_stats}\nhome_career_stats: {home_career_stats}\nhome_events: {home_events}\n')
+        print(
+            f'RETURNED DATA\naway_match_stats: {away_match_stats}\naway_career_stats: {away_career_stats}\naway_events: {away_events}\n')
         match_events = sorted(home_events + away_events, key=lambda x: int(x['minute']))
 
         for player in home_career_stats + away_career_stats:
@@ -801,52 +875,71 @@ def match_data_upload():
         print_and_return_error(e)
 
 
+# @app.route('/api/v3/parse_player_stats/test', methods=['POST'])
+# def test_parse_players():
+#     return append_data(parse_player_stats(json.loads(request.data), '652e7cbe68555927161a6f13'), SUCCESS_200)
+
+
+def check_and_fill(stats, attrb, add):
+    if attrb in stats:
+        stats[attrb] += add
+    else:
+        stats[attrb] = add
+    return stats
+
+
 def parse_player_stats(team_data, match_id):
+    print('BEGINNING MATCH DATA PARSE')
+    print(f'CURRENT TEAM DATA: \n{team_data}\nMATCH ID: {match_id}\n\n')
+    # new_career_stats for player documents stats update
+    # team_stats for match document stats update
+    # match_events for holding all events contained in match data
     new_career_stats = []
     team_stats = []
     match_events = []
+
+    # loop over every player in the given team
     for player in team_data:
+        print("playerid", player['PlayerID'])
         player_id = return_oid(player['PlayerID'])
         db_player = db.players.find_one(player_id)
+
         career_stats = db_player['stats']
         match_stats = MatchStats(match_id=match_id, player_id=player_id)
 
-        career_stats['match_day_squad'] += 1
+        career_stats = check_and_fill(career_stats, 'match_day_squad', 1)
+        min_played = 0
 
         # min_played formulae
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         # sub in: min_played += 90 - minute_subbed_in
         # sub out (if min_played == 0): min_played = minute_subbed_out
         # sub out (if min_played > 0): min_played = abs(minute_subbed_out - (90 - min_played))
-        min_played = 0
+
+        # check for key existence then query its value
+        # prevents KeyErrors as the logic is evaluated left to right, and exits if the first key check fails
+        # if the check passes loop through all subEvents for that player, total minutes played, and append to event list
+        if ('SubOut' in player.keys() and player['SubOut'] == 'YES') \
+                or ('SubIn' in player.keys() and player['SubIn'] == 'YES'):
+            for event in player['subEvent']:
+                if 'playerSubbedOut' in event.keys():
+                    min_played = abs(event['minute'] - (90 - min_played)) if min_played else event['minute']
+                elif 'PlayerSubbedIn' in event.keys():
+                    min_played += 90 - event['minute']
+                match_events.append(event)
+
+        # increment starter specific stats
         if player['starter'] == 'YES':
-            career_stats['starter'] += 1
+            # min_played is equal to a full match if no minutes have been calculated, else use the value generated above
+            min_played = 90 if not min_played else min_played
+            career_stats = check_and_fill(career_stats, 'starter', 1)
+            career_stats = check_and_fill(career_stats, 'starter_minutes', min_played)
             match_stats['starter'] = True
 
-            if player['SubOut'] == 'NO':
-                min_played += 90
-
-            else:
-                for event in player['subEvent']:
-                    if 'playerSubbedOut' in event.keys():
-                        # if player has recorded minutes thus far then the updating formula is
-                        # # |minute_subbed_out - (90 - minutes_played)| (abs value might be unnecessary, but it's safer)
-                        # this formula accounts for players subbing in and out of the same match more than once
-                        min_played = abs(event['minute'] - (90 - min_played)) if min_played else event['minute']
-                    elif 'PlayerSubbedIn' in event.keys():
-                        min_played += 90 - event['minute']
-                    match_events.append(event)
-            career_stats['starter_minutes'] += min_played
-        elif player['starter'] == 'NO':
-            if player['SubIn'] == 'YES':
-                for event in player['subEvent']:
-                    if 'PlayerSubbedIn' in event.keys():
-                        min_played += 90 - event['minute']
-                    elif 'playerSubbedOut' in event.keys():
-                        min_played = abs(event['minute'] - (90 - min_played)) if min_played else event['minute']
-                    match_events.append(event)
-        career_stats['min_played'] += min_played
+        career_stats = check_and_fill(career_stats, 'starter_minutes', min_played)
         match_stats['min_played'] += min_played
 
+        # check for all possible event indicators and parse events if they exist, adding them to the event list
         if player['Goal']:
             for goal in player['goalEvent']:
                 new_goal = Goal(minute=int(goal['minute']), match_id=match_id).to_mongo()
@@ -854,41 +947,113 @@ def parse_player_stats(team_data, match_id):
                 match_stats['goals'].append(new_goal)
                 match_events.append(goal)
 
-        if 'OwnGoal' in player.keys() and player['OwnGoal']:
-            career_stats['own_goals'] += 1
-            match_stats['own_goals'] += 1
-            for own_goal in player['ownGoalEvent']:
-                match_events.append(own_goal)
-
         if player['Assist']:
-            career_stats['assists'] += player['Assist']
+            career_stats = check_and_fill(career_stats, 'assists', player['Assist'])
+            # career_stats['assists'] += player['Assist']
             match_stats['assists'] += player['Assist']
             for assist in player['assistEvent']:
                 match_events.append(assist)
 
+        if 'OwnGoal' in player.keys() and player['OwnGoal']:
+            if 'own_goals' in career_stats:
+                career_stats['own_goals'] += 1
+                match_stats['own_goals'] += 1
+                for own_goal in player['ownGoalEvent']:
+                    match_events.append(own_goal)
+            else:
+                career_stats['own_goals'] = 1
+
         if 'YellowCard' in player.keys():
             if len(player['yellowCardEvent']) > 1:
-                career_stats['yellow_cards'] += 2
-                match_stats['yellow_cards'] += 2
+                career_stats = check_and_fill(career_stats, 'red_cards', 1)
+                # career_stats['red_cards'] += 1
+                match_stats['red_cards'] += 1
             else:
-                career_stats['yellow_cards'] += 1
+                career_stats = check_and_fill(career_stats, 'yellow_cards', 1)
+                # career_stats['yellow_cards'] += 1
                 match_stats['yellow_cards'] += 1
             for yellow_card in player['yellowCardEvent']:
                 match_events.append(yellow_card)
 
         if 'RedCard' in player.keys():
-            career_stats['red_cards'] += 1
+            career_stats = check_and_fill(career_stats, 'red_cards', 1)
+            # career_stats['red_cards'] += 1
             match_stats['red_cards'] += 1
             match_events.append(player['redCardEvent'])
 
+        # if the player has not had this match recorded add the updated db entry to a list for upload after full parse
         if match_id not in db_player['matches']:
             db_player['stats'] = career_stats
             new_career_stats.append(db_player)
+
         team_stats.append(match_stats.to_mongo())
+
     return team_stats, new_career_stats, match_events
 
 
+@app.route('/api/v1/get-match/<match_id>', methods=['GET'])
+def get_match(match_id):
+    try:
+        match = db.matches.find_one({'_id': ObjectId(match_id)})
+        if not match:
+            return edit_html_desc(ERROR_404, 'ID not found in matches collection. Check your OID and try again.')
+        return append_data(match, SUCCESS_200)
+    except Exception as e:
+        return edit_html_desc(ERROR_400, str(e))
+
+
+@app.route('/api/v1/get-fixture/<fixture_id>', methods=['GET'])
+def get_fixture(match_id):
+    try:
+        match = db.fixtures.find_one({'_id': ObjectId(match_id)})
+        if not match:
+            return edit_html_desc(ERROR_404, 'ID not found in fixtures collection. Check your OID and try again.')
+        return append_data(match, SUCCESS_200)
+    except Exception as e:
+        return edit_html_desc(ERROR_400, str(e))
+
+
+@app.route('/api/v3/upload-short-report', methods=['POST'])
+def short_report():
+    return SRC.upload_short_report()
+
+
+@app.route('/api/v3/player-details/<player_id>', methods=['GET'])
+def get_player_details(player_id):
+    return append_data(PC.fetch_player_details(return_oid(player_id)), SUCCESS_200)
+
+
+@app.route('/api/v3/match-details/<match_id>', methods=['GET'])
+def get_match_details(match_id):
+    return append_data(MC.fetch_match_details(return_oid(match_id)), SUCCESS_200)
+
+
+@app.route('/api/v3/player/match-details/<player_id>', methods=['GET'])
+def get_player_match_details(player_id):
+    home_matches_cursor = db.matches.find({"home_stats.player_id": return_oid(player_id)})
+    away_matches_cursor = db.matches.find({"away_stats.player_id": return_oid(player_id)})
+
+    short_reports_cursor = db.short_reports.find(
+        {"player_id": return_oid(player_id)},
+        {"match_id": 1})
+    sr_matches = list(short_reports_cursor)
+    home_matches = list(home_matches_cursor)
+    away_matches = list(away_matches_cursor)
+
+    all_matches = home_matches + away_matches
+    reports= db.short_reports.find(
+        {"player_id": return_oid(player_id)},
+        {"short_reports": 1, "_id": 0})
+
+    print(all_matches)
+    for matches in all_matches:
+        for sr in sr_matches:
+            if matches['_id'] == sr['match_id']:
+                matches['reported'] = sr['_id']
+
+    return append_data(all_matches, SUCCESS_200)
+
+
 if __name__ == '__main__':
-    match_data_upload()
     app.debug = False
     app.run()

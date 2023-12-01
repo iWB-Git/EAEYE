@@ -1,7 +1,6 @@
 from mongoengine import *
 from bson.objectid import ObjectId
 
-
 class Goal(EmbeddedDocument):
     minute = IntField(default=None)
     match_id = ReferenceField('Match', dbref=False)
@@ -9,6 +8,9 @@ class Goal(EmbeddedDocument):
     def __init__(self, *args, **values):
         super().__init__(*args, **values)
         self.minute = values['minute']
+
+
+
 
 
 class PlayerTeam(EmbeddedDocument):
