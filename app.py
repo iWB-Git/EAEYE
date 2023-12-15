@@ -54,9 +54,9 @@ app.config['MONGODB_SETTINGS'] = {'DB': 'ea_eye'}
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 # MongoDB setup and initialization
-db_username = urllib.parse.quote_plus(os.environ['DB_USERNAME'])
-db_password = urllib.parse.quote_plus(os.environ['DB_PASSWORD'])
-db_uri = os.environ['DB_URI'] % (db_username, db_password)
+db_username = urllib.parse.quote_plus('hamza-staging')
+db_password = urllib.parse.quote_plus('giENWDZXWiLLURCm')
+db_uri = 'mongodb+srv://%s:%s@cluster0.j1zss.mongodb.net/' % (db_username, db_password)
 db = mongoengine.connect(alias='default', host=db_uri)
 db = db.ea_eye
 client = motor.motor_asyncio.AsyncIOMotorClient(db_uri)
